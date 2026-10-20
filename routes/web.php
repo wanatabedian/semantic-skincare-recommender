@@ -2,25 +2,38 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SparqlController;
-use Illuminate\Http\Request;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AdminController;
 
-// 1. Halaman Utama
+// ==========================================
+// AREA PUBLIK (Tampilan User - Tanpa Login)
+// ==========================================
 Route::get('/', function () {
-    return view('welcome');
+    return view('user.landing'); 
 });
 
-// 2. Endpoint Kuis (Bisa diakses oleh Front-End/AJAX)
+Route::get('/kuis', function () {
+    return view('user.kuis'); 
+});
+
+// Endpoint untuk sistem semantik SPARQL
 Route::post('/api/recommendation', [SparqlController::class, 'getRecommendation']);
 
-// 3. Rute Tes Kuis Langsung di Browser
-Route::get('/tes-kuis', function () {
-    $controller = new SparqlController();
-    $request = Request::create('/api/recommendation', 'POST', [
-        'category'   => 'Moisturizer',
-        'skin_type'  => 'Kering',
-        'concerns'   => ['GarisHalus'],
-        'age_group'  => 'Adult',
-        'ingredient' => 'Retinol'
-    ]);
-    return $controller->getRecommendation($request);
+
+// ==========================================
+// AREA AUTENTIKASI ADMIN
+// ==========================================
+Route::get('/admin/login', [AuthController::class, 'showLoginForm'])->name('login');
+Route::post('/admin/login', [AuthController::class, 'login']);
+Route::post('/admin/logout', [AuthController::class, 'logout'])->name('logout');
+
+
+// ==========================================
+// AREA PRIVAT (Tampilan Admin - Wajib Login)
+// ==========================================
+Route::middleware(['auth'])->prefix('admin')->group(function () {
+    
+    // Halaman Dashboard khusus Admin
+    Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
+    
 });
