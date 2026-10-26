@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap');
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
@@ -6,6 +7,65 @@
 @source '../**/*.js';
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    /* Palet Aphrodite */
+    --color-amaranth: #933B5B;        /* aksen utama */
+    --color-amaranth-dark: #71334B;   /* judul & tombol utama */
+    --color-thulian: #B5728A;         /* dekorasi & aksen lembut */
+    --color-sage: #AABAAE;            /* Brook Green */
+    --color-cream: #E3D6BF;           /* Chalk / Cream */
+    --color-cream-light: #F6EDE1;     /* cream versi terang untuk latar */
+    --color-sand: #ECD8C4;            /* warna latar foto hero */
+    --color-olive: #9F9679;           /* Pomelo Olive, garis tipis */
+    --color-olive-dark: #4B5240;      /* teks brand */
+    --color-ink: #4F403B;             /* teks utama */
+    --color-ink-soft: #66544C;        /* teks pendukung */
+
+    /* Tipografi */
+    --font-display: "Cormorant Garamond", Georgia, serif;
+    --font-sans: "Montserrat", ui-sans-serif, system-ui, sans-serif;
+    --font-script: "Allura", cursive;
+    --font-dm: "DM Sans", sans-serif;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+:focus-visible {
+    outline: 2px solid var(--color-amaranth);
+    outline-offset: 3px;
+}
+
+/* Foto hero: pinggirannya memudar ke latar, tanpa tepi keras */
+.hero-photo {
+    -webkit-mask-image: linear-gradient(to bottom, transparent, #000 25%);
+    mask-image: linear-gradient(to bottom, transparent, #000 25%);
+}
+
+@media (min-width: 768px) {
+    .hero-photo {
+        -webkit-mask-image:
+            linear-gradient(to right, transparent, #000 32%),
+            linear-gradient(to bottom, transparent, #000 14%);
+        -webkit-mask-composite: source-in;
+        mask-image:
+            linear-gradient(to right, transparent, #000 32%),
+            linear-gradient(to bottom, transparent, #000 14%);
+        mask-composite: intersect;
+    }
+}
+
+/* Satu momen animasi: hero muncul pelan saat halaman dibuka */
+@keyframes rise {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: none; }
+}
+
+.hero-in {
+    animation: rise 0.9s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .hero-in { animation: none; }
 }
