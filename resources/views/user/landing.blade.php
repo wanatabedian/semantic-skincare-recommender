@@ -48,9 +48,9 @@
                 </a>
 
                 <a
-                    href="#katalog"
+                    href="#cari"
                     class="nav-link group relative inline-block pb-1.5 font-normal text-[#795E50] transition-colors duration-300 after:absolute after:bottom-0 after:left-0 after:h-[1.5px] after:w-full after:origin-center after:scale-x-0 after:bg-[#79262A] after:transition-transform after:duration-300 hover:text-[#79262A]"
-                    data-nav="katalog"
+                    data-nav="cari"
                 >
                     Cari Produk
                 </a>
