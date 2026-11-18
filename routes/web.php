@@ -14,7 +14,7 @@ Route::get('/', function () {
 
 Route::get('/kuis', function () {
     return view('user.kuis'); 
-});
+})->name('kuis');
 
 // Endpoint untuk sistem semantik SPARQL
 Route::post('/api/recommendation', [SparqlController::class, 'getRecommendation']);
