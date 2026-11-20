@@ -44,3 +44,6 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
     
 });
+
+// === Orang 4: Produk & Linked Data ===
+Route::get('/produk/{id}', [\App\Http\Controllers\ProductController::class, 'show'])->name('produk.detail');
