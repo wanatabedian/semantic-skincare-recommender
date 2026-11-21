@@ -111,7 +111,10 @@
             <a href="#konsultasi" class="hover:text-[#E6748E] transition">Treatment</a>
             <a href="#edukasi" class="hover:text-[#E6748E] transition">Skin Class</a>
             <a href="{{ route('bandingkan') }}" class="hover:text-[#E6748E] transition">Bandingkan</a>
-            <a href="{{ route('kuis', ['new' => 1]) }}" class="hover:text-[#E6748E] transition">Kuis</a>
+            <a href="{{ route('kuis', ['new' => 1]) }}"
+               class="smooth-btn rounded-xl bg-[#E6748E] px-5 py-2.5 text-xs font-black text-white shadow-md transition hover:bg-[#6BB1AD]">
+                Mulai Kuis →
+            </a>
         </div>
 
         <div class="flex items-center gap-3">
