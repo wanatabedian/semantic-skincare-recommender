@@ -47,3 +47,6 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
 
 // === Orang 4: Produk & Linked Data ===
 Route::get('/produk/{id}', [\App\Http\Controllers\ProductController::class, 'show'])->name('produk.detail');
+
+// === Orang 5: Eksplorasi Katalog ===
+Route::get('/katalog', [\App\Http\Controllers\CatalogController::class, 'index'])->name('katalog');
