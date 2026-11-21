@@ -20,7 +20,7 @@ Definisi A1–A10 diambil dari dokumen
 
 Cara pakai (dari folder root project):
   python3 scripts/audit_data.py
-  python3 scripts/audit_data.py --input ontology/skincare_ontology.ttl --output reports/audit_report.md
+  python3 scripts/audit_data.py --input ontology/skincare_ontology_clean.ttl --output reports/audit_report.md
 """
 
 import argparse
@@ -39,14 +39,16 @@ from rdflib import Graph, Literal, Namespace, RDF, RDFS, URIRef
 # 1. KONFIGURASI
 # ---------------------------------------------------------------------------
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-DEFAULT_INPUT = PROJECT_ROOT / "ontology" / "skincare_ontology.ttl"
+# Sumber utama yang disepakati PM: ontologi CLEAN.
+DEFAULT_INPUT = PROJECT_ROOT / "ontology" / "skincare_ontology_clean.ttl"
 DEFAULT_OUTPUT = PROJECT_ROOT / "reports" / "audit_report.md"
 
 EX = Namespace("https://example.org/skincare-ontology#")
 
-# Daftar resmi jenis kulit. Lima nilai pertama dipakai di ontologi saat ini;
-# "Kombinasi" ditambahkan karena dipakai di form kuis (dan diusulkan di B6).
-OFFICIAL_SKIN_TYPES = {"SemuaJenisKulit", "Berminyak", "Kering", "Normal", "Sensitif", "Kombinasi"}
+# Daftar resmi jenis kulit = individu ex:SkinType pada ontologi CLEAN
+# (local name URI -> rdfs:label@id). Nilai suitableForSkinType dibandingkan
+# dengan local name, misalnya ex:Dry -> "Dry".
+OFFICIAL_SKIN_TYPES = {"Dry": "Kering", "Normal": "Normal", "Oily": "Berminyak"}
 
 # Kata yang menandakan nilai jenis kulit masih placeholder (A2).
 PLACEHOLDER_KEYWORDS = ["verifikasi", "konfirmasi", "not specified", "tbd", "-"]
@@ -120,7 +122,9 @@ def load_products(g):
             "brand": [local(o) for o in g.objects(p, EX.hasBrand)],
             "series": [local(o) for o in g.objects(p, EX.belongsToSeries)],
             "categories": [local(o) for o in g.objects(p, EX.hasCategory)],
-            "skin": [str(o) for o in g.objects(p, EX.suitableForSkinType)],
+            # URI (ex:Dry) diambil local name-nya; literal lama tetap dibaca apa adanya.
+            "skin": [local(o) if isinstance(o, URIRef) else str(o)
+                     for o in g.objects(p, EX.suitableForSkinType)],
             "age": [local(o) for o in g.objects(p, EX.suitableForAgeGroup)],
             "ingredients": sorted(str(o) for o in g.objects(p, EX.hasIngredient)),
         })
@@ -463,7 +467,8 @@ def write_report(path, findings, meta, products):
     w(f"- **MD5 file sumber:** `{meta['md5']}` (tidak berubah sebelum/sesudah audit)")
     w(f"- **Waktu audit:** {meta['time']}")
     w(f"- **Jumlah triple:** {meta['triples']}  ·  **Jumlah produk:** {len(products)}")
-    w(f"- **Daftar resmi jenis kulit:** {', '.join(sorted(OFFICIAL_SKIN_TYPES))}")
+    w("- **Daftar resmi jenis kulit:** "
+      + ", ".join(f"ex:{k} ({v})" for k, v in sorted(OFFICIAL_SKIN_TYPES.items())))
     w("")
     w("## Ringkasan")
     w("")
