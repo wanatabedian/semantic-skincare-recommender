@@ -1,5 +1,6 @@
 
 @prefix ex: <https://example.org/skincare-ontology#> .
+@prefix schema: <https://schema.org/> .
 @prefix sh: <http://www.w3.org/ns/shacl#> .
 @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
@@ -29,11 +30,10 @@ ex:ProductShape
         sh:class ex:Brand ;
     ] ;
 
-    # Setiap produk wajib memiliki satu kategori
+    # Setiap produk wajib memiliki minimal satu kategori
     sh:property [
         sh:path ex:hasCategory ;
         sh:minCount 1 ;
-        sh:maxCount 1 ;
         sh:nodeKind sh:IRI ;
         sh:class ex:Category ;
     ] ;
@@ -45,11 +45,43 @@ ex:ProductShape
         sh:class ex:Ingredient ;
     ] ;
 
-    # Jenis kulit bersifat opsional
+    # Setiap produk wajib memiliki minimal satu jenis kulit
     sh:property [
         sh:path ex:suitableForSkinType ;
+        sh:minCount 1 ;
         sh:nodeKind sh:IRI ;
         sh:class ex:SkinType ;
+    ] ;
+
+    # Setiap produk wajib memiliki minimal satu kelompok usia
+    sh:property [
+        sh:path ex:suitableForAgeGroup ;
+        sh:minCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:class ex:AgeGroup ;
+    ] ;
+
+    # Setiap produk wajib memiliki satu harga integer positif
+    sh:property [
+        sh:path ex:estimatedPrice ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+    ] ;
+
+    # Waktu pemakaian bersifat opsional, tetapi nilainya harus dari kosakata terkontrol
+    sh:property [
+        sh:path ex:usageTime ;
+        sh:nodeKind sh:IRI ;
+        sh:class ex:UsageTime ;
+        sh:in ( ex:PagiUsageTime ex:MalamUsageTime ex:KeduanyaUsageTime ) ;
+    ] ;
+
+    # Gambar produk bersifat opsional; jika diisi harus berupa IRI
+    sh:property [
+        sh:path schema:image ;
+        sh:nodeKind sh:IRI ;
     ] ;
 
     # Teks sumber bahan tetap disimpan
@@ -101,4 +133,48 @@ ex:SkinTypeShape
         sh:minCount 1 ;
         sh:maxCount 1 ;
         sh:languageIn ( "id" ) ;
+    ] .
+
+
+# ==========================================
+# SHAPE 4: VALIDASI KATEGORI
+# ==========================================
+
+ex:CategoryShape
+    a sh:NodeShape ;
+    sh:targetClass ex:Category ;
+
+    # Urutan rutinitas opsional (kategori ambigu belum diberi nilai),
+    # tetapi jika diisi harus satu bilangan bulat 1–6
+    sh:property [
+        sh:path ex:routineStep ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 6 ;
+    ] .
+
+
+# ==========================================
+# SHAPE 5: TEEN LOCK (pemeriksaan tambahan)
+# ==========================================
+
+# Produk yang mengandung bahan dari kelas yang dikontraindikasikan untuk Teen
+# (mis. ex:Retinoid) tidak boleh ditandai ex:Teen. Aturan dibaca dari data
+# (contraindicatedFor), bukan ditulis tetap untuk Retinoid saja.
+ex:TeenLockShape
+    a sh:NodeShape ;
+    sh:targetClass ex:Product ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Teen Lock: produk ditandai ex:Teen tetapi mengandung bahan {?ing} dari kelas {?cls} yang dikontraindikasikan untuk Teen." ;
+        sh:select """
+            SELECT $this ?ing ?cls
+            WHERE {
+                $this <https://example.org/skincare-ontology#suitableForAgeGroup> <https://example.org/skincare-ontology#Teen> ;
+                      <https://example.org/skincare-ontology#hasIngredient> ?ing .
+                ?ing a/<http://www.w3.org/2000/01/rdf-schema#subClassOf>* ?cls .
+                ?cls <https://example.org/skincare-ontology#contraindicatedFor> <https://example.org/skincare-ontology#Teen> .
+            }
+        """ ;
     ] .
