@@ -81,8 +81,9 @@ class QuizAndComparisonTest extends TestCase
     public function test_product_detail_displays_readable_rdf_values_without_duplicates_or_uris(): void
     {
         $fuseki = \Mockery::mock(FusekiService::class)->makePartial();
-        // Query ke-2 adalah produk serupa; dikosongkan karena test ini fokus pada detail produk.
-        $fuseki->shouldReceive('query')->twice()->andReturn([
+        // Query berikutnya (produk serupa, kosakata rutinitas, kandidat rutinitas) dikosongkan
+        // karena test ini fokus pada detail produk.
+        $fuseki->shouldReceive('query')->times(4)->andReturn([
             [
                 'name' => ['type' => 'literal', 'value' => 'Aphrodite Serum'],
                 'skin' => ['type' => 'uri', 'value' => 'https://example.org/skincare-ontology#Dry'],
@@ -99,7 +100,7 @@ class QuizAndComparisonTest extends TestCase
                 'skin' => ['type' => 'uri', 'value' => 'https://example.org/skincare-ontology#Dry'],
                 'ingredient' => ['type' => 'literal', 'value' => 'Ceramide'],
             ],
-        ], []);
+        ], [], [], []);
 
         $this->app->instance(FusekiService::class, $fuseki);
 
