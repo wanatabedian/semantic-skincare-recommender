@@ -1,0 +1,44 @@
+## =====================================================================
+## Konfigurasi dataset Fuseki untuk proyek Aphrodite
+## Target: Apache Jena Fuseki 5.1.0, dataset TDB2 polos (tanpa reasoner)
+##
+## Cara pakai: didaftarkan otomatis oleh scripts/load.sh melalui admin API
+##   POST http://127.0.0.1:3030/$/datasets   (Content-Type: text/turtle)
+## Lihat fuseki/README.md untuk penjelasan lengkap.
+##
+## Catatan desain:
+## - Tidak memakai ja:InfModel / OWLFBRuleReasoner. Jumlah triple di
+##   dataset = jumlah triple file ontology/aphrodite-v2.ttl.
+## - Lokasi database RELATIF terhadap folder kerja proses Fuseki.
+##   Asumsi: Fuseki dijalankan dari folder instalasinya (./fuseki-server),
+##   sehingga database berada di <folder-fuseki>/run/databases/aphrodite.
+## - Endpoint baca: query/sparql (dan URL dataset itu sendiri), get.
+## - Endpoint tulis: hanya "data" (Graph Store Protocol) untuk pemuatan.
+##   Endpoint update dan upload SENGAJA tidak dibuka.
+## =====================================================================
+
+PREFIX :       <http://base/aphrodite#>
+PREFIX fuseki: <http://jena.apache.org/fuseki#>
+PREFIX rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs:   <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX tdb2:   <http://jena.apache.org/2016/tdb#>
+
+:service rdf:type fuseki:Service ;
+    rdfs:label "TDB2 aphrodite (tanpa reasoner)" ;
+    fuseki:name "aphrodite" ;
+
+    # Baca: SPARQL Query
+    fuseki:endpoint [ fuseki:operation fuseki:query ] ;
+    fuseki:endpoint [ fuseki:operation fuseki:query ; fuseki:name "query" ] ;
+    fuseki:endpoint [ fuseki:operation fuseki:query ; fuseki:name "sparql" ] ;
+
+    # Baca: Graph Store Protocol (read-only)
+    fuseki:endpoint [ fuseki:operation fuseki:gsp-r ; fuseki:name "get" ] ;
+
+    # Tulis: Graph Store Protocol, hanya untuk scripts/load.sh
+    fuseki:endpoint [ fuseki:operation fuseki:gsp-rw ; fuseki:name "data" ] ;
+
+    fuseki:dataset :dataset .
+
+:dataset rdf:type tdb2:DatasetTDB2 ;
+    tdb2:location "run/databases/aphrodite" .
