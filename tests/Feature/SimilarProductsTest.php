@@ -31,12 +31,37 @@ class SimilarProductsTest extends TestCase
         ];
     }
 
-    /** Mock Fuseki: query pertama = detail produk, query kedua = produk serupa. */
-    private function mockFuseki(array $similarRows, ?callable $similarQueryCheck = null): void
+    private function routineAgeRows(): array
     {
+        return [
+            ['ageGroup' => ['type' => 'uri', 'value' => self::EX.'Teen'], 'ageGroupLabel' => ['type' => 'literal', 'value' => 'Remaja']],
+            ['ageGroup' => ['type' => 'uri', 'value' => self::EX.'Adult'], 'ageGroupLabel' => ['type' => 'literal', 'value' => 'Dewasa']],
+        ];
+    }
+
+    /** Mock Fuseki: detail produk, produk serupa, dan query Complete Your Segment. */
+    private function mockFuseki(
+        array $similarRows,
+        ?callable $similarQueryCheck = null,
+        array $routineRows = [],
+        array $teenLockedIds = [],
+    ): void {
         $fuseki = \Mockery::mock(FusekiService::class)->makePartial();
-        $fuseki->shouldReceive('query')->once()->withArgs(fn ($q) => ! str_contains($q, '?sharedConcern'))->andReturn($this->detailRows());
-        $fuseki->shouldReceive('query')->once()->withArgs(fn ($q) => str_contains($q, '?sharedConcern') && ($similarQueryCheck === null || $similarQueryCheck($q)))->andReturn($similarRows);
+        $fuseki->shouldReceive('query')->once()->withArgs(fn ($q) => str_contains($q, 'ex:sourceProductId'))->andReturn($this->detailRows());
+        $fuseki->shouldReceive('query')->once()->withArgs(fn ($q) => str_contains($q, '?sharedConcernLabels') && ($similarQueryCheck === null || $similarQueryCheck($q)))
+            ->andReturnUsing(function ($q) use ($similarRows, $teenLockedIds) {
+                if (! str_contains($q, '?teenLockedIngredient')) {
+                    return $similarRows;
+                }
+
+                return array_values(array_filter($similarRows, function ($row) use ($teenLockedIds) {
+                    $iri = $row['product']['value'] ?? '';
+                    $id = substr($iri, (strrpos($iri, '#') ?: -1) + 1);
+
+                    return ! in_array($id, $teenLockedIds, true);
+                }));
+            });
+        $fuseki->shouldReceive('query')->withArgs(fn ($q) => str_contains($q, '?routineCategory') || str_contains($q, '?sameSeriesFlag'))->andReturn($routineRows);
         $this->app->instance(FusekiService::class, $fuseki);
     }
 
@@ -72,6 +97,53 @@ class SimilarProductsTest extends TestCase
             ->assertSee(route('produk.detail', 'WAR-0001'), false)
             ->assertSee('Serupa Empat')
             ->assertDontSee('Serupa Lima');
+    }
+
+    public function test_similar_products_apply_teen_lock_and_preserve_the_main_product(): void
+    {
+        $this->mockFuseki([
+            $this->similarRow('WAR-0001', 'Produk aman'),
+            $this->similarRow('WAR-0099', 'Produk Retinol'),
+        ], function (string $q) {
+            return str_contains($q, '?product ex:suitableForAgeGroup ex:Teen .')
+                && str_contains($q, 'FILTER NOT EXISTS { ?product ex:hasIngredient ?teenLockedIngredient')
+                && str_contains($q, '?teenLockedIngredient rdf:type/rdfs:subClassOf* <'.self::EX.'Retinoid>');
+        }, $this->routineAgeRows(), ['WAR-0099']);
+
+        $response = $this->get('/produk/EMI-0026?age=Teen')->assertOk();
+
+        $this->assertSame(['WAR-0001'], array_column($response->viewData('similarProducts'), 'id'));
+        $response->assertSee('Produk Utama')->assertSee('Produk aman')->assertDontSee('Produk Retinol');
+    }
+
+    public function test_adult_age_filters_similar_products_without_teen_lock(): void
+    {
+        $this->mockFuseki([$this->similarRow('WAR-0001', 'Produk Adult')], function (string $q) {
+            return str_contains($q, '?product ex:suitableForAgeGroup ex:Adult .')
+                && ! str_contains($q, '?teenLockedIngredient');
+        }, $this->routineAgeRows());
+
+        $this->get('/produk/EMI-0026?age=Adult')->assertOk();
+    }
+
+    public function test_invalid_age_keeps_unfiltered_similar_products(): void
+    {
+        $this->mockFuseki([$this->similarRow('WAR-0001', 'Produk Serupa')], function (string $q) {
+            return ! str_contains($q, '?product ex:suitableForAgeGroup')
+                && ! str_contains($q, '?teenLockedIngredient');
+        }, $this->routineAgeRows());
+
+        $this->get('/produk/EMI-0026?age=Invalid')->assertOk();
+    }
+
+    public function test_missing_age_keeps_unfiltered_similar_products(): void
+    {
+        $this->mockFuseki([$this->similarRow('WAR-0001', 'Produk Serupa')], function (string $q) {
+            return ! str_contains($q, '?product ex:suitableForAgeGroup')
+                && ! str_contains($q, '?teenLockedIngredient');
+        });
+
+        $this->get('/produk/EMI-0026')->assertOk();
     }
 
     public function test_main_product_and_unlinkable_legacy_ids_are_excluded(): void
