@@ -63,9 +63,17 @@ class QuizAndComparisonTest extends TestCase
 
     public function test_recommendation_query_parameters_are_forwarded_as_sparql_filters(): void
     {
-        $fuseki = $this->mock(FusekiService::class);
-        $fuseki->shouldReceive('options')->andReturn($this->quizOptions());
-        $fuseki->shouldReceive('query')->once()->withArgs(fn ($query) => str_contains($query, '?skin = ex:Oily') && str_contains($query, '?price >= 50000'))->andReturn([]);
+        // Sejak mesin rekomendasi Orang 3 (SparqlService + skor Plan A/B), parameter kuis
+        // diteruskan sebagai IRI dalam query skor, bukan lagi FILTER(?skin = ex:...).
+        $ex = 'https://example.org/skincare-ontology#';
+        config(['services.fuseki.namespace' => $ex, 'recommendation.cache_ttl' => 0]);
+        $vocabularyRows = [
+            ['group' => ['value' => 'skin'], 'term' => ['type' => 'uri', 'value' => $ex.'Oily'], 'labelId' => ['value' => 'Berminyak']],
+        ];
+        $this->partialMock(\App\Services\SparqlService::class, function ($sparql) use ($ex, $vocabularyRows) {
+            $sparql->shouldReceive('select')->withArgs(fn ($q) => str_contains($q, 'VALUES (?group ?cls)'))->andReturn($vocabularyRows);
+            $sparql->shouldReceive('select')->once()->withArgs(fn ($q) => str_contains($q, 'ex:suitableForSkinType <'.$ex.'Oily>') && str_contains($q, '?price >= 50000'))->andReturn([]);
+        });
 
         $this->get('/rekomendasi?skin=Oily&price_min=50000')->assertOk()->assertSee('Belum ada produk yang cocok');
     }
