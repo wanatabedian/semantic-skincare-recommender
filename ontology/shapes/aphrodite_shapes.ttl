@@ -1,5 +1,6 @@
 
 @prefix ex: <https://example.org/skincare-ontology#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix schema: <https://schema.org/> .
 @prefix sh: <http://www.w3.org/ns/shacl#> .
 @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
@@ -105,12 +106,12 @@ ex:IngredientShape
     a sh:NodeShape ;
     sh:targetClass ex:Ingredient ;
 
-    # Setiap bahan wajib memiliki satu prefLabel
+    # Setiap bahan wajib memiliki satu rdfs:label berbahasa Indonesia (@id)
     sh:property [
-        sh:path skos:prefLabel ;
+        sh:path rdfs:label ;
         sh:minCount 1 ;
         sh:maxCount 1 ;
-        sh:datatype xsd:string ;
+        sh:languageIn ( "id" ) ;
     ] ;
 
     # altLabel boleh lebih dari satu
@@ -128,8 +129,9 @@ ex:SkinTypeShape
     a sh:NodeShape ;
     sh:targetClass ex:SkinType ;
 
+    # Setiap jenis kulit wajib memiliki satu rdfs:label berbahasa Indonesia (@id)
     sh:property [
-        sh:path skos:prefLabel ;
+        sh:path rdfs:label ;
         sh:minCount 1 ;
         sh:maxCount 1 ;
         sh:languageIn ( "id" ) ;
