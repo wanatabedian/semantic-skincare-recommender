@@ -95,47 +95,47 @@ ex:VitaminE a ex:Ingredient ; rdfs:label "Vitamin E"@id .
 ex:Zinc a ex:Ingredient ; rdfs:label "Zinc / Zinc PCA"@id .
 
 # ===== Brands =====
-ex:CrystallureBrand a ex:Brand .
-ex:EminaBrand a ex:Brand .
-ex:KahfBrand a ex:Brand .
-ex:LABOREBrand a ex:Brand .
-ex:TAVIBrand a ex:Brand .
-ex:WardahBrand a ex:Brand .
+ex:CrystallureBrand a ex:Brand ; rdfs:label "Crystallure"@id .
+ex:EminaBrand a ex:Brand ; rdfs:label "Emina"@id .
+ex:KahfBrand a ex:Brand ; rdfs:label "Kahf"@id .
+ex:LABOREBrand a ex:Brand ; rdfs:label "LABORE"@id .
+ex:TAVIBrand a ex:Brand ; rdfs:label "TAVI"@id .
+ex:WardahBrand a ex:Brand ; rdfs:label "Wardah"@id .
 
 # ===== Series =====
-ex:AcneProSeries a ex:ProductSeries .
+ex:AcneProSeries a ex:ProductSeries ; rdfs:label "AcnePro"@id .
 ex:Altero6MWHyaluSeries a ex:ProductSeries .
-ex:BiomeProtectSeries a ex:ProductSeries .
-ex:BiomeRepairSeries a ex:ProductSeries .
+ex:BiomeProtectSeries a ex:ProductSeries ; rdfs:label "BiomeProtect"@id .
+ex:BiomeRepairSeries a ex:ProductSeries ; rdfs:label "BiomeRepair"@id .
 ex:BrightBlemishSolutionSeries a ex:ProductSeries .
 ex:BrightStuffAcneProneSeries a ex:ProductSeries .
-ex:BrightStuffSeries a ex:ProductSeries .
+ex:BrightStuffSeries a ex:ProductSeries ; rdfs:label "Bright Stuff"@id .
 ex:BrighteningSeries a ex:ProductSeries .
-ex:CDefenseSeries a ex:ProductSeries .
-ex:CrystalSecretSeries a ex:ProductSeries .
-ex:DayNightSeries a ex:ProductSeries .
+ex:CDefenseSeries a ex:ProductSeries ; rdfs:label "C-Defense"@id .
+ex:CrystalSecretSeries a ex:ProductSeries ; rdfs:label "Crystal Secret"@id .
+ex:DayNightSeries a ex:ProductSeries ; rdfs:label "Day & Night"@id .
 ex:DermalabRevolutionaireSeries a ex:ProductSeries .
-ex:DoubleTheMoistSeries a ex:ProductSeries .
+ex:DoubleTheMoistSeries a ex:ProductSeries ; rdfs:label "Double The Moist"@id .
 ex:FaceCareSeries a ex:ProductSeries .
 ex:FirstCleanserSeries a ex:ProductSeries .
-ex:GentleBiomeSeries a ex:ProductSeries .
-ex:HydraRoseSeries a ex:ProductSeries .
-ex:LightSeries a ex:ProductSeries .
-ex:MoistureBoostSeries a ex:ProductSeries .
-ex:MoistureRichSeries a ex:ProductSeries .
-ex:NatureDailySeries a ex:ProductSeries .
-ex:RESQ10Series a ex:ProductSeries .
-ex:RadiantChargeSeries a ex:ProductSeries .
-ex:RenewYouSeries a ex:ProductSeries .
-ex:RetextureSeries a ex:ProductSeries .
+ex:GentleBiomeSeries a ex:ProductSeries ; rdfs:label "GentleBiome"@id .
+ex:HydraRoseSeries a ex:ProductSeries ; rdfs:label "Hydra Rose"@id .
+ex:LightSeries a ex:ProductSeries ; rdfs:label "Light+"@id .
+ex:MoistureBoostSeries a ex:ProductSeries ; rdfs:label "Moisture Boost"@id .
+ex:MoistureRichSeries a ex:ProductSeries ; rdfs:label "Moisture Rich"@id .
+ex:NatureDailySeries a ex:ProductSeries ; rdfs:label "Nature Daily"@id .
+ex:RESQ10Series a ex:ProductSeries ; rdfs:label "RES-Q10"@id .
+ex:RadiantChargeSeries a ex:ProductSeries ; rdfs:label "Radiant Charge"@id .
+ex:RenewYouSeries a ex:ProductSeries ; rdfs:label "Renew You"@id .
+ex:RetextureSeries a ex:ProductSeries ; rdfs:label "Retexture"@id .
 ex:SerumActiveCareSeries a ex:ProductSeries .
 ex:SlowAgingSignsSeries a ex:ProductSeries .
-ex:SunBattleSeries a ex:ProductSeries .
-ex:SupremeSeries a ex:ProductSeries .
-ex:UVShieldSeries a ex:ProductSeries .
-ex:UrbanShieldSeries a ex:ProductSeries .
-ex:WaterBrightSeries a ex:ProductSeries .
-ex:WhiteSecretSeries a ex:ProductSeries .
+ex:SunBattleSeries a ex:ProductSeries ; rdfs:label "Sun Battle"@id .
+ex:SupremeSeries a ex:ProductSeries ; rdfs:label "Supreme"@id .
+ex:UVShieldSeries a ex:ProductSeries ; rdfs:label "UV Shield"@id .
+ex:UrbanShieldSeries a ex:ProductSeries ; rdfs:label "Urban Shield"@id .
+ex:WaterBrightSeries a ex:ProductSeries ; rdfs:label "Water Bright"@id .
+ex:WhiteSecretSeries a ex:ProductSeries ; rdfs:label "White Secret"@id .
 
 # ===== Products =====
 ex:CRY-0001 a ex:Product ;
@@ -590,7 +590,7 @@ ex:LAB-0054 a ex:Product ;
     ex:hasIngredient ex:Probiotic, ex:Retinol, ex:SalicylicAcid ;
     ex:productName "AcnePro Biome Acne Spot Gel" ;
     ex:sourceProductId "LAB-0054" ;
-    ex:suitableForAgeGroup ex:Adult, ex:Teen ;
+    ex:suitableForAgeGroup ex:Adult ;
     ex:suitableForSkinType ex:Oily ;
     ex:treatsConcern ex:Acne ;
     ex:verificationStatus "Nama dan bahan utama terverifikasi di situs resmi" .
