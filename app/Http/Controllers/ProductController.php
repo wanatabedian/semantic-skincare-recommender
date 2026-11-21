@@ -18,7 +18,7 @@ class ProductController extends Controller
             $rows = $this->fuseki->query(<<<SPARQL
                 SELECT DISTINCT ?product ?name ?sourceId ?price ?brand ?brandLabel ?series ?seriesLabel
                     ?category ?categoryLabel ?skin ?skinLabel ?age ?ageLabel ?concern ?concernLabel ?ingredient ?ingredientLabel
-                    ?claim ?claimLabel ?status ?note
+                    ?status ?note
                 WHERE {
                     BIND(ex:{$id} AS ?product)
                     ?product a ex:Product ; ex:productName ?name .
@@ -31,7 +31,6 @@ class ProductController extends Controller
                     OPTIONAL { ?product ex:suitableForAgeGroup ?age . OPTIONAL { ?age rdfs:label ?ageLabel } }
                     OPTIONAL { ?product ex:treatsConcern ?concern . OPTIONAL { ?concern rdfs:label ?concernLabel } }
                     OPTIONAL { ?product ex:hasIngredient ?ingredient . OPTIONAL { ?ingredient rdfs:label ?ingredientLabel } }
-                    OPTIONAL { ?product ex:hasClaim ?claim . OPTIONAL { ?claim rdfs:label ?claimLabel } }
                     OPTIONAL { ?product ex:verificationStatus ?status }
                     OPTIONAL { ?product ex:verificationNote ?note }
                 }
@@ -48,7 +47,7 @@ class ProductController extends Controller
             'id' => $id, 'name' => '', 'sourceId' => null, 'price' => null,
             'brand' => null, 'series' => null, 'category' => null,
             'skin_types' => [], 'age_groups' => [], 'concerns' => [],
-            'ingredients' => [], 'claims' => [], 'verification_status' => null,
+            'ingredients' => [], 'verification_status' => null,
             'verification_notes' => [],
         ];
 
@@ -61,7 +60,7 @@ class ProductController extends Controller
                     $product[$field] = $this->displayTerm($row[$key], $row[$key.'Label'] ?? null);
                 }
             }
-            foreach (['skin' => 'skin_types', 'age' => 'age_groups', 'concern' => 'concerns', 'ingredient' => 'ingredients', 'claim' => 'claims'] as $key => $field) {
+            foreach (['skin' => 'skin_types', 'age' => 'age_groups', 'concern' => 'concerns', 'ingredient' => 'ingredients'] as $key => $field) {
                 if (isset($row[$key]['value'])) {
                     $product[$field][] = $this->displayTerm($row[$key], $row[$key.'Label'] ?? null);
                 }
@@ -74,7 +73,7 @@ class ProductController extends Controller
                 : $product['verification_status'];
         }
 
-        foreach (['skin_types', 'age_groups', 'concerns', 'ingredients', 'claims', 'verification_notes'] as $field) {
+        foreach (['skin_types', 'age_groups', 'concerns', 'ingredients', 'verification_notes'] as $field) {
             $product[$field] = array_values(array_unique(array_filter($product[$field], static fn ($value) => $value !== '')));
         }
 

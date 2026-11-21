@@ -101,8 +101,10 @@ class QuizAndComparisonTest extends TestCase
             ->assertSee('Usia normal')
             ->assertSee('Jerawat')
             ->assertSee('Probiotic')
-            ->assertSee('Tranexamic Acid')
             ->assertSee('Ceramide')
+            // Klaim tidak lagi ditampilkan di halaman detail produk.
+            ->assertDontSee('Tranexamic Acid')
+            ->assertDontSee('Klaim')
             ->assertDontSee('https://example.org/skincare-ontology#');
         $this->assertSame(1, substr_count($response->getContent(), '>Dry</li>'));
     }

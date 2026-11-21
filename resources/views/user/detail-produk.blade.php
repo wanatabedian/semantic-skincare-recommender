@@ -20,7 +20,7 @@
 @if($product['verification_notes'])<div class="mt-4 rounded-2xl bg-[#FDEEF1]/70 p-4 text-sm"><p class="font-bold">Catatan verifikasi</p><ul class="mt-2 list-inside list-disc space-y-1">@foreach($product['verification_notes'] as $note)<li>{{ $note }}</li>@endforeach</ul></div>@endif
 </div></section>
 <section class="mt-6 grid gap-4 sm:grid-cols-2">
-@foreach([['Jenis kulit', $product['skin_types']], ['Kelompok usia', $product['age_groups']], ['Keluhan kulit', $product['concerns']], ['Kandungan', $product['ingredients']], ['Klaim', $product['claims']]] as [$heading, $values])
+@foreach([['Jenis kulit', $product['skin_types']], ['Kelompok usia', $product['age_groups']], ['Keluhan kulit', $product['concerns']], ['Kandungan', $product['ingredients']]] as [$heading, $values])
 <div class="rounded-3xl border border-[#E6748E]/10 bg-white p-5"><h2 class="serif text-xl font-bold text-[#345452]">{{ $heading }}</h2>@if($values)<ul class="mt-3 flex flex-wrap gap-2">@foreach($values as $value)<li class="rounded-full bg-[#FDEEF1] px-3 py-1.5 text-sm">{{ $value }}</li>@endforeach</ul>@else<p class="mt-3 text-sm text-[#657674]">Belum tercantum.</p>@endif</div>
 @endforeach
 </section>
