@@ -1,0 +1,34 @@
+# Dibuat otomatis oleh RecommendationEngine (Orang 3).
+# Contoh: remaja, kulit berminyak, keluhan jerawat + minyak berlebih, serum, niacinamide, Rp50.000-100.000.
+PREFIX ex: <https://example.org/skincare-ontology#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX schema: <https://schema.org/>
+
+SELECT DISTINCT ?p ?name ?price ?skinVia ?sSkin ?c1Via ?sC1 ?c2Via ?sC2 ?sCat ?sIng ?sPrice ((?sSkin + ?sC1 + ?sC2 + ?sCat + ?sIng + ?sPrice) AS ?score)
+WHERE {
+  ?p a ex:Product ;
+     ex:productName ?name .
+  OPTIONAL { ?p ex:estimatedPrice ?price }
+  ?p ex:suitableForAgeGroup ex:Teen .
+  FILTER NOT EXISTS {
+    ?p ex:hasIngredient ?ri .
+    { ?ri rdf:type/rdfs:subClassOf* ex:Retinoid } UNION { ?ri ex:contraindicatedFor ex:Teen } UNION { ?ri rdf:type/rdfs:subClassOf* ?lockClass . ?lockClass ex:contraindicatedFor ex:Teen } UNION { VALUES ?ri { ex:RetinolIngredient ex:RetinalIngredient ex:RetinaldehydeIngredient ex:RetinylPalmitateIngredient ex:RetinylRetinoateIngredient ex:HydroxypinacoloneRetinoateIngredient ex:GranactiveRetinoidIngredient ex:AdapaleneIngredient ex:TretinoinIngredient } }
+  }
+  BIND(IF(EXISTS { ?p ex:suitableForSkinType ex:OilySkinType }, "exact",
+       IF(EXISTS { ?p ex:suitableForSkinType ?allSkin . VALUES ?allSkin { ex:AllSkinType ex:AllSkin } }, "all", "")) AS ?skinVia)
+  BIND(IF(?skinVia != "", 2, 0) AS ?sSkin)
+  BIND(IF(EXISTS { ?p ex:treatsConcern ex:Acne }, "direct",
+       IF(EXISTS { ?p ex:hasIngredient/ex:targetsConcern ex:Acne }, "ingredient", "")) AS ?c1Via)
+  BIND(IF(?c1Via != "", 3, 0) AS ?sC1)
+  BIND(IF(EXISTS { ?p ex:treatsConcern ex:ExcessOil }, "direct",
+       IF(EXISTS { ?p ex:hasIngredient/ex:targetsConcern ex:ExcessOil }, "ingredient", "")) AS ?c2Via)
+  BIND(IF(?c2Via != "", 3, 0) AS ?sC2)
+  BIND(IF(EXISTS { ?p ex:hasCategory/skos:broader* ex:SerumCategory }, 2, 0) AS ?sCat)
+  BIND(IF(EXISTS { { ?p ex:hasIngredient ex:NiacinamideIngredient } UNION { ?p ex:hasIngredient/rdf:type/rdfs:subClassOf* ex:NiacinamideIngredient } }, 2, 0) AS ?sIng)
+  BIND(COALESCE(IF(?price >= 50000 && ?price <= 100000, 1, 0), 0) AS ?sPrice)
+}
+ORDER BY DESC(?score) ?price ?name

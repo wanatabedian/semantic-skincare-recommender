@@ -23,8 +23,11 @@ Route::get('/api/products/compare', [ProductComparisonController::class, 'produc
 Route::get('/api/products', [ProductComparisonController::class, 'catalog'])->name('api.products');
 Route::post('/api/quiz/analyze', [QuizController::class, 'submit'])->name('api.quiz.analyze');
 
-// Endpoint untuk sistem semantik SPARQL
-Route::post('/api/recommendation', [SparqlController::class, 'getRecommendation']);
+// === Orang 3: Mesin Rekomendasi (JSON) ===
+// GET untuk link/bookmark/Postman; POST tanpa CSRF supaya bisa dipanggil sebagai API murni.
+Route::get('/api/recommendation', [SparqlController::class, 'getRecommendation'])->name('api.recommendation');
+Route::post('/api/recommendation', [SparqlController::class, 'getRecommendation'])
+    ->withoutMiddleware(\Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class);
 
 
 // ==========================================

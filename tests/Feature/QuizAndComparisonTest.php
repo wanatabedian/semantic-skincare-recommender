@@ -63,11 +63,58 @@ class QuizAndComparisonTest extends TestCase
 
     public function test_recommendation_query_parameters_are_forwarded_as_sparql_filters(): void
     {
-        $fuseki = $this->mock(FusekiService::class);
-        $fuseki->shouldReceive('options')->andReturn($this->quizOptions());
-        $fuseki->shouldReceive('query')->once()->withArgs(fn ($query) => str_contains($query, '?skin = ex:Oily') && str_contains($query, '?price >= 50000'))->andReturn([]);
+        // Sejak mesin rekomendasi Orang 3 (SparqlService + skor Plan A/B), parameter kuis
+        // diteruskan sebagai IRI dalam query skor, bukan lagi FILTER(?skin = ex:...).
+        $ex = 'https://example.org/skincare-ontology#';
+        config(['services.fuseki.namespace' => $ex, 'recommendation.cache_ttl' => 0]);
+        $vocabularyRows = [
+            ['group' => ['value' => 'skin'], 'term' => ['type' => 'uri', 'value' => $ex.'Oily'], 'labelId' => ['value' => 'Berminyak']],
+        ];
+        $this->partialMock(\App\Services\SparqlService::class, function ($sparql) use ($ex, $vocabularyRows) {
+            $sparql->shouldReceive('select')->withArgs(fn ($q) => str_contains($q, 'VALUES (?group ?cls)'))->andReturn($vocabularyRows);
+            $sparql->shouldReceive('select')->once()->withArgs(fn ($q) => str_contains($q, 'ex:suitableForSkinType <'.$ex.'Oily>') && str_contains($q, '?price >= 50000'))->andReturn([]);
+        });
 
         $this->get('/rekomendasi?skin=Oily&price_min=50000')->assertOk()->assertSee('Belum ada produk yang cocok');
+    }
+
+    public function test_product_detail_displays_readable_rdf_values_without_duplicates_or_uris(): void
+    {
+        $fuseki = \Mockery::mock(FusekiService::class)->makePartial();
+        // Query ke-2 adalah produk serupa; dikosongkan karena test ini fokus pada detail produk.
+        $fuseki->shouldReceive('query')->twice()->andReturn([
+            [
+                'name' => ['type' => 'literal', 'value' => 'Aphrodite Serum'],
+                'skin' => ['type' => 'uri', 'value' => 'https://example.org/skincare-ontology#Dry'],
+                'age' => ['type' => 'uri', 'value' => 'https://example.org/skincare-ontology#Normal'],
+                'ageLabel' => ['type' => 'literal', 'value' => 'Usia normal'],
+                'concern' => ['type' => 'uri', 'value' => 'https://example.org/skincare-ontology#Acne'],
+                'concernLabel' => ['type' => 'literal', 'value' => 'Jerawat'],
+                'ingredient' => ['type' => 'uri', 'value' => 'https://example.org/skincare-ontology#Probiotic'],
+                'claim' => ['type' => 'uri', 'value' => 'https://example.org/skincare-ontology#TranexamicAcid'],
+                'claimLabel' => ['type' => 'literal', 'value' => 'Tranexamic Acid'],
+            ],
+            [
+                'name' => ['type' => 'literal', 'value' => 'Aphrodite Serum'],
+                'skin' => ['type' => 'uri', 'value' => 'https://example.org/skincare-ontology#Dry'],
+                'ingredient' => ['type' => 'literal', 'value' => 'Ceramide'],
+            ],
+        ], []);
+
+        $this->app->instance(FusekiService::class, $fuseki);
+
+        $response = $this->get('/produk/APH-0001')->assertOk();
+
+        $response->assertSee('Dry')
+            ->assertSee('Usia normal')
+            ->assertSee('Jerawat')
+            ->assertSee('Probiotic')
+            ->assertSee('Ceramide')
+            // Klaim tidak lagi ditampilkan di halaman detail produk.
+            ->assertDontSee('Tranexamic Acid')
+            ->assertDontSee('Klaim')
+            ->assertDontSee('https://example.org/skincare-ontology#');
+        $this->assertSame(1, substr_count($response->getContent(), '>Dry</li>'));
     }
 
     public function test_quiz_options_use_clean_ontology_resources_and_rdfs_labels(): void

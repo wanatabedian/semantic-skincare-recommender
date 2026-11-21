@@ -98,7 +98,7 @@
 </head>
 <body class="bg-[#B8E8EE] text-[#E6748E] min-h-screen font-sans antialiased">
 
-    {{-- NxAVBAR --}}
+    {{-- NAVBAR --}}
     <nav class="fixed top-0 left-0 w-full z-50 px-6 md:px-16 py-4 flex items-center justify-between bg-[#FDEEF1]/85 backdrop-blur-md border-b border-[#E6748E]/10">
         <a href="{{ url('/') }}" class="flex items-center gap-3 font-extrabold text-xl tracking-tight text-[#E6748E] no-underline">
             <span class="w-9 h-9 rounded-xl bg-[#6BB1AD] grid place-items-center text-white text-lg shadow-sm">✦</span>
@@ -168,8 +168,8 @@
                     Eksplor Skincare ➔
                 </a>
                 <a href="{{ route('kuis') }}" class="smooth-btn bg-[#FFFEFA] text-[#E6748E] border border-[#E6748E]/15 px-8 py-4 rounded-2xl text-xs font-black uppercase tracking-wider">
-                 Mulai Skin Quiz
-</a>
+                    Mulai Skin Quiz
+                </a>
             </div>
         </div>
     </header>

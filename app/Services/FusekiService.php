@@ -133,16 +133,11 @@ class FusekiService
     {
         $rows = $this->query("
             SELECT DISTINCT
-                ?age
-                ?ageLabel
-                ?skin
-                ?skinLabel
-                ?category
-                ?categoryLabel
-                ?concern
-                ?concernLabel
-                ?ingredient
-                ?ingredientLabel
+                ?age ?ageLabel
+                ?skin ?skinLabel
+                ?category ?categoryLabel
+                ?concern ?concernLabel
+                ?ingredient ?ingredientLabel
             WHERE {
                 {
                     ?age a ex:AgeGroup ; rdfs:label ?ageLabel .
@@ -164,6 +159,7 @@ class FusekiService
                     ?ingredient a ex:Ingredient ; rdfs:label ?ingredientLabel .
                 }
             }
+            ORDER BY ?ageLabel ?skinLabel ?categoryLabel ?concernLabel ?ingredientLabel
         ");
 
         $options = [

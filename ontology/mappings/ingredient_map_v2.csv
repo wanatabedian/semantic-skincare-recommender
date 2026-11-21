@@ -1,0 +1,136 @@
+source_literal,group,status,target_uri,pref_label,alt_label,proposed_action,proposed_target,concentration_in_source,triples,products,age_groups,keep_in_sourceIngredientText,reason,final_decision
+"1,2-hexanediol",A,MAP,ex:Hexanediol12Ingredient,"1,2-Hexanediol","1,2-hexanediol",,,,1,LAB-0056,LAB-0056:Adult/Teen,YA,Variasi penulisan bahan yang sama → altLabel.,MAP
+10% niacinamide,A,MAP,ex:NiacinamideIngredient,Niacinamide,,,,YA,1,WAR-0052,WAR-0052:Adult,YA,Kadar dipertahankan di sourceIngredientText; bukan altLabel.,MAP
+2% Targeted Salicylic Acid (SAL),C,REVIEW,ex:SalicylicAcidIngredient,,,MAP_PROPOSED,SalicylicAcidIngredient,YA,1,LAB-0063,LAB-0063:Adult/Teen,YA,"Nama bahan eksplisit; ""Targeted"" kualifier pemasaran. Kadar 2% tetap di sourceIngredientText, tidak dijadikan altLabel.",MAP
+7 Soothing Botanicals,E,REVIEW,,,,KEEP_TEXT,,,1,KAH-0039,KAH-0039:Adult,YA,"Deskripsi/fungsi/klaim umum, bukan bahan spesifik.",KEEP_TEXT
+8X NMF Amino,D,REVIEW,,,,KEEP_TEXT,,,1,WAR-0050,WAR-0050:Adult/Teen,YA,"Kompleks/teknologi/kelas umum, bukan individu Ingredient.",KEEP_TEXT
+accharide Isomerate,F,REVIEW,,,,NEED_SOURCE,,,1,LAB-0053,LAB-0053:Adult/Teen,YA,Data rusak: Terpotong; tidak ditebak (kemungkinan Saccharide Isomerate).,HOLD
+acnepro biome™ technology,D,REVIEW,,,,KEEP_TEXT,,,1,LAB-0062,LAB-0062:Adult/Teen,YA,"Kompleks/teknologi/kelas umum, bukan individu Ingredient.",KEEP_TEXT
+AcnePro Biome™ Technology,D,REVIEW,,,,KEEP_TEXT,,,1,LAB-0069,LAB-0069:Adult/Teen,YA,"Kompleks/teknologi/kelas umum, bukan individu Ingredient.",KEEP_TEXT
+Advanced Micro Peptide,D,REVIEW,,,,KEEP_TEXT,,,1,CRY-0009,CRY-0009:Adult,YA,"Kompleks/teknologi/kelas umum, bukan individu Ingredient.",KEEP_TEXT
+Advanced Zinc - PCA,C,REVIEW,,,,NEED_SOURCE,kandidat: ZincPCAIngredient,,1,KAH-0039,KAH-0039:Adult,YA,"Kemungkinan Zinc PCA dengan prefiks pemasaran, tetapi format ""Zinc - PCA"" perlu dicek ke label.",HOLD
+AdvancedHA,C,REVIEW,,,,NEED_SOURCE,-,,1,LAB-0070,LAB-0070:Adult/Teen,YA,"Nama dagang; bentuk HA (HA, sodium hyaluronate, campuran) tidak diketahui.",HOLD
+AHA/Glycolic Acid,C,REVIEW,ex:GlycolicAcidIngredient,,,MAP_PROPOSED,GlycolicAcidIngredient,,4,KAH-0044;KAH-0045;KAH-0046;TAV-0002,KAH-0044:Adult;KAH-0045:Adult;KAH-0046:Adult;TAV-0002:Adult,YA,"""AHA"" adalah kelas, ""Glycolic Acid"" bahan spesifiknya. Hanya Glycolic Acid yang dipetakan; teks lengkap tetap tersimpan.",MAP
+AHA/PHA,C,REVIEW,,,,KEEP_TEXT,-,,1,WAR-0010,WAR-0010:Adult/Teen,YA,"Dua kelas asam, tanpa bahan spesifik.",KEEP_TEXT
+allantoin,A,MAP,ex:AllantoinIngredient,Allantoin,allantoin,,,,1,EMI-0036,EMI-0036:Teen,YA,Variasi penulisan bahan yang sama → altLabel.,MAP
+Aloe vera,A,MAP,ex:AloeVeraIngredient,Aloe Vera,Aloe vera,,,,1,EMI-0034,EMI-0034:Adult/Teen,YA,Variasi penulisan bahan yang sama → altLabel.,MAP
+alpha-arbutin,A,MAP,ex:AlphaArbutinIngredient,Alpha-Arbutin,alpha-arbutin,,,,1,WAR-0009,WAR-0009:Adult,YA,Variasi penulisan bahan yang sama → altLabel.,MAP
+Alpha-arbutin,A,MAP,ex:AlphaArbutinIngredient,Alpha-Arbutin,Alpha-arbutin,,,,1,WAR-0012,WAR-0012:Adult,YA,Variasi penulisan bahan yang sama → altLabel.,MAP
+Amino Acid Complex,D,REVIEW,,,,KEEP_TEXT,,,1,TAV-0001,TAV-0001:Adult,YA,"Kompleks/teknologi/kelas umum, bukan individu Ingredient.",KEEP_TEXT
+Amino Ectoin,C,REVIEW,,,,NEED_SOURCE,-,,2,CRY-0001;CRY-0010,CRY-0001:Adult;CRY-0010:Adult,YA,Tidak jelas apakah Ectoin atau bahan proprietary Crystallure.,HOLD
+amino/NMF complex,D,REVIEW,,,,KEEP_TEXT,,,1,WAR-0010,WAR-0010:Adult/Teen,YA,"Kompleks/teknologi/kelas umum, bukan individu Ingredient.",KEEP_TEXT
+AminoGel cleansing formula,D,REVIEW,,,,KEEP_TEXT,,,1,KAH-0043,KAH-0043:Adult,YA,"Kompleks/teknologi/kelas umum, bukan individu Ingredient.",KEEP_TEXT
+Antioksidan,E,REVIEW,,,,KEEP_TEXT,,,7,TAV-0002;WAR-0001;WAR-0003;WAR-0004;WAR-0005;WAR-0007;WAR-0008,TAV-0002:Adult;WAR-0001:Adult/Teen;WAR-0003:Adult/Teen;WAR-0004:Adult/Teen;WAR-0005:Adult;WAR-0007:Adult/Teen;WAR-0008:Adult/Teen,YA,"Deskripsi/fungsi/klaim umum, bukan bahan spesifik.",KEEP_TEXT
+Antioxidants & Conditioning,E,REVIEW,,,,KEEP_TEXT,,,1,LAB-0066,LAB-0066:Adult/Teen,YA,"Deskripsi/fungsi/klaim umum, bukan bahan spesifik.",KEEP_TEXT
+aqua,A,MAP,ex:AquaIngredient,Aqua,aqua,,,,2,LAB-0056;LAB-0061,LAB-0056:Adult/Teen;LAB-0061:Adult/Teen,YA,Variasi penulisan bahan yang sama → altLabel.,MAP
+Argireline,A,MAP,ex:ArgirelineIngredient,Argireline,,,,,1,WAR-0018,WAR-0018:Adult,YA,Nama bahan spesifik.,MAP
+Barrier-supporting/hydrating ingredients,E,REVIEW,,,,KEEP_TEXT,,,1,EMI-0038,EMI-0038:Adult/Teen,YA,"Deskripsi/fungsi/klaim umum, bukan bahan spesifik.",KEEP_TEXT
+BHA,C,REVIEW,,,,KEEP_TEXT,-,,1,TAV-0002,TAV-0002:Adult,YA,"Kelas asam (beta hydroxy acid), bukan bahan spesifik.",KEEP_TEXT
+Bifida Ferment Lysate,A,MAP,ex:BifidaFermentLysateIngredient,Bifida Ferment Lysate,,,,,2,LAB-0053;LAB-0060,LAB-0053:Adult/Teen;LAB-0060:,YA,Nama bahan spesifik.,MAP
+bisabolol (Ceramide NP),C,REVIEW,,,,NEED_SOURCE,-,,1,WAR-0052,WAR-0052:Adult,YA,Isi tidak konsisten: bisabolol dan Ceramide NP dua bahan berbeda. Perlu dicek ke sumber sebelum dipecah.,HOLD
+Brightening Complex,D,REVIEW,,,,KEEP_TEXT,,,1,KAH-0047,KAH-0047:,YA,"Kompleks/teknologi/kelas umum, bukan individu Ingredient.",KEEP_TEXT
+Brightening ingredients,E,REVIEW,,,,KEEP_TEXT,,,1,WAR-0025,WAR-0025:Adult,YA,"Deskripsi/fungsi/klaim umum, bukan bahan spesifik.",KEEP_TEXT
+Brightening/hydrating formula,E,REVIEW,,,,KEEP_TEXT,,,1,EMI-0030,EMI-0030:Teen,YA,"Deskripsi/fungsi/klaim umum, bukan bahan spesifik.",KEEP_TEXT
+Ceramide,A,MAP,ex:CeramideIngredient,Ceramide,,,,,1,TAV-0005,TAV-0005:Adult,YA,Nama bahan spesifik.,MAP
+Ceramide NP,A,MAP,ex:CeramideNPIngredient,Ceramide NP,,,,,1,LAB-0063,LAB-0063:Adult/Teen,YA,Nama bahan spesifik.,MAP
+ceramide np & beta-glucan,C,REVIEW,ex:CeramideNPIngredient;ex:BetaGlucanIngredient,Ceramide NP;Beta-Glucan,;beta-glucan,SPLIT_PROPOSED,CeramideNPIngredient + BetaGlucanIngredient (individu baru),,1,LAB-0062,LAB-0062:Adult/Teen,YA,"Dua bahan spesifik dalam satu nilai; dipecah menjadi dua relasi. Kolom target_uri/pref_label/alt_label berurutan dipisah "";"". Literal disimpan satu kali di sourceIngredientText.",SPLIT
+Ceramides,A,MAP,ex:CeramideIngredient,Ceramide,Ceramides,,,,1,TAV-0002,TAV-0002:Adult,YA,Variasi penulisan bahan yang sama → altLabel.,MAP
+chamomile extract,A,MAP,ex:ChamomileExtractIngredient,Chamomile Extract,chamomile extract,,,,1,EMI-0034,EMI-0034:Adult/Teen,YA,Variasi penulisan bahan yang sama → altLabel.,MAP
+Cica,A,MAP,ex:CicaIngredient,Cica,,,,,2,EMI-0036;EMI-0037,EMI-0036:Teen;EMI-0037:Adult/Teen,YA,Nama bahan spesifik.,MAP
+CICA,A,MAP,ex:CicaIngredient,Cica,CICA,,,,2,TAV-0007;TAV-0008,TAV-0007:Adult;TAV-0008:Adult,YA,Variasi penulisan bahan yang sama → altLabel.,MAP
+cinnamon bark extract,A,MAP,ex:CinnamonBarkExtractIngredient,Cinnamon Bark Extract,cinnamon bark extract,,,,1,EMI-0029,EMI-0029:Teen,YA,Variasi penulisan bahan yang sama → altLabel.,MAP
+combined with active brighteners such as Niacinamide,F,REVIEW,,,,NEED_SOURCE,,,1,LAB-0067,LAB-0067:Adult/Teen,YA,Data rusak: Potongan kalimat; memuat Niacinamide.,HOLD
+combined with postbiotics (Bifida Ferment Lysate) and soothing agents,F,REVIEW,,,,NEED_SOURCE,,,1,LAB-0065,LAB-0065:Adult/Teen,YA,Data rusak: Potongan kalimat; memuat Bifida Ferment Lysate.,HOLD
+Concentrated niacinamide,C,REVIEW,ex:NiacinamideIngredient,,,MAP_PROPOSED,NiacinamideIngredient,,1,EMI-0028,EMI-0028:Adult/Teen,YA,"Nama bahan eksplisit; ""Concentrated"" kualifier tanpa kadar. Tidak dijadikan altLabel.",MAP
+Crystals,F,REVIEW,,,,NEED_SOURCE,,,1,CRY-0010,CRY-0010:Adult,YA,Data rusak: Terpotong (A4).,HOLD
+Cysteamine HCl,A,MAP,ex:CysteamineHClIngredient,Cysteamine HCl,,,,,1,LAB-0067,LAB-0067:Adult/Teen,YA,Nama bahan spesifik.,MAP
+Encapsulated Ceramide,C,REVIEW,ex:CeramideIngredient,,,MAP_PROPOSED,CeramideIngredient,,1,LAB-0059,LAB-0059:Adult/Teen,YA,Ceramide jenis tidak disebut; dipetakan ke Ceramide tingkat umum (bukan Ceramide NP).,MAP
+Encapsulated Microbiome,D,REVIEW,,,,KEEP_TEXT,,,1,LAB-0059,LAB-0059:Adult/Teen,YA,"Kompleks/teknologi/kelas umum, bukan individu Ingredient.",KEEP_TEXT
+ferment lysates,D,REVIEW,,,,KEEP_TEXT,,,1,LAB-0064,LAB-0064:Adult/Teen,YA,"Kompleks/teknologi/kelas umum, bukan individu Ingredient.",KEEP_TEXT
+Ferulic Acid,A,MAP,ex:FerulicAcidIngredient,Ferulic Acid,,,,,1,CRY-0003,CRY-0003:Adult,YA,Nama bahan spesifik.,MAP
+Formula anti-aging,E,REVIEW,,,,KEEP_TEXT,,,1,WAR-0017,WAR-0017:Adult,YA,"Deskripsi/fungsi/klaim umum, bukan bahan spesifik.",KEEP_TEXT
+french cypress,C,REVIEW,,,,NEED_SOURCE,-,,1,KAH-0045,KAH-0045:Adult,YA,Bahan botani; bagian/bentuk (ekstrak/minyak) dan nama INCI tidak disebut.,HOLD
+Gentle cleansing agents,E,REVIEW,,,,KEEP_TEXT,,,1,WAR-0024,WAR-0024:Adult/Teen,YA,"Deskripsi/fungsi/klaim umum, bukan bahan spesifik.",KEEP_TEXT
+Gentle Foam Surfactant,E,REVIEW,,,,KEEP_TEXT,,,1,LAB-0070,LAB-0070:Adult/Teen,YA,"Deskripsi/fungsi/klaim umum, bukan bahan spesifik.",KEEP_TEXT
+glycerin,A,MAP,ex:GlycerinIngredient,Glycerin,glycerin,,,,2,LAB-0056;LAB-0061,LAB-0056:Adult/Teen;LAB-0061:Adult/Teen,YA,Variasi penulisan bahan yang sama → altLabel.,MAP
+Glycerin,A,MAP,ex:GlycerinIngredient,Glycerin,,,,,1,LAB-0064,LAB-0064:Adult/Teen,YA,Nama bahan spesifik.,MAP
+Glycolic acid,A,MAP,ex:GlycolicAcidIngredient,Glycolic Acid,Glycolic acid,,,,1,WAR-0019,WAR-0019:Adult/Teen,YA,Variasi penulisan bahan yang sama → altLabel.,MAP
+Glycyrrhiza Glabra (Licorice) Root Extract,A,MAP,ex:GlycyrrhizaGlabraRootExtractIngredient,Glycyrrhiza Glabra (Licorice) Root Extract,,,,,1,LAB-0067,LAB-0067:Adult/Teen,YA,Nama bahan spesifik.,MAP
+Gold Peptide Crystals,P,HOLD,,,,,,,4,CRY-0004;CRY-0005;CRY-0007;CRY-0009,CRY-0004:Adult;CRY-0005:Adult;CRY-0007:Adult;CRY-0009:Adult,YA,Bahan proprietary Crystallure; ditahan sampai ada sumber yang mendukung klasifikasi (keputusan #1).,HOLD
+gold peptide crystals,P,HOLD,,,,,,,1,CRY-0008,CRY-0008:Adult,YA,Bahan proprietary Crystallure; ditahan sampai ada sumber yang mendukung klasifikasi (keputusan #1).,HOLD
+Gold-Peptide Crystals,P,HOLD,,,,,,,2,CRY-0001;CRY-0006,CRY-0001:Adult;CRY-0006:Adult,YA,Bahan proprietary Crystallure; ditahan sampai ada sumber yang mendukung klasifikasi (keputusan #1).,HOLD
+Humectants,E,REVIEW,,,,KEEP_TEXT,,,1,WAR-0022,WAR-0022:Adult/Teen,YA,"Deskripsi/fungsi/klaim umum, bukan bahan spesifik.",KEEP_TEXT
+Hyaluronic Acid,A,MAP,ex:HyaluronicAcidIngredient,Hyaluronic Acid,,,,,5,LAB-0055;LAB-0057;LAB-0058;WAR-0003;WAR-0004,LAB-0055:Adult/Teen;LAB-0057:Adult/Teen;LAB-0058:Adult/Teen;WAR-0003:Adult/Teen;WAR-0004:Adult/Teen,YA,Nama bahan spesifik.,MAP
+hyaluronic acid,A,MAP,ex:HyaluronicAcidIngredient,Hyaluronic Acid,hyaluronic acid,,,,1,WAR-0020,WAR-0020:Adult/Teen,YA,Variasi penulisan bahan yang sama → altLabel.,MAP
+Hyaluronic Acid (in multiple molecular weights),C,REVIEW,ex:HyaluronicAcidIngredient,,,MAP_PROPOSED,HyaluronicAcidIngredient,,1,LAB-0064,LAB-0064:Adult/Teen,YA,"Nama bahan eksplisit; keterangan bobot molekul disimpan di sourceIngredientText, tidak dijadikan altLabel.",MAP
+Hyaluronic acid complex,D,REVIEW,,,,KEEP_TEXT,,,1,WAR-0014,WAR-0014:Adult/Teen,YA,"Kompleks/teknologi/kelas umum, bukan individu Ingredient.",KEEP_TEXT
+Hydrating ingredients,E,REVIEW,,,,KEEP_TEXT,,,2,EMI-0033;WAR-0021,EMI-0033:Adult/Teen;WAR-0021:Adult/Teen,YA,"Deskripsi/fungsi/klaim umum, bukan bahan spesifik.",KEEP_TEXT
+hydrobalance,C,REVIEW,,,,NEED_SOURCE,-,,1,KAH-0045,KAH-0045:Adult,YA,"Tidak jelas apakah bahan, kompleks, atau teknologi.",HOLD
+kombinasi dari peptida dengan kristal emas murni (pure gold crystals) dan Youth Glow Active,F,REVIEW,,,,NEED_SOURCE,,,1,CRY-0006,CRY-0006:Adult,YA,Data rusak: Kalimat deskripsi.,HOLD
+Lactobacillus Ferment,A,MAP,ex:LactobacillusFermentIngredient,Lactobacillus Ferment,,,,,1,LAB-0054,LAB-0054:Adult/Teen,YA,Nama bahan spesifik.,MAP
+lactobacillus ferment (probiotik),A,MAP,ex:LactobacillusFermentIngredient,Lactobacillus Ferment,,,,,1,LAB-0062,LAB-0062:Adult/Teen,YA,Keterangan dalam kurung bukan nama bahan; tidak dijadikan altLabel (koreksi A). Relasi tetap; teks asli di sourceIngredientText.,MAP
+Lactoparabiotic (Lactobacillus Ferment),C,REVIEW,,,,NEED_SOURCE,kandidat: LactobacillusFermentIngredient,,1,LAB-0063,LAB-0063:Adult/Teen,YA,"""Lactoparabiotic"" nama dagang; belum ada sumber bahwa komposisinya identik dengan Lactobacillus Ferment.",HOLD
+M.E.D Hyaluronic Acid,C,REVIEW,,,,NEED_SOURCE,kandidat: HyaluronicAcidIngredient,,1,LAB-0060,LAB-0060:,YA,Nama dagang LABORE; belum pasti apakah HA murni atau campuran/turunan.,HOLD
+Matrix Repairing Peptide,D,REVIEW,,,,KEEP_TEXT,,,1,LAB-0063,LAB-0063:Adult/Teen,YA,"Kompleks/teknologi/kelas umum, bukan individu Ingredient.",KEEP_TEXT
+MatrixKey Molecule,P,HOLD,,,,,,,2,CRY-0004;CRY-0005,CRY-0004:Adult;CRY-0005:Adult,YA,Bahan proprietary Crystallure; ditahan sampai ada sumber yang mendukung klasifikasi (keputusan #1).,HOLD
+Matrixyl 3000,A,MAP,ex:Matrixyl3000Ingredient,Matrixyl 3000,,,,,2,WAR-0016;WAR-0018,WAR-0016:Adult;WAR-0018:Adult,YA,Nama bahan spesifik.,MAP
+mediterranean sage,C,REVIEW,,,,NEED_SOURCE,-,,1,KAH-0045,KAH-0045:Adult,YA,Bahan botani; bagian/bentuk dan nama INCI tidak disebut.,HOLD
+methyl gluceth-20,A,MAP,ex:MethylGluceth20Ingredient,Methyl Gluceth-20,methyl gluceth-20,,,,1,LAB-0061,LAB-0061:Adult/Teen,YA,Variasi penulisan bahan yang sama → altLabel.,MAP
+Micro Encapsulation Retinol,C,REVIEW,ex:RetinolIngredient,,,MAP_PROPOSED,RetinolIngredient,,1,LAB-0069,LAB-0069:Adult/Teen,YA,Bahan aktifnya tetap retinol; enkapsulasi hanya sistem penghantaran. Pemetaan ke Retinol justru membuat produk TERDETEKSI oleh Teen Lock. Status Teen/Adult dan catatan A7 tidak diubah. Pemetaan TIDAK berarti aman untuk remaja; status Teen/Adult & catatan A7 tidak diubah.,MAP
+Microbiome TechnologyTM,D,REVIEW,,,,KEEP_TEXT,,,2,LAB-0068;LAB-0070,LAB-0068:Adult/Teen;LAB-0070:Adult/Teen,YA,"Kompleks/teknologi/kelas umum, bukan individu Ingredient.",KEEP_TEXT
+Mineral,E,REVIEW,,,,KEEP_TEXT,,,4,WAR-0001;WAR-0002;WAR-0007;WAR-0008,WAR-0001:Adult/Teen;WAR-0002:Adult/Teen;WAR-0007:Adult/Teen;WAR-0008:Adult/Teen,YA,"Deskripsi/fungsi/klaim umum, bukan bahan spesifik.",KEEP_TEXT
+mineral filters like Zinc Oxide (nano) and Titanium Dioxide,F,REVIEW,,,,NEED_SOURCE,,,1,LAB-0067,LAB-0067:Adult/Teen,YA,Data rusak: Potongan kalimat; memuat 2 bahan.,HOLD
+Mineral Sun Filter,E,REVIEW,,,,KEEP_TEXT,,,1,LAB-0066,LAB-0066:Adult/Teen,YA,"Deskripsi/fungsi/klaim umum, bukan bahan spesifik.",KEEP_TEXT
+Mineral-Rich Spring Sea Water,D,REVIEW,,,,KEEP_TEXT,,,1,LAB-0068,LAB-0068:Adult/Teen,YA,"Kompleks/teknologi/kelas umum, bukan individu Ingredient.",KEEP_TEXT
+niacinamide,A,MAP,ex:NiacinamideIngredient,Niacinamide,niacinamide,,,,5,EMI-0027;LAB-0056;LAB-0061;WAR-0002;WAR-0019,EMI-0027:Adult/Teen;LAB-0056:Adult/Teen;LAB-0061:Adult/Teen;WAR-0002:Adult/Teen;WAR-0019:Adult/Teen,YA,Variasi penulisan bahan yang sama → altLabel.,MAP
+Niacinamide,A,MAP,ex:NiacinamideIngredient,Niacinamide,,,,,6,EMI-0031;EMI-0040;LAB-0054;LAB-0063;LAB-0064;WAR-0020,EMI-0031:Adult/Teen;EMI-0040:Adult/Teen;LAB-0054:Adult/Teen;LAB-0063:Adult/Teen;LAB-0064:Adult/Teen;WAR-0020:Adult/Teen,YA,Nama bahan spesifik.,MAP
+Niacinamide 10%,A,MAP,ex:NiacinamideIngredient,Niacinamide,,,,YA,1,TAV-0003,TAV-0003:Adult,YA,Kadar dipertahankan di sourceIngredientText; bukan altLabel.,MAP
+Niacinamide 5%,A,MAP,ex:NiacinamideIngredient,Niacinamide,,,,YA,1,WAR-0011,WAR-0011:Adult,YA,Kadar dipertahankan di sourceIngredientText; bukan altLabel.,MAP
+niacinamide 5%,A,MAP,ex:NiacinamideIngredient,Niacinamide,,,,YA,1,WAR-0012,WAR-0012:Adult,YA,Kadar dipertahankan di sourceIngredientText; bukan altLabel.,MAP
+Niosome delivery system,D,REVIEW,,,,KEEP_TEXT,,,2,KAH-0041;KAH-0042,KAH-0041:Adult/Teen;KAH-0042:Adult,YA,"Kompleks/teknologi/kelas umum, bukan individu Ingredient.",KEEP_TEXT
+NMF amino complex,D,REVIEW,,,,KEEP_TEXT,,,1,WAR-0013,WAR-0013:Adult/Teen,YA,"Kompleks/teknologi/kelas umum, bukan individu Ingredient.",KEEP_TEXT
+oxy ceramide,C,REVIEW,,,,NEED_SOURCE,-,,1,EMI-0031,EMI-0031:Adult/Teen,YA,Jenis ceramide tidak jelas; kemungkinan nama dagang Emina.,HOLD
+panthenol,A,MAP,ex:PanthenolIngredient,Panthenol,panthenol,,,,1,WAR-0015,WAR-0015:Adult/Teen,YA,Variasi penulisan bahan yang sama → altLabel.,MAP
+Panthenol (Pro-Vitamin B5),A,MAP,ex:PanthenolIngredient,Panthenol,,,,,1,LAB-0064,LAB-0064:Adult/Teen,YA,Keterangan dalam kurung bukan nama bahan; tidak dijadikan altLabel (koreksi A). Relasi tetap; teks asli di sourceIngredientText.,MAP
+peg-8,A,MAP,ex:PEG8Ingredient,PEG-8,peg-8,,,,1,LAB-0056,LAB-0056:Adult/Teen,YA,Variasi penulisan bahan yang sama → altLabel.,MAP
+Pentavitin,A,MAP,ex:PentavitinIngredient,Pentavitin,,,,,2,WAR-0013;WAR-0014,WAR-0013:Adult/Teen;WAR-0014:Adult/Teen,YA,Nama bahan spesifik.,MAP
+Peptide,C,REVIEW,,,,KEEP_TEXT,-,,1,TAV-0004,TAV-0004:Adult,YA,Kelas umum; jenis peptida tidak disebut.,KEEP_TEXT
+peptide complex,D,REVIEW,,,,KEEP_TEXT,,,1,WAR-0011,WAR-0011:Adult,YA,"Kompleks/teknologi/kelas umum, bukan individu Ingredient.",KEEP_TEXT
+PHA,C,REVIEW,,,,KEEP_TEXT,-,,1,CRY-0003,CRY-0003:Adult,YA,"Kelas asam (polyhydroxy acid), bukan bahan spesifik.",KEEP_TEXT
+Prebiotic,D,REVIEW,,,,KEEP_TEXT,,,1,EMI-0032,EMI-0032:Adult/Teen,YA,"Kompleks/teknologi/kelas umum, bukan individu Ingredient.",KEEP_TEXT
+propanediol,A,MAP,ex:PropanediolIngredient,Propanediol,propanediol,,,,1,LAB-0056,LAB-0056:Adult/Teen,YA,Variasi penulisan bahan yang sama → altLabel.,MAP
+Q10,A,MAP,ex:Q10Ingredient,Q10,,,,,2,TAV-0007;TAV-0008,TAV-0007:Adult;TAV-0008:Adult,YA,Nama bahan spesifik.,MAP
+Recombinant Collagen,A,MAP,ex:RecombinantCollagenIngredient,Recombinant Collagen,,,,,1,LAB-0060,LAB-0060:,YA,Nama bahan spesifik.,MAP
+Retinol 1%,A,MAP,ex:RetinolIngredient,Retinol,,,,YA,1,TAV-0004,TAV-0004:Adult,YA,Kadar dipertahankan di sourceIngredientText; bukan altLabel.,MAP
+Retinol microcaps,C,REVIEW,ex:RetinolIngredient,,,MAP_PROPOSED,RetinolIngredient,,1,WAR-0016,WAR-0016:Adult,YA,Retinol dalam bentuk mikrokapsul; alasan sama dengan Micro Encapsulation Retinol. Pemetaan TIDAK berarti aman untuk remaja; status Teen/Adult & catatan A7 tidak diubah.,MAP
+salicylic acid,A,MAP,ex:SalicylicAcidIngredient,Salicylic Acid,salicylic acid,,,,1,LAB-0056,LAB-0056:Adult/Teen,YA,Variasi penulisan bahan yang sama → altLabel.,MAP
+Salicylic Acid (BHA),A,MAP,ex:SalicylicAcidIngredient,Salicylic Acid,,,,,1,LAB-0054,LAB-0054:Adult/Teen,YA,Keterangan dalam kurung tidak dijadikan altLabel (konfirmasi final). Relasi tetap; teks asli di sourceIngredientText.,MAP
+salicylic acid (bha),A,MAP,ex:SalicylicAcidIngredient,Salicylic Acid,,,,,1,LAB-0062,LAB-0062:Adult/Teen,YA,Keterangan dalam kurung tidak dijadikan altLabel (konfirmasi final). Relasi tetap; teks asli di sourceIngredientText.,MAP
+Sodium Hyaluronate,A,MAP,ex:SodiumHyaluronateIngredient,Sodium Hyaluronate,,,,,1,LAB-0053,LAB-0053:Adult/Teen,YA,Nama bahan spesifik.,MAP
+sodium hyaluronate,A,MAP,ex:SodiumHyaluronateIngredient,Sodium Hyaluronate,sodium hyaluronate,,,,1,WAR-0052,WAR-0052:Adult,YA,Variasi penulisan bahan yang sama → altLabel.,MAP
+Soothing & Barrier Repair,E,REVIEW,,,,KEEP_TEXT,,,1,LAB-0066,LAB-0066:Adult/Teen,YA,"Deskripsi/fungsi/klaim umum, bukan bahan spesifik.",KEEP_TEXT
+Soothing & Hydrating Agents,E,REVIEW,,,,KEEP_TEXT,,,1,KAH-0047,KAH-0047:,YA,"Deskripsi/fungsi/klaim umum, bukan bahan spesifik.",KEEP_TEXT
+Soothing ingredients,E,REVIEW,,,,KEEP_TEXT,,,2,KAH-0049;WAR-0023,KAH-0049:Adult;WAR-0023:Adult/Teen,YA,"Deskripsi/fungsi/klaim umum, bukan bahan spesifik.",KEEP_TEXT
+Squalane,A,MAP,ex:SqualaneIngredient,Squalane,,,,,1,TAV-0005,TAV-0005:Adult,YA,Nama bahan spesifik.,MAP
+Summer plum extract,A,MAP,ex:SummerPlumExtractIngredient,Summer Plum Extract,Summer plum extract,,,,3,EMI-0026;EMI-0027;EMI-0029,EMI-0026:Adult/Teen;EMI-0027:Adult/Teen;EMI-0029:Teen,YA,Variasi penulisan bahan yang sama → altLabel.,MAP
+summer plum extract,A,MAP,ex:SummerPlumExtractIngredient,Summer Plum Extract,summer plum extract,,,,2,EMI-0028;EMI-0040,EMI-0028:Adult/Teen;EMI-0040:Adult/Teen,YA,Variasi penulisan bahan yang sama → altLabel.,MAP
+"Superberries (Goji, Acai, dan Japanese Beauty Berry) + Amino Acid Complex",D,REVIEW,,,,KEEP_TEXT,,,1,TAV-0006,TAV-0006:Adult,YA,"Kompleks/teknologi/kelas umum, bukan individu Ingredient.",KEEP_TEXT
+Swiss Glacial Water & Arctic Marine Algae,D,REVIEW,,,,KEEP_TEXT,,,1,KAH-0039,KAH-0039:Adult,YA,"Kompleks/teknologi/kelas umum, bukan individu Ingredient.",KEEP_TEXT
+SymRadiance399,C,REVIEW,,,,NEED_SOURCE,-,,1,WAR-0052,WAR-0052:Adult,YA,Nama dagang; komposisinya tidak terdokumentasi di repository.,HOLD
+Targeted Salicylic Acid,C,REVIEW,ex:SalicylicAcidIngredient,,,MAP_PROPOSED,SalicylicAcidIngredient,,1,LAB-0069,LAB-0069:Adult/Teen,YA,"Sama dengan di atas; ""Targeted"" tidak dijadikan altLabel karena bukan nama bahan.",MAP
+Texture & Oil Control,E,REVIEW,,,,KEEP_TEXT,,,1,LAB-0066,LAB-0066:Adult/Teen,YA,"Deskripsi/fungsi/klaim umum, bukan bahan spesifik.",KEEP_TEXT
+tranexamic acid,A,MAP,ex:TranexamicAcidIngredient,Tranexamic Acid,tranexamic acid,,,,1,EMI-0032,EMI-0032:Adult/Teen,YA,Variasi penulisan bahan yang sama → altLabel.,MAP
+Tranexamic acid complex,D,REVIEW,,,,KEEP_TEXT,,,1,WAR-0009,WAR-0009:Adult,YA,"Kompleks/teknologi/kelas umum, bukan individu Ingredient.",KEEP_TEXT
+tujuh minyak tanaman,E,REVIEW,,,,KEEP_TEXT,,,1,CRY-0008,CRY-0008:Adult,YA,"Deskripsi/fungsi/klaim umum, bukan bahan spesifik.",KEEP_TEXT
+Ultra Refreshing Packaging Mechanism,E,REVIEW,,,,KEEP_TEXT,,,1,LAB-0068,LAB-0068:Adult/Teen,YA,"Deskripsi/fungsi/klaim umum, bukan bahan spesifik.",KEEP_TEXT
+UV filters,E,REVIEW,,,,KEEP_TEXT,,,7,EMI-0035;EMI-0036;EMI-0037;KAH-0047;KAH-0048;KAH-0049;WAR-0012,EMI-0035:Adult/Teen;EMI-0036:Teen;EMI-0037:Adult/Teen;KAH-0047:;KAH-0048:Adult;KAH-0049:Adult;WAR-0012:Adult,YA,"Deskripsi/fungsi/klaim umum, bukan bahan spesifik.",KEEP_TEXT
+Vitamin B12 (Cyanocobalamin),A,MAP,ex:VitaminB12Ingredient,Vitamin B12,,,,,1,LAB-0059,LAB-0059:Adult/Teen,YA,Keterangan dalam kurung tidak dijadikan altLabel (konfirmasi final). Relasi tetap; teks asli di sourceIngredientText.,MAP
+Vitamin B3,C,REVIEW,,,,KEEP_TEXT,-,,1,EMI-0026,EMI-0026:Adult/Teen,YA,Vitamin B3 bisa niacinamide atau niacin (nicotinic acid); tidak digabung dengan Niacinamide.,KEEP_TEXT
+Vitamin C,A,MAP,ex:VitaminCIngredient,Vitamin C,,,,,6,WAR-0001;WAR-0003;WAR-0004;WAR-0015;WAR-0050;WAR-0051,WAR-0001:Adult/Teen;WAR-0003:Adult/Teen;WAR-0004:Adult/Teen;WAR-0015:Adult/Teen;WAR-0050:Adult/Teen;WAR-0051:Adult,YA,Nama bahan spesifik.,MAP
+Vitamin E,A,MAP,ex:VitaminEIngredient,Vitamin E,,,,,1,WAR-0001,WAR-0001:Adult/Teen,YA,Nama bahan spesifik.,MAP
+YouthGlow Active,P,HOLD,,,,,,,4,CRY-0004;CRY-0005;CRY-0007;CRY-0009,CRY-0004:Adult;CRY-0005:Adult;CRY-0007:Adult;CRY-0009:Adult,YA,Bahan proprietary Crystallure; ditahan sampai ada sumber yang mendukung klasifikasi (keputusan #1).,HOLD
+youthglow active,P,HOLD,,,,,,,1,CRY-0008,CRY-0008:Adult,YA,Bahan proprietary Crystallure; ditahan sampai ada sumber yang mendukung klasifikasi (keputusan #1).,HOLD
+Zinc,C,REVIEW,,,,KEEP_TEXT,-,,1,TAV-0003,TAV-0003:Adult,YA,Bentuk senyawa seng tidak disebut (PCA/oxide/gluconate/…); tidak boleh digabung dengan Zinc PCA.,KEEP_TEXT
+zinc,C,REVIEW,,,,KEEP_TEXT,-,,1,WAR-0020,WAR-0020:Adult/Teen,YA,"Sama dengan ""Zinc""; jika nanti diputuskan, kedua literal harus mengikuti keputusan yang sama (altLabel).",KEEP_TEXT
+Zinc Oxide (Nano) and Titanium Dioxide (Nano) as UV filters,F,REVIEW,,,,NEED_SOURCE,,,1,LAB-0065,LAB-0065:Adult/Teen,YA,Data rusak: Potongan kalimat; memuat 2 bahan.,HOLD
+Zinc PCA,A,MAP,ex:ZincPCAIngredient,Zinc PCA,,,,,1,LAB-0054,LAB-0054:Adult/Teen,YA,Nama bahan spesifik.,MAP
