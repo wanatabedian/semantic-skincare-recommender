@@ -164,7 +164,7 @@
                 <a href="#produk" class="smooth-btn bg-[#E6748E] hover:bg-[#E6748E] text-white px-8 py-4 rounded-2xl text-xs font-black uppercase tracking-wider shadow-lg">
                     Eksplor Skincare ➔
                 </a>
-                <a href="#edukasi" class="smooth-btn bg-[#FFFEFA] text-[#E6748E] border border-[#E6748E]/15 px-8 py-4 rounded-2xl text-xs font-black uppercase tracking-wider">
+                <a href="{{ route('kuis') }}" class="smooth-btn bg-[#FFFEFA] text-[#E6748E] border border-[#E6748E]/15 px-8 py-4 rounded-2xl text-xs font-black uppercase tracking-wider">
                     Mulai Skin Quiz
                 </a>
             </div>
