@@ -30,6 +30,8 @@ class CompleteYourSegmentTest extends TestCase
             'teenLocked' => $bool($flags['locked'] ?? false),
             'concernMatches' => $int($flags['concern'] ?? 0),
             'skinMatches' => $int($flags['skin'] ?? 1),
+            // Bahan dari ex:hasIngredient, dikirim query sebagai URI dipisah spasi (GROUP_CONCAT).
+            'ingredientList' => ['type' => 'literal', 'value' => implode(' ', array_map(fn ($i) => self::EX.$i, $flags['ingredients'] ?? []))],
         ];
     }
 
@@ -40,6 +42,9 @@ class CompleteYourSegmentTest extends TestCase
             ['ageGroup' => ['type' => 'uri', 'value' => self::EX.'Adult'], 'ageGroupLabel' => ['type' => 'literal', 'value' => 'Dewasa']],
             ['routineCategory' => ['type' => 'uri', 'value' => self::EX.'SunscreenCategory'], 'routineCategoryLabel' => ['type' => 'literal', 'value' => 'Tabir Surya (Sunscreen)']],
             ['routineCategory' => ['type' => 'uri', 'value' => self::EX.'EyeCareCategory'], 'routineCategoryLabel' => ['type' => 'literal', 'value' => 'Perawatan Mata']],
+            ['ingredientItem' => ['type' => 'uri', 'value' => self::EX.'Retinol'], 'ingredientItemLabel' => ['type' => 'literal', 'value' => 'Retinol']],
+            ['ingredientItem' => ['type' => 'uri', 'value' => self::EX.'SalicylicAcid'], 'ingredientItemLabel' => ['type' => 'literal', 'value' => 'Salicylic Acid (BHA)']],
+            ['ingredientItem' => ['type' => 'uri', 'value' => self::EX.'AHA'], 'ingredientItemLabel' => ['type' => 'literal', 'value' => 'AHA (Glycolic Acid)']],
         ];
     }
 
@@ -187,6 +192,153 @@ class CompleteYourSegmentTest extends TestCase
     }
 
     // ------------------------------------------------------------------
+    // Bagian 1b: integrasi IngredientConflictDetector (mock Fuseki).
+    // ------------------------------------------------------------------
+
+    public function test_retinol_and_bha_from_different_products_warn_only_in_the_night_routine(): void
+    {
+        // Data asli ontologi clean: TAV-0004 (Retinol + Peptide), TAV-0002 (Ceramide + PHA + SalicylicAcid).
+        $this->mockFuseki([
+            $this->candidate('TAV-0004', 'SerumCategory', ['series' => true, 'retinol' => true, 'ingredients' => ['Peptide', 'Retinol'], 'name' => 'TAVI 1% Encapsulated Retinol + Peptide']),
+            $this->candidate('TAV-0002', 'TonerCategory', ['ingredients' => ['Ceramide', 'PHA', 'SalicylicAcid'], 'name' => 'TAVI Natural PHA + BHA Retexture Toner']),
+        ], fn ($q) => str_contains($q, '?product ex:hasIngredient ?ingredientUri') && str_contains($q, 'AS ?ingredientList'));
+
+        $response = $this->get('/produk/TAV-0004')->assertOk();
+        $routine = $response->viewData('routine');
+
+        $this->assertNull($routine['conflict_error']);
+        // Pagi: TAV-0004 hanya Malam -> tidak ada pasangan Retinol.
+        $this->assertSame([], $routine['conflicts']['pagi']['conflicts']);
+
+        $night = $routine['conflicts']['malam'];
+        $this->assertCount(1, $night['conflicts']);                     // hasil asli detektor tetap utuh
+        $this->assertSame('retinoid-chemical-exfoliant', $night['conflicts'][0]['rule']);
+        $this->assertCount(1, $night['groups']);
+        $group = $night['groups'][0];
+        $this->assertSame('Perlu diperhatikan', $group['level_label']);
+        // Urutan produk mengikuti urutan langkah rutinitas: Toner (TAV-0002) sebelum Serum (TAV-0004).
+        $this->assertSame(['TAV-0002', 'TAV-0004'], array_column($group['products'], 'id'));
+        $this->assertSame(['Salicylic Acid (BHA)'], $group['products'][0]['ingredients']);  // label dari ontologi
+        $this->assertSame(['Retinol'], $group['products'][1]['ingredients']);
+        $this->assertEqualsCanonicalizing(['TAV-0004', 'TAV-0002'], $night['involved_ids']);
+
+        $response->assertSee('Perlu diperhatikan')
+            ->assertSee('Salicylic Acid (BHA) + Retinol')
+            ->assertSee('Pertimbangkan untuk memisahkan waktu pemakaiannya.')
+            ->assertSee('TAVI Natural PHA + BHA Retexture Toner')
+            ->assertSee('https://www.aad.org/public/everyday-care/skin-care-secrets/routine/safely-exfoliate-at-home', false)
+            ->assertSee('Perhatikan kombinasi bahan');
+    }
+
+    public function test_alternatives_are_never_checked_for_conflicts(): void
+    {
+        $this->mockFuseki([
+            $this->candidate('WAR-0001', 'SunscreenCategory', ['series' => true, 'ingredients' => ['VitaminC']]),
+            // Alternatif se-seri berisi AHA: kalau ikut diperiksa, akan berpasangan dengan BHA di cleanser.
+            $this->candidate('WAR-0002', 'SunscreenCategory', ['series' => true, 'ingredients' => ['AHA']]),
+            $this->candidate('LAB-0056', 'CleanserCategory', ['ingredients' => ['SalicylicAcid']]),
+        ]);
+
+        $routine = $this->get('/produk/WAR-0001')->assertOk()->viewData('routine');
+
+        $this->assertSame(['WAR-0002'], array_column($this->stepFor($routine, 'SunscreenCategory')['alternatives'], 'id'));
+        foreach (['pagi', 'malam'] as $time) {
+            $this->assertSame([], $routine['conflicts'][$time]['conflicts'], $time);
+            $this->assertNotContains('WAR-0002', $routine['conflicts'][$time]['involved_ids']);
+            $this->assertNotContains('WAR-0002', array_column($routine['conflicts'][$time]['unchecked'], 'id'));
+        }
+    }
+
+    public function test_repeated_warnings_are_grouped_per_rule_without_changing_raw_result(): void
+    {
+        // Seri AcnePro: tiga produk berisi SalicylicAcid -> tiga pasangan, satu peringatan.
+        $this->mockFuseki([
+            $this->candidate('LAB-0055', 'TonerCategory', ['series' => true, 'ingredients' => ['Niacinamide', 'SalicylicAcid']]),
+            $this->candidate('LAB-0056', 'CleanserCategory', ['series' => true, 'ingredients' => ['Niacinamide', 'SalicylicAcid', 'Zinc']]),
+            $this->candidate('LAB-0069', 'SerumCategory', ['series' => true, 'ingredients' => ['Niacinamide', 'SalicylicAcid']]),
+        ]);
+
+        $response = $this->get('/produk/LAB-0055')->assertOk();
+        $morning = $response->viewData('routine')['conflicts']['pagi'];
+
+        $this->assertCount(3, $morning['conflicts']);
+        $this->assertCount(1, $morning['groups']);
+        $this->assertSame(3, $morning['groups'][0]['pair_count']);
+        $this->assertSame(['LAB-0056', 'LAB-0055', 'LAB-0069'], array_column($morning['groups'][0]['products'], 'id'));
+        $this->assertSame(['Salicylic Acid (BHA)'], $morning['groups'][0]['ingredients']);
+
+        // Satu peringatan per kolom (Pagi + Malam), bukan tiga.
+        $reason = 'Penggunaan beberapa produk eksfolian dalam waktu yang sama dapat meningkatkan risiko eksfoliasi berlebihan.';
+        $this->assertSame(2, substr_count($response->getContent(), $reason));
+    }
+
+    public function test_optional_step_product_is_checked_when_selected(): void
+    {
+        $this->mockFuseki([
+            $this->candidate('LAB-0056', 'CleanserCategory', ['series' => true, 'ingredients' => ['SalicylicAcid']]),
+            $this->candidate('MST-0001', 'FaceMistCategory', ['ingredients' => ['AHA']]),
+        ]);
+
+        $routine = $this->get('/produk/LAB-0056')->assertOk()->viewData('routine');
+
+        $this->assertTrue($this->stepFor($routine, 'FaceMistCategory')['optional']);
+        $this->assertContains('MST-0001', $routine['conflicts']['pagi']['involved_ids']);
+        $this->assertSame('multiple-chemical-exfoliants', $routine['conflicts']['pagi']['conflicts'][0]['rule']);
+    }
+
+    public function test_products_without_ingredient_data_are_shown_as_unchecked(): void
+    {
+        $this->mockFuseki([
+            $this->candidate('WAR-0015', 'CleanserCategory', ['series' => true, 'ingredients' => ['VitaminC', 'Panthenol']]),
+            $this->candidate('KAH-0047', 'SunscreenCategory', ['name' => 'Bright Fresh Sunscreen Serum SPF 35 PA++++']),
+        ]);
+
+        $response = $this->get('/produk/WAR-0015')->assertOk();
+        $morning = $response->viewData('routine')['conflicts']['pagi'];
+
+        $this->assertSame(['KAH-0047'], array_column($morning['unchecked'], 'id'));
+        $this->assertSame(1, $morning['checked_count']);
+        $this->assertSame([], $morning['conflicts']);
+        $response->assertSee('Belum dapat diperiksa')
+            ->assertSee('Bright Fresh Sunscreen Serum SPF 35 PA++++')
+            ->assertSee('bukan saran medis');
+    }
+
+    public function test_teen_lock_still_runs_before_conflict_check(): void
+    {
+        $this->mockFuseki([
+            $this->candidate('LAB-0055', 'TonerCategory', ['series' => true, 'ingredients' => ['Niacinamide', 'SalicylicAcid']]),
+            $this->candidate('LAB-0054', 'SpotTreatmentCategory', ['series' => true, 'locked' => true, 'retinol' => true, 'ingredients' => ['Probiotic', 'Retinol', 'SalicylicAcid']]),
+        ]);
+
+        $routine = $this->get('/produk/LAB-0055?age=Teen')->assertOk()->viewData('routine');
+
+        $this->assertSame(1, $routine['hidden_series_count']);
+        foreach (['pagi', 'malam'] as $time) {
+            $this->assertNotContains('retinoid-chemical-exfoliant', array_column($routine['conflicts'][$time]['conflicts'], 'rule'));
+            $this->assertNotContains('LAB-0054', $routine['conflicts'][$time]['involved_ids']);
+        }
+    }
+
+    public function test_routine_still_renders_when_conflict_check_fails(): void
+    {
+        $this->mockFuseki([
+            $this->candidate('TAV-0004', 'SerumCategory', ['series' => true, 'retinol' => true, 'ingredients' => ['Retinol']]),
+        ]);
+        $this->mock(\App\Services\IngredientConflictDetector::class)
+            ->shouldReceive('detect')->andThrow(new RuntimeException('detektor gagal'));
+
+        $response = $this->get('/produk/TAV-0004')->assertOk();
+        $routine = $response->viewData('routine');
+
+        $this->assertNull($routine['conflicts']);
+        $this->assertSame('TAV-0004', $this->stepFor($routine, 'SerumCategory')['product']['id']);
+        $response->assertSee('id="lengkapi-rutinitas"', false)
+            ->assertSee('Pemeriksaan kombinasi bahan sementara tidak tersedia.')
+            ->assertDontSee('Rutinitas sementara tidak dapat dimuat.');
+    }
+
+    // ------------------------------------------------------------------
     // Bagian 2: uji integrasi dengan Fuseki sungguhan (dilewati jika Fuseki mati).
     // ------------------------------------------------------------------
 
@@ -300,5 +452,54 @@ class CompleteYourSegmentTest extends TestCase
         $spot = $this->stepFor($anyRoutine, 'SpotTreatmentCategory');
         $this->assertSame('LAB-0054', $spot['product']['id']);
         $this->assertSame(['malam'], $spot['times']);
+    }
+
+    public function test_real_conflict_check_uses_only_primary_products_of_each_time(): void
+    {
+        $fuseki = $this->realFuseki();
+        $withIngredients = $this->ids($fuseki, '?p ex:hasIngredient ?i');
+        $retinol = $this->ids($fuseki, '?p ex:hasIngredient ex:Retinol');
+
+        foreach ($this->ids($fuseki, '?p a ex:Product') as $id) {
+            foreach (['', '?age=Teen'] as $query) {
+                $routine = $this->get("/produk/{$id}{$query}")->assertOk()->viewData('routine');
+                $this->assertNull($routine['conflict_error'], $id.$query);
+
+                $alternatives = [];
+                foreach ($routine['steps'] as $step) {
+                    $alternatives = array_merge($alternatives, array_column($step['alternatives'], 'id'));
+                }
+
+                foreach (['pagi', 'malam'] as $time) {
+                    $primary = array_values(array_filter(array_map(fn ($s) => $s['product']['id'] ?? null, $routine[$time])));
+                    $check = $routine['conflicts'][$time];
+                    $involved = [];
+                    foreach ($check['conflicts'] as $conflict) {
+                        $involved = array_merge($involved, array_column($conflict['products'], 'id'));
+                        if ($query !== '') {
+                            $this->assertNotSame('retinoid-chemical-exfoliant', $conflict['rule'], "Teen {$id} {$time}");
+                        }
+                    }
+                    $label = "{$id}{$query} {$time}";
+
+                    $this->assertSame([], array_values(array_diff($involved, $primary)), "bukan produk utama: {$label}");
+                    $this->assertSame([], array_values(array_diff($check['involved_ids'], $primary)), $label);
+                    // Unchecked = tepat produk utama tanpa data bahan; checked + unchecked = semua produk utama.
+                    $unchecked = array_column($check['unchecked'], 'id');
+                    $this->assertEqualsCanonicalizing(array_values(array_diff($primary, $withIngredients)), $unchecked, $label);
+                    $this->assertSame(count(array_unique($primary)), $check['checked_count'] + count($unchecked), $label);
+                    if ($query !== '') {
+                        $this->assertSame([], array_values(array_intersect($primary, $retinol)), $label);
+                    }
+                    // Alternatif tidak pernah ikut kecuali kebetulan juga produk utama di waktu ini.
+                    $this->assertSame([], array_values(array_diff(array_intersect($involved, $alternatives), $primary)), $label);
+                }
+            }
+        }
+
+        // Kasus nyata: rutinitas Malam TAV-0004 berisi LAB-0054 (BHA) -> peringatan Retinol + BHA.
+        $night = $this->get('/produk/TAV-0004')->assertOk()->viewData('routine')['conflicts']['malam'];
+        $this->assertContains('retinoid-chemical-exfoliant', array_column($night['groups'], 'rule'));
+        $this->assertContains('TAV-0004', $night['involved_ids']);
     }
 }

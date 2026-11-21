@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\FusekiService;
+use App\Services\IngredientConflictDetector;
 use App\Services\Recommendation\RecommendationEngine;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -29,6 +30,7 @@ class ProductController extends Controller
     public function __construct(
         private FusekiService $fuseki,
         private RecommendationEngine $engine,
+        private IngredientConflictDetector $conflictDetector,
     ) {}
 
     public function show(Request $request, string $id)
@@ -141,7 +143,7 @@ class ProductController extends Controller
     private function completeYourSegment(string $id, mixed $ageParam): array
     {
         $categories = implode(' ', array_map(fn ($c) => "ex:{$c}", array_keys(self::ROUTINE_STEPS)));
-        [$age, $categoryLabels] = $this->routineVocabulary($ageParam, $categories);
+        [$age, $categoryLabels, $ingredientLabels] = $this->routineVocabulary($ageParam, $categories);
         $teenLock = $age !== null && $age['value'] === config('recommendation.teen_lock.age_group', 'Teen');
         // Filter keras kelompok umur (sama seperti mesin rekomendasi).
         $ageFilter = $age !== null ? "?product ex:suitableForAgeGroup ex:{$age['value']} ." : '';
@@ -161,6 +163,7 @@ class ProductController extends Controller
                 (SAMPLE(?lockedFlag) AS ?teenLocked)
                 (COUNT(DISTINCT ?sharedConcern) AS ?concernMatches)
                 (COUNT(DISTINCT ?sharedSkin) AS ?skinMatches)
+                (GROUP_CONCAT(DISTINCT STR(?ingredientUri); separator=" ") AS ?ingredientList)
             WHERE {
                 BIND(ex:{$id} AS ?source)
                 VALUES ?category { {$categories} }
@@ -181,6 +184,8 @@ class ProductController extends Controller
                     ?source ex:suitableForSkinType ?sharedSkin . ?product ex:suitableForSkinType ?sharedSkin .
                     ?sharedSkin a ex:SkinType .
                 }
+                # Bahan produk, untuk pemeriksaan kombinasi bahan antarproduk (tidak memengaruhi pemilihan langkah).
+                OPTIONAL { ?product ex:hasIngredient ?ingredientUri . ?ingredientUri a ex:Ingredient . }
             }
             GROUP BY ?product ?name ?category
         SPARQL);
@@ -222,6 +227,10 @@ class ProductController extends Controller
                 'has_retinol' => $this->isTrue($row['hasRetinol'] ?? null),
                 'concern_matches' => (int) ($row['concernMatches']['value'] ?? 0),
                 'skin_matches' => (int) ($row['skinMatches']['value'] ?? 0),
+                'ingredients' => array_values(array_map(
+                    fn ($uri) => $this->fuseki->local($uri),
+                    array_filter(explode(' ', trim($row['ingredientList']['value'] ?? '')))
+                )),
             ];
         }
 
@@ -269,7 +278,7 @@ class ProductController extends Controller
             ];
         }
 
-        return [
+        $routine = [
             'age' => $age,
             'teen_lock' => $teenLock,
             'main_hidden' => $mainHidden,
@@ -278,30 +287,129 @@ class ProductController extends Controller
             'pagi' => array_values(array_filter($steps, fn ($s) => in_array('pagi', $s['times'], true))),
             'malam' => array_values(array_filter($steps, fn ($s) => in_array('malam', $s['times'], true))),
         ];
+
+        // Pemeriksaan kombinasi bahan per waktu pakai. Gagal di sini tidak boleh menggagalkan rutinitas.
+        try {
+            $routine['conflicts'] = [
+                'pagi' => $this->routineConflicts($routine['pagi'], $ingredientLabels),
+                'malam' => $this->routineConflicts($routine['malam'], $ingredientLabels),
+            ];
+            $routine['conflict_error'] = null;
+        } catch (\Throwable $e) {
+            report($e);
+            $routine['conflicts'] = null;
+            $routine['conflict_error'] = 'Pemeriksaan kombinasi bahan sementara tidak tersedia.';
+        }
+
+        return $routine;
     }
 
     /**
-     * Label kategori rutinitas dan daftar kelompok umur dari ontologi.
+     * Jalankan IngredientConflictDetector untuk satu waktu pakai (Pagi atau Malam).
+     * Hanya produk utama tiap langkah yang diperiksa (termasuk langkah opsional jika terisi);
+     * alternatif tidak pernah ikut. Hasil asli detektor disimpan utuh, ditambah
+     * `groups` (peringatan dikelompokkan per aturan) dan `involved_ids` untuk tampilan.
+     */
+    private function routineConflicts(array $steps, array $ingredientLabels): array
+    {
+        $products = [];
+        foreach ($steps as $step) {
+            if ($step['product'] === null) {
+                continue;
+            }
+            $item = $step['product'];
+            $products[] = [
+                'id' => $item['id'],
+                'name' => $item['name'],
+                'ingredients' => $item['ingredients'] ?? [],
+                'ingredient_labels' => array_intersect_key($ingredientLabels, array_flip($item['ingredients'] ?? [])),
+            ];
+        }
+
+        $result = $this->conflictDetector->detect($products);
+        $result['groups'] = $this->groupConflicts($result['conflicts']);
+
+        $involved = [];
+        foreach ($result['groups'] as $group) {
+            foreach ($group['products'] as $product) {
+                $involved[$product['id']] = true;
+            }
+        }
+        $result['involved_ids'] = array_keys($involved);
+
+        return $result;
+    }
+
+    /** Gabungkan konflik berpasangan dengan aturan yang sama menjadi satu peringatan. */
+    private function groupConflicts(array $conflicts): array
+    {
+        $groups = [];
+
+        foreach ($conflicts as $conflict) {
+            $rule = $conflict['rule'];
+            $groups[$rule] ??= [
+                'rule' => $rule,
+                'level' => $conflict['level'],
+                'level_label' => $conflict['level_label'],
+                'reason' => $conflict['reason'],
+                'sources' => $conflict['sources'],
+                'products' => [],
+                'ingredients' => [],
+                'pair_count' => 0,
+            ];
+            $groups[$rule]['pair_count']++;
+
+            foreach ($conflict['products'] as $product) {
+                $entry = &$groups[$rule]['products'][$product['id']];
+                $entry ??= ['id' => $product['id'], 'name' => $product['name'], 'ingredients' => []];
+                foreach ($product['ingredients'] as $ingredient) {
+                    $entry['ingredients'][$ingredient['id']] = $ingredient['label'];
+                    $groups[$rule]['ingredients'][$ingredient['id']] = $ingredient['label'];
+                }
+                unset($entry);
+            }
+        }
+
+        return array_values(array_map(function (array $group) {
+            $group['products'] = array_values(array_map(function (array $product) {
+                $product['ingredients'] = array_values($product['ingredients']);
+
+                return $product;
+            }, $group['products']));
+            $group['ingredients'] = array_values($group['ingredients']);
+
+            return $group;
+        }, $groups));
+    }
+
+    /**
+     * Label kategori rutinitas, label bahan, dan daftar kelompok umur dari ontologi.
      * Parameter ?age= hanya dipakai jika benar-benar ada sebagai ex:AgeGroup (whitelist).
      *
-     * @return array{0: ?array, 1: array<string, string>}
+     * @return array{0: ?array, 1: array<string, string>, 2: array<string, string>}
      */
     private function routineVocabulary(mixed $ageParam, string $categories): array
     {
         $rows = $this->fuseki->query(<<<SPARQL
-            SELECT ?ageGroup ?ageGroupLabel ?routineCategory ?routineCategoryLabel WHERE {
+            SELECT ?ageGroup ?ageGroupLabel ?routineCategory ?routineCategoryLabel ?ingredientItem ?ingredientItemLabel WHERE {
                 { ?ageGroup a ex:AgeGroup . OPTIONAL { ?ageGroup rdfs:label ?ageGroupLabel } }
                 UNION
                 { VALUES ?routineCategory { {$categories} } ?routineCategory rdfs:label ?routineCategoryLabel }
+                UNION
+                { ?ingredientItem a ex:Ingredient ; rdfs:label ?ingredientItemLabel }
             }
         SPARQL);
 
         $age = null;
         $labels = [];
+        $ingredientLabels = [];
 
         foreach ($rows as $row) {
             if (isset($row['routineCategory']['value'])) {
                 $labels[$this->fuseki->local($row['routineCategory']['value'])] = trim($row['routineCategoryLabel']['value'] ?? '');
+            }
+            if (isset($row['ingredientItem']['value'])) {
+                $ingredientLabels[$this->fuseki->local($row['ingredientItem']['value'])] = trim($row['ingredientItemLabel']['value'] ?? '');
             }
             if (is_string($ageParam) && isset($row['ageGroup']['value']) && $this->fuseki->local($row['ageGroup']['value']) === $ageParam
                 && preg_match('/^[A-Za-z][A-Za-z0-9_]*$/', $ageParam) === 1) {
@@ -309,7 +417,7 @@ class ProductController extends Controller
             }
         }
 
-        return [$age, array_filter($labels)];
+        return [$age, array_filter($labels), array_filter($ingredientLabels)];
     }
 
     private function isTrue(?array $term): bool
