@@ -252,7 +252,7 @@
                         <a href="#produk"
                            class="smooth-card bg-gradient-to-br from-[#E6748E] to-[#1A2B2A] p-8 rounded-[32px] border border-[#6BB1AD]/30 shadow-xl hover:border-[#E6748E] text-center flex flex-col items-center justify-center min-h-[200px] text-white no-underline animate-fade-scale group">
                             <div class="w-20 h-20 bg-[#FDEEF1] rounded-3xl flex items-center justify-center mb-5 shadow-lg p-3 text-3xl text-[#6BB1AD] font-serif font-bold">
-                                <img src="{{ asset('images/labore.jpg') }}" alt="Shopee" class="smooth-img w-full h-full object-contain">
+                                <img src="{{ asset('images/logo/labore.jpg') }}" alt="Shopee" class="smooth-img w-full h-full object-contain">
                             </div>
                             <span class="font-serif font-bold text-xl tracking-wide">labore</span>
                         </a>
@@ -260,7 +260,7 @@
                         <a href="#produk"
                            class="smooth-card bg-gradient-to-br from-[#E6748E] to-[#1A2B2A] p-8 rounded-[32px] border border-[#6BB1AD]/30 shadow-xl hover:border-[#E6748E] text-center flex flex-col items-center justify-center min-h-[200px] text-white no-underline animate-fade-scale group">
                             <div class="w-20 h-20 bg-[#FDEEF1] rounded-3xl flex items-center justify-center mb-5 shadow-lg p-3 text-3xl text-[#E6748E] font-serif font-bold">
-                                <img src="{{ asset('images/wardah.png') }}" alt="wardah" class="smooth-img w-full h-full object-contain">
+                                <img src="{{ asset('images/logo/wardah.png') }}" alt="wardah" class="smooth-img w-full h-full object-contain">
                             </div>
                             <span class="font-serif font-bold text-xl tracking-wide">wardah</span>
                         </a>
@@ -268,7 +268,7 @@
                         <a href="#produk"
                            class="smooth-card bg-gradient-to-br from-[#E6748E] to-[#1A2B2A] p-8 rounded-[32px] border border-[#6BB1AD]/30 shadow-xl hover:border-[#E6748E] text-center flex flex-col items-center justify-center min-h-[200px] text-white no-underline animate-fade-scale group">
                             <div class="w-20 h-20 bg-[#FDEEF1] rounded-3xl flex items-center justify-center mb-5 shadow-lg p-3 text-3xl text-[#6BB1AD] font-serif font-bold">
-                                <img src="{{ asset('images/tavi.jpg') }}"">
+                                <img src="{{ asset('images/logo/tavi.jpg') }}"">
                             </div>
                             <span class="font-serif font-bold text-xl tracking-wide">tavi</span>
                         </a>
@@ -276,7 +276,7 @@
                         <a href="#produk"
                            class="smooth-card bg-gradient-to-br from-[#E6748E] to-[#1A2B2A] p-8 rounded-[32px] border border-[#6BB1AD]/30 shadow-xl hover:border-[#E6748E] text-center flex flex-col items-center justify-center min-h-[200px] text-white no-underline animate-fade-scale group">
                             <div class="w-20 h-20 bg-[#FDEEF1] rounded-3xl flex items-center justify-center mb-5 shadow-lg p-3 text-3xl text-[#E6748E] font-serif font-bold">
-                                <img src="{{ asset('images/emina.jpg') }}" alt="Shopee" class="smooth-img w-full h-full object-contain">
+                                <img src="{{ asset('images/logo/emina.jpg') }}" alt="Shopee" class="smooth-img w-full h-full object-contain">
                             </div>
                             <span class="font-serif font-bold text-xl tracking-wide">emina</span>
                         </a>
