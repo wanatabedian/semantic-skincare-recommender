@@ -1,0 +1,15 @@
+individual_uri,proposed_triple,proposed_by,products_using,status,reason,evidence_needed
+ex:AlphaArbutinIngredient,ex:AlphaArbutinIngredient a ex:BrighteningAgent,Copilot (draf v2),2,PERLU_SUMBER,Spesifikasi hanya menyebut kelas BrighteningAgent tanpa anggota; tidak ada sumber di proyek,Fungsi bahan bersumber (CosIng/literatur) atau deskripsi bahan dari Orang 5
+ex:NiacinamideIngredient,ex:NiacinamideIngredient a ex:BrighteningAgent,Copilot (draf v2),16,PERLU_SUMBER,Spesifikasi B3 hanya menyebut targetsConcern Niacinamide -> Kusam; bukan keanggotaan kelas,Fungsi bahan bersumber atau deskripsi bahan dari Orang 5
+ex:NiacinamideIngredient,ex:NiacinamideIngredient ex:targetsConcern ex:DullnessBrightening,Spesifikasi hal. 4 B3,16,DISETUJUI_DITERAPKAN,Bukti: spesifikasi B3 eksplisit 'Niacinamide -> Kusam'; label ex:DullnessBrightening 'Kulit Kusam & Mencerahkan'; 9 dari 16 produk ber-Niacinamide treatsConcern DullnessBrightening. Disetujui Knowledge Engineer dan ditambahkan ke aphrodite-v2.ttl pada 2026-11-21,-
+ex:TranexamicAcidIngredient,ex:TranexamicAcidIngredient a ex:BrighteningAgent,Copilot (draf v2),1,PERLU_SUMBER,Tidak ada sumber di proyek,Fungsi bahan bersumber atau deskripsi bahan dari Orang 5
+ex:VitaminCIngredient,ex:VitaminCIngredient a ex:BrighteningAgent,Copilot (draf v2),6,PERLU_SUMBER,Tidak ada sumber di proyek,Fungsi bahan bersumber atau deskripsi bahan dari Orang 5
+ex:GlycerinIngredient,ex:GlycerinIngredient a ex:Humectant,Copilot (draf v2),3,PERLU_SUMBER,Tidak ada sumber di proyek,Fungsi bahan bersumber atau deskripsi bahan dari Orang 5
+ex:HyaluronicAcidIngredient,ex:HyaluronicAcidIngredient a ex:Humectant,Copilot (draf v2),7,PERLU_SUMBER,Tidak ada sumber di proyek,Fungsi bahan bersumber atau deskripsi bahan dari Orang 5
+ex:SodiumHyaluronateIngredient,ex:SodiumHyaluronateIngredient a ex:Humectant,Copilot (draf v2),2,PERLU_SUMBER,Tidak ada sumber di proyek,Fungsi bahan bersumber atau deskripsi bahan dari Orang 5
+ex:PentavitinIngredient,ex:PentavitinIngredient a ex:Humectant,Copilot (draf v2),2,PERLU_SUMBER,Tidak ada sumber di proyek,Fungsi bahan bersumber atau deskripsi bahan dari Orang 5
+ex:PanthenolIngredient,ex:PanthenolIngredient a ex:Humectant,Copilot (draf v2),2,PERLU_SUMBER,Tidak ada sumber di proyek; diusulkan dua kelas sekaligus,Fungsi bahan bersumber atau deskripsi bahan dari Orang 5
+ex:PanthenolIngredient,ex:PanthenolIngredient a ex:SoothingAgent,Copilot (draf v2),2,PERLU_SUMBER,Tidak ada sumber di proyek; diusulkan dua kelas sekaligus,Fungsi bahan bersumber atau deskripsi bahan dari Orang 5
+ex:CeramideIngredient,ex:CeramideIngredient a ex:BarrierRepair,Copilot (draf v2),3,PERLU_SUMBER,Tidak ada sumber di proyek,Fungsi bahan bersumber atau deskripsi bahan dari Orang 5
+ex:CeramideNPIngredient,ex:CeramideNPIngredient a ex:BarrierRepair,Copilot (draf v2),2,PERLU_SUMBER,Tidak ada sumber di proyek,Fungsi bahan bersumber atau deskripsi bahan dari Orang 5
+ex:AllantoinIngredient,ex:AllantoinIngredient a ex:SoothingAgent,Copilot (draf v2),1,PERLU_SUMBER,Tidak ada sumber di proyek,Fungsi bahan bersumber atau deskripsi bahan dari Orang 5

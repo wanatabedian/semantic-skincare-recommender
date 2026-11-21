@@ -2,6 +2,7 @@
 @prefix ex: <https://example.org/skincare-ontology#> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema: <https://schema.org/> .
 @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
@@ -20,9 +21,11 @@ ex:CRY-0001 a ex:Product ;
     ex:sourceProductId "CRY-0001" ;
     ex:sourceSkinTypeText "PerluVerifikasi" ;
     ex:suitableForAgeGroup ex:Adult ;
+    ex:suitableForSkinType ex:AllSkinType ;
     ex:treatsConcern ex:Cleansing,
         ex:HydrationMoisture ;
-    ex:verificationNote "A2: jenis kulit belum diverifikasi (sumber: 'Perlu verifikasi')." ;
+    ex:verificationNote "A2: jenis kulit belum diverifikasi (sumber: 'Perlu verifikasi').",
+        "A2 (v2): jenis kulit diisi ex:AllSkinType berdasarkan reports/crystallure_verification.md (sumber resmi, status Verified, klaim 'For All Skin Type'). URL sumber di laporan tampak terpotong dan situs tidak dapat diakses ulang pada 2026-11-21." ;
     ex:verificationStatus "Nama dan bahan utama terverifikasi di situs resmi" .
 
 ex:CRY-0002 a ex:Product ;
@@ -34,9 +37,11 @@ ex:CRY-0002 a ex:Product ;
     ex:sourceProductId "CRY-0002" ;
     ex:sourceSkinTypeText "PerluVerifikasi" ;
     ex:suitableForAgeGroup ex:Adult ;
+    ex:suitableForSkinType ex:AllSkinType ;
     ex:treatsConcern ex:Cleansing ;
     ex:verificationNote "A2: jenis kulit belum diverifikasi (sumber: 'Perlu verifikasi').",
-        "Perlu verifikasi dari label resmi" ;
+        "Perlu verifikasi dari label resmi",
+        "A2 (v2): ex:AllSkinType adalah nilai SEMENTARA sesuai opsi spesifikasi A2; BELUM TERVERIFIKASI dari sumber resmi (pencarian 2026-11-21 hanya menemukan ulasan pengguna)." ;
     ex:verificationStatus "Nama dan bahan utama terverifikasi di situs resmi" .
 
 ex:CRY-0003 a ex:Product ;
@@ -54,7 +59,8 @@ ex:CRY-0003 a ex:Product ;
     ex:treatsConcern ex:DullnessBrightening,
         ex:TextureExfoliation ;
     ex:verificationNote "A1: kolom jenis kulit di sumber berisi nama bahan (3% Encapsulated Ferulic Acid, Gold Peptide Crystals, Meadowfoam Lipidic Essence, PHA); jenis kulit perlu diverifikasi dari situs resmi.",
-        "Ferulic Acid: perlu konfirmasi label" ;
+        "Ferulic Acid: perlu konfirmasi label",
+        "A1 (v2): pencarian 2026-11-21 tidak menemukan halaman resmi yang dapat diakses; jenis kulit tetap kosong sampai ada bukti." ;
     ex:verificationStatus "Nama dan bahan utama terverifikasi di situs resmi" .
 
 ex:CRY-0004 a ex:Product ;
@@ -71,7 +77,8 @@ ex:CRY-0004 a ex:Product ;
     ex:suitableForAgeGroup ex:Adult ;
     ex:treatsConcern ex:AgingFineLines,
         ex:HydrationMoisture ;
-    ex:verificationNote "A1: kolom jenis kulit di sumber berisi nama bahan (Gold Peptide Crystals, YouthGlow Active, dan Triple Hyaluronic Acid); jenis kulit perlu diverifikasi dari situs resmi." ;
+    ex:verificationNote "A1: kolom jenis kulit di sumber berisi nama bahan (Gold Peptide Crystals, YouthGlow Active, dan Triple Hyaluronic Acid); jenis kulit perlu diverifikasi dari situs resmi.",
+        "A1 (v2): pencarian 2026-11-21 tidak menemukan halaman resmi yang dapat diakses; jenis kulit tetap kosong sampai ada bukti." ;
     ex:verificationStatus "Nama dan bahan utama terverifikasi di situs resmi" .
 
 ex:CRY-0005 a ex:Product ;
@@ -550,7 +557,9 @@ ex:KAH-0047 a ex:Product ;
     ex:suitableForSkinType ex:AllSkinType ;
     ex:treatsConcern ex:DullnessBrightening,
         ex:UVProtection ;
-    ex:verificationNote "A6: kelompok umur di sumber tertulis '19' (ambigu); perlu verifikasi." ;
+    ex:verificationNote "A6: kelompok umur di sumber tertulis '19' (ambigu); perlu verifikasi.",
+        "A6 (v2): pencarian 2026-11-21 tidak menemukan halaman resmi produk; kelompok umur tetap kosong sampai ada bukti.",
+        "Temuan v2: listing retailer (Watsons, Female Daily) menulis 'SPF 50 PA++++', sedangkan productName di data menulis 'SPF 35 PA++++'; perlu verifikasi, belum diubah." ;
     ex:verificationStatus "Nama terverifikasi dari retailer" .
 
 ex:KAH-0048 a ex:Product ;
@@ -742,7 +751,8 @@ ex:LAB-0060 a ex:Product ;
     ex:sourceSkinTypeText "SemuaJenisKulit" ;
     ex:suitableForSkinType ex:AllSkinType ;
     ex:treatsConcern ex:SkinBarrier ;
-    ex:verificationNote "A6: kelompok umur di sumber 'Not Specified'; perlu verifikasi." ;
+    ex:verificationNote "A6: kelompok umur di sumber 'Not Specified'; perlu verifikasi.",
+        "A6 (v2): pencarian 2026-11-21 hanya menemukan sumber sekunder (artikel pers dan situs ulasan) untuk versi relaunch 'Repair Biome' yang belum dipastikan sama produk/formulanya; kelompok umur tetap kosong sampai ada bukti resmi." ;
     ex:verificationStatus "Nama dan bahan utama terverifikasi di situs resmi" .
 
 ex:LAB-0061 a ex:Product ;
@@ -925,11 +935,11 @@ ex:LAB-0069 a ex:Product ;
         "Targeted Salicylic Acid" ;
     ex:sourceProductId "LAB-0069" ;
     ex:sourceSkinTypeText "Berminyak" ;
-    ex:suitableForAgeGroup ex:Adult,
-        ex:Teen ;
+    ex:suitableForAgeGroup ex:Adult ;
     ex:suitableForSkinType ex:OilySkinType ;
     ex:treatsConcern ex:Acne ;
-    ex:verificationNote "A7: mengandung 'Micro Encapsulation Retinol' tetapi ditandai Teen; batas usia perlu verifikasi resmi." ;
+    ex:verificationNote "A7: mengandung 'Micro Encapsulation Retinol' tetapi ditandai Teen; batas usia perlu verifikasi resmi.",
+        "A7 (v2): relasi ex:suitableForAgeGroup ex:Teen dihapus sesuai aturan Teen Lock dalam spesifikasi (Retinoid contraindicatedFor Teen); produk mengandung Retinol. Nilai ex:Adult dipertahankan." ;
     ex:verificationStatus "Nama dan bahan utama terverifikasi di situs resmi" .
 
 ex:LAB-0070 a ex:Product ;
@@ -2106,4 +2116,238 @@ ex:Adult a ex:AgeGroup ;
         "Dewasa"@id .
 
 ex:Product a owl:Class .
+
+# Hierarki bahan aktif
+ex:ActiveIngredient a owl:Class ;
+    rdfs:subClassOf ex:Ingredient ;
+    rdfs:label "Active ingredient"@en, "Bahan aktif"@id ;
+    rdfs:comment "Bahan yang diklasifikasikan berdasarkan fungsi aktifnya."@id .
+
+ex:Retinoid a owl:Class ;
+    rdfs:subClassOf ex:ActiveIngredient ;
+    rdfs:label "Retinoid"@en ;
+    rdfs:comment "Bahan aktif dalam kelompok retinoid."@id,
+        "Relasi kelas ini ke ex:Teen (contraindicatedFor) adalah aturan pemodelan Teen Lock sesuai spesifikasi tugas, bukan klaim medis universal."@id .
+
+ex:Exfoliant a owl:Class ;
+    rdfs:subClassOf ex:ActiveIngredient ;
+    rdfs:label "Exfoliant"@en, "Eksfolian"@id ;
+    rdfs:comment "Bahan aktif untuk membantu eksfoliasi kulit."@id .
+
+ex:BrighteningAgent a owl:Class ;
+    rdfs:subClassOf ex:ActiveIngredient ;
+    rdfs:label "Brightening agent"@en, "Agen pencerah"@id ;
+    rdfs:comment "Bahan aktif yang digunakan untuk membantu mencerahkan atau meratakan tampilan warna kulit."@id .
+
+ex:Humectant a owl:Class ;
+    rdfs:subClassOf ex:ActiveIngredient ;
+    rdfs:label "Humectant"@en, "Humektan"@id ;
+    rdfs:comment "Bahan yang membantu menarik atau mempertahankan kelembapan."@id .
+
+ex:BarrierRepair a owl:Class ;
+    rdfs:subClassOf ex:ActiveIngredient ;
+    rdfs:label "Barrier repair"@en, "Pendukung sawar kulit"@id ;
+    rdfs:comment "Bahan aktif yang membantu mendukung atau memulihkan sawar kulit."@id .
+
+ex:SoothingAgent a owl:Class ;
+    rdfs:subClassOf ex:ActiveIngredient ;
+    rdfs:label "Soothing agent"@en, "Agen penenang"@id ;
+    rdfs:comment "Bahan aktif yang digunakan untuk membantu menenangkan kulit."@id .
+
+ex:UVFilter a owl:Class ;
+    rdfs:subClassOf ex:ActiveIngredient ;
+    rdfs:label "UV filter"@en, "Filter UV"@id ;
+    rdfs:comment "Bahan aktif yang menyaring radiasi ultraviolet."@id .
+
+ex:AHA a owl:Class ;
+    rdfs:subClassOf ex:Exfoliant ;
+    rdfs:label "Alpha-hydroxy acid (AHA)"@en ;
+    rdfs:comment "Subkelas eksfolian berupa alpha-hydroxy acid."@id .
+
+ex:BHA a owl:Class ;
+    rdfs:subClassOf ex:Exfoliant ;
+    rdfs:label "Beta-hydroxy acid (BHA)"@en ;
+    rdfs:comment "Subkelas eksfolian berupa beta-hydroxy acid."@id .
+
+ex:PHA a owl:Class ;
+    rdfs:subClassOf ex:Exfoliant ;
+    rdfs:label "Polyhydroxy acid (PHA)"@en ;
+    rdfs:comment "Subkelas eksfolian berupa polyhydroxy acid."@id .
+
+# Jenis kulit baru
+ex:CombinationSkinType a ex:SkinType ;
+    rdfs:label "Combination"@en, "Kombinasi"@id ;
+    skos:prefLabel "Kombinasi"@id .
+
+# Kosakata terkontrol waktu pemakaian (spesifikasi B4: Pagi/Malam/Keduanya); belum dipetakan ke produk
+ex:UsageTime a owl:Class ;
+    rdfs:label "Usage time"@en, "Waktu pemakaian"@id ;
+    rdfs:comment "Nilai terkontrol untuk waktu pemakaian produk."@id .
+
+ex:PagiUsageTime a ex:UsageTime ;
+    rdfs:label "Morning"@en, "Pagi"@id ;
+    skos:prefLabel "Pagi"@id .
+
+ex:MalamUsageTime a ex:UsageTime ;
+    rdfs:label "Night"@en, "Malam"@id ;
+    skos:prefLabel "Malam"@id .
+
+ex:KeduanyaUsageTime a ex:UsageTime ;
+    rdfs:label "Morning and night"@en, "Keduanya"@id ;
+    skos:prefLabel "Keduanya"@id .
+
+# Label dan komentar untuk kelas yang sudah ada
+ex:AgeGroup rdfs:label "Age group"@en, "Kelompok usia"@id ;
+    rdfs:comment "Kelompok usia yang menjadi sasaran produk."@id .
+
+ex:Brand rdfs:label "Brand"@en, "Merek"@id ;
+    rdfs:comment "Merek yang memasarkan produk."@id .
+
+ex:Category rdfs:label "Product category"@en, "Kategori produk"@id ;
+    rdfs:comment "Kategori produk skincare."@id .
+
+ex:Ingredient rdfs:label "Ingredient"@en, "Bahan"@id ;
+    rdfs:comment "Bahan yang digunakan atau dicantumkan pada produk skincare."@id .
+
+ex:Product rdfs:label "Product"@en, "Produk"@id ;
+    rdfs:comment "Produk skincare yang direpresentasikan dalam ontologi."@id .
+
+ex:ProductSeries rdfs:label "Product series"@en, "Seri produk"@id ;
+    rdfs:comment "Seri atau lini produk dalam suatu merek."@id .
+
+ex:SkinConcern rdfs:label "Skin concern"@en, "Concern kulit"@id .
+
+ex:SkinType rdfs:label "Skin type"@en, "Jenis kulit"@id ;
+    rdfs:comment "Jenis kulit yang digunakan dalam pemetaan rekomendasi."@id .
+
+# Label dan komentar untuk properti lama; nama serta domain/range tidak berubah
+ex:belongsToSeries
+    rdfs:label "belongs to series"@en, "termasuk seri"@id ;
+    rdfs:comment "Menghubungkan produk dengan seri produknya."@id .
+
+ex:estimatedPrice
+    rdfs:label "estimated price"@en, "perkiraan harga"@id ;
+    rdfs:comment "Perkiraan harga produk dalam satuan yang digunakan oleh sumber data."@id .
+
+ex:hasBrand
+    rdfs:label "has brand"@en, "memiliki merek"@id ;
+    rdfs:comment "Menghubungkan produk dengan mereknya."@id .
+
+ex:hasCategory
+    rdfs:label "has category"@en, "memiliki kategori"@id ;
+    rdfs:comment "Menghubungkan produk dengan kategori produk."@id .
+
+ex:hasIngredient
+    rdfs:label "has ingredient"@en, "memiliki bahan"@id ;
+    rdfs:comment "Menghubungkan produk dengan individu bahan yang telah dipetakan."@id .
+
+ex:productName
+    rdfs:label "product name"@en, "nama produk"@id ;
+    rdfs:comment "Nama produk sebagaimana direpresentasikan dalam data."@id .
+
+ex:sourceProductId
+    rdfs:label "source product identifier"@en, "ID produk sumber"@id ;
+    rdfs:comment "Pengenal produk dari sumber data."@id .
+
+ex:suitableForAgeGroup
+    rdfs:label "suitable for age group"@en, "sesuai untuk kelompok usia"@id ;
+    rdfs:comment "Menghubungkan produk dengan kelompok usia yang tercatat sebagai sasaran."@id .
+
+ex:suitableForSkinType
+    rdfs:label "suitable for skin type"@en, "sesuai untuk jenis kulit"@id ;
+    rdfs:comment "Menghubungkan produk dengan jenis kulit yang tercatat sebagai sasaran."@id .
+
+ex:treatsConcern
+    rdfs:label "addresses concern"@en, "membantu menangani concern"@id ;
+    rdfs:comment "Menghubungkan produk dengan concern yang dicatat untuk produk tersebut."@id .
+
+ex:verificationStatus
+    rdfs:label "verification status"@en, "status verifikasi"@id ;
+    rdfs:comment "Status verifikasi informasi produk."@id .
+
+# Properti baru
+ex:contraindicatedFor a owl:ObjectProperty ;
+    rdfs:range [
+        a owl:Class ;
+        owl:unionOf ( ex:AgeGroup ex:SkinType )
+    ] ;
+    rdfs:label "contraindicated for"@en, "dikontraindikasikan untuk"@id ;
+    rdfs:comment "Menghubungkan bahan atau kelas bahan dengan kelompok usia atau jenis kulit yang menjadi kontraindikasi."@id,
+        "Nilai properti ini adalah aturan pemodelan sesuai spesifikasi tugas (Teen Lock), bukan klaim medis universal. Sengaja tanpa rdfs:domain karena subjeknya dapat berupa kelas bahan (mis. ex:Retinoid)."@id .
+
+ex:conflictsWith a owl:ObjectProperty, owl:SymmetricProperty ;
+    rdfs:label "conflicts with"@en, "berkonflik dengan"@id ;
+    rdfs:comment "Menyatakan konflik penggunaan antara dua bahan atau dua kelas bahan; relasinya simetris."@id,
+        "Sesuai spesifikasi dipakai antar-kelas (ex:Retinoid <-> ex:Exfoliant), sehingga sengaja tanpa rdfs:domain/rdfs:range. Kedua arah ditulis eksplisit karena Fuseki tanpa reasoner tidak menerapkan owl:SymmetricProperty."@id .
+
+ex:targetsConcern a owl:ObjectProperty ;
+    rdfs:domain ex:Ingredient ;
+    rdfs:range ex:SkinConcern ;
+    rdfs:label "targets concern"@en, "menargetkan concern"@id ;
+    rdfs:comment "Menghubungkan bahan dengan concern yang ditargetkan jika didukung bukti."@id .
+
+ex:routineStep a owl:DatatypeProperty ;
+    rdfs:domain ex:Category ;
+    rdfs:range xsd:integer ;
+    rdfs:label "routine step"@en, "langkah rutinitas"@id ;
+    rdfs:comment "Urutan pemakaian kategori dalam rutinitas: 1 = cleanser, 2 = toner, 3 = serum, 4 = moisturizer, 5 = treatment, 6 = sunscreen. Kategori yang belum disepakati sengaja dibiarkan tanpa nilai."@id .
+
+ex:usageTime a owl:ObjectProperty ;
+    rdfs:domain ex:Product ;
+    rdfs:range ex:UsageTime ;
+    rdfs:label "usage time"@en, "waktu pemakaian"@id ;
+    rdfs:comment "Menghubungkan produk dengan waktu pemakaian yang terverifikasi."@id .
+
+ex:seriesOfBrand a owl:ObjectProperty ;
+    rdfs:domain ex:ProductSeries ;
+    rdfs:range ex:Brand ;
+    rdfs:label "series of brand"@en, "seri dari merek"@id ;
+    rdfs:comment "Menghubungkan seri produk dengan merek yang terverifikasi."@id .
+
+schema:image a owl:ObjectProperty ;
+    rdfs:label "image"@en, "gambar"@id ;
+    rdfs:comment "Properti schema.org untuk URL gambar produk. Dideklarasikan sesuai spesifikasi ontology v2; nilainya belum diisi karena belum ada URL gambar terverifikasi. Sengaja tanpa rdfs:domain karena merupakan vokabulari eksternal; pembatasan untuk Product ada di SHACL."@id .
+
+# Contoh eksplisit dari spesifikasi (hal. 4 B3 dan hal. 11); aturan pemodelan, bukan klaim medis universal
+ex:Retinoid ex:contraindicatedFor ex:Teen .
+
+ex:Retinoid ex:conflictsWith ex:Exfoliant .
+ex:Exfoliant ex:conflictsWith ex:Retinoid .
+
+ex:RetinolIngredient ex:targetsConcern ex:AgingFineLines .
+ex:NiacinamideIngredient ex:targetsConcern ex:DullnessBrightening .
+
+# Klasifikasi individu yang sudah ada; tipe ex:Ingredient tetap dipertahankan.
+# Hanya klasifikasi yang berdasar spesifikasi. Klasifikasi lain ditunda:
+# lihat ontology/mappings/ingredient_class_review_v2.csv
+ex:RetinolIngredient a ex:Retinoid .
+ex:GlycolicAcidIngredient a ex:AHA .
+ex:SalicylicAcidIngredient a ex:BHA .
+
+# Hubungan kategori yang secara eksplisit ditentukan spesifikasi
+ex:SunscreentintedCategory skos:broader ex:SunscreenCategory .
+
+# Urutan rutinitas per kategori (keputusan tim). Kategori ambigu sengaja belum diberi nilai:
+# Essence, FaceMist, EyeCare, Eyecream, DaymoisturizerSPF, Sunscreenmoisturizer
+ex:CleanserCategory ex:routineStep 1 .
+ex:MicellarCleanserCategory ex:routineStep 1 .
+ex:MicellarwaterCategory ex:routineStep 1 .
+
+ex:TonerCategory ex:routineStep 2 .
+ex:ExfoliatingTonerCategory ex:routineStep 2 .
+ex:EssencetonerCategory ex:routineStep 2 .
+ex:FacespraytonerCategory ex:routineStep 2 .
+
+ex:SerumCategory ex:routineStep 3 .
+ex:OilSerumCategory ex:routineStep 3 .
+
+ex:MoisturizerCategory ex:routineStep 4 .
+ex:LotionCategory ex:routineStep 4 .
+ex:NightCreamCategory ex:routineStep 4 .
+ex:NightmoisturizerCategory ex:routineStep 4 .
+
+ex:SpotTreatmentCategory ex:routineStep 5 .
+
+ex:SunscreenCategory ex:routineStep 6 .
+ex:SunscreentintedCategory ex:routineStep 6 .
 
