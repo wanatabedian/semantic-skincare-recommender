@@ -1,0 +1,37 @@
+# Orang 5 (Eksplorasi Katalog) — daftar seluruh produk untuk halaman /katalog.
+# Dipakai di App\Http\Controllers\CatalogController::PRODUCTS_QUERY (lewat SparqlService::select,
+# yang menempelkan PREFIX otomatis). Blok PREFIX di bawah hanya agar query bisa dicoba langsung di Fuseki UI.
+# Satu baris = satu produk; jenis kulit & keluhan digabung dengan pemisah "|".
+# Foto TIDAK diambil dari ontologi (belum ada triple schema:image); dicocokkan lewat file
+# public/images/products/{slug-brand}/{sourceProductId}.{jpg|jpeg|png|webp}.
+PREFIX ex: <https://example.org/skincare-ontology#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX schema: <https://schema.org/>
+
+SELECT ?p
+  (SAMPLE(?sid) AS ?sourceId) (SAMPLE(?nm) AS ?name) (SAMPLE(?pr) AS ?price)
+  (SAMPLE(?brand) AS ?brandIri) (SAMPLE(?brandL) AS ?brandLabel)
+  (SAMPLE(?cat) AS ?categoryIri) (SAMPLE(?catL) AS ?categoryLabel)
+  (SAMPLE(?img) AS ?image)
+  (GROUP_CONCAT(DISTINCT ?skinL; separator="|") AS ?skins)
+  (GROUP_CONCAT(DISTINCT ?concernL; separator="|") AS ?concerns)
+WHERE {
+  ?p a ex:Product ;
+     ex:productName ?nm .
+  OPTIONAL { ?p ex:sourceProductId ?sid }
+  OPTIONAL { ?p ex:estimatedPrice ?pr }
+  OPTIONAL { ?p ex:hasBrand ?brand .
+             OPTIONAL { ?brand rdfs:label ?brandL FILTER(lang(?brandL) = "" || langMatches(lang(?brandL), "id")) } }
+  OPTIONAL { ?p ex:hasCategory ?cat .
+             OPTIONAL { ?cat rdfs:label ?catL FILTER(lang(?catL) = "" || langMatches(lang(?catL), "id")) } }
+  OPTIONAL { ?p ex:suitableForSkinType ?skin .
+             ?skin rdfs:label ?skinL FILTER(lang(?skinL) = "" || langMatches(lang(?skinL), "id")) }
+  OPTIONAL { ?p ex:treatsConcern ?concern .
+             ?concern rdfs:label ?concernL FILTER(lang(?concernL) = "" || langMatches(lang(?concernL), "id")) }
+  OPTIONAL { ?p schema:image ?img }
+}
+GROUP BY ?p
