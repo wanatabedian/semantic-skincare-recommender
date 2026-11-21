@@ -1,0 +1,13 @@
+# Jumlah produk untuk remaja yang disembunyikan Teen Lock.
+PREFIX ex: <https://example.org/skincare-ontology#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX schema: <https://schema.org/>
+
+SELECT (COUNT(DISTINCT ?p) AS ?n) WHERE {
+  ?p a ex:Product ; ex:suitableForAgeGroup ex:Teen ; ex:hasIngredient ?ri .
+  { ?ri rdf:type/rdfs:subClassOf* ex:Retinoid } UNION { ?ri ex:contraindicatedFor ex:Teen } UNION { ?ri rdf:type/rdfs:subClassOf* ?lockClass . ?lockClass ex:contraindicatedFor ex:Teen } UNION { VALUES ?ri { ex:RetinolIngredient ex:RetinalIngredient ex:RetinaldehydeIngredient ex:RetinylPalmitateIngredient ex:RetinylRetinoateIngredient ex:HydroxypinacoloneRetinoateIngredient ex:GranactiveRetinoidIngredient ex:AdapaleneIngredient ex:TretinoinIngredient } }
+}
