@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Services\FusekiService;
+use App\Services\CleanOntologyService;
 use RuntimeException;
 use Tests\TestCase;
 
@@ -39,14 +39,14 @@ class SimilarProductsTest extends TestCase
         ];
     }
 
-    /** Mock Fuseki: detail produk, produk serupa, dan query Complete Your Segment. */
+    /** Mock CleanOntologyService: detail produk, produk serupa, dan query Complete Your Segment. */
     private function mockFuseki(
         array $similarRows,
         ?callable $similarQueryCheck = null,
         array $routineRows = [],
         array $teenLockedIds = [],
     ): void {
-        $fuseki = \Mockery::mock(FusekiService::class)->makePartial();
+        $fuseki = \Mockery::mock(CleanOntologyService::class)->makePartial();
         $fuseki->shouldReceive('query')->once()->withArgs(fn ($q) => str_contains($q, 'ex:sourceProductId'))->andReturn($this->detailRows());
         $fuseki->shouldReceive('query')->once()->withArgs(fn ($q) => str_contains($q, '?sharedConcernLabels') && ($similarQueryCheck === null || $similarQueryCheck($q)))
             ->andReturnUsing(function ($q) use ($similarRows, $teenLockedIds) {
@@ -62,7 +62,7 @@ class SimilarProductsTest extends TestCase
                 }));
             });
         $fuseki->shouldReceive('query')->withArgs(fn ($q) => str_contains($q, '?routineCategory') || str_contains($q, '?sameSeriesFlag'))->andReturn($routineRows);
-        $this->app->instance(FusekiService::class, $fuseki);
+        $this->app->instance(CleanOntologyService::class, $fuseki);
     }
 
     public function test_similar_query_requires_shared_skin_shared_concern_and_different_brand(): void
@@ -171,10 +171,10 @@ class SimilarProductsTest extends TestCase
 
     public function test_detail_page_still_works_when_similar_query_fails(): void
     {
-        $fuseki = \Mockery::mock(FusekiService::class)->makePartial();
+        $fuseki = \Mockery::mock(CleanOntologyService::class)->makePartial();
         $fuseki->shouldReceive('query')->andReturn($this->detailRows())->once();
         $fuseki->shouldReceive('query')->andThrow(new RuntimeException('Fuseki mati'));
-        $this->app->instance(FusekiService::class, $fuseki);
+        $this->app->instance(CleanOntologyService::class, $fuseki);
 
         $this->get('/produk/EMI-0026')->assertOk()
             ->assertSee('Produk Utama')
@@ -188,7 +188,7 @@ class SimilarProductsTest extends TestCase
      */
     public function test_real_fuseki_similar_products_follow_all_rules(): void
     {
-        $fuseki = app(FusekiService::class);
+        $fuseki = app(CleanOntologyService::class);
 
         try {
             $rows = $fuseki->query('SELECT ?p WHERE { ?p a ex:Product }');

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Services\CleanOntologyService;
 use App\Services\FusekiService;
 use Tests\TestCase;
 
@@ -80,7 +81,7 @@ class QuizAndComparisonTest extends TestCase
 
     public function test_product_detail_displays_readable_rdf_values_without_duplicates_or_uris(): void
     {
-        $fuseki = \Mockery::mock(FusekiService::class)->makePartial();
+        $fuseki = \Mockery::mock(CleanOntologyService::class)->makePartial();
         // Query berikutnya (produk serupa, kosakata rutinitas, kandidat rutinitas) dikosongkan
         // karena test ini fokus pada detail produk.
         $fuseki->shouldReceive('query')->times(4)->andReturn([
@@ -102,7 +103,7 @@ class QuizAndComparisonTest extends TestCase
             ],
         ], [], [], []);
 
-        $this->app->instance(FusekiService::class, $fuseki);
+        $this->app->instance(CleanOntologyService::class, $fuseki);
 
         $response = $this->get('/produk/APH-0001')->assertOk();
 

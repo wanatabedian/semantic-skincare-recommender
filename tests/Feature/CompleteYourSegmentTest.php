@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Services\FusekiService;
+use App\Services\CleanOntologyService;
 use RuntimeException;
 use Tests\TestCase;
 
@@ -51,7 +51,7 @@ class CompleteYourSegmentTest extends TestCase
     /** Mock 4 query halaman detail: detail, produk serupa, kosakata rutinitas, kandidat rutinitas. */
     private function mockFuseki(array $candidateRows, ?callable $candidateQueryCheck = null): void
     {
-        $fuseki = \Mockery::mock(FusekiService::class)->makePartial();
+        $fuseki = \Mockery::mock(CleanOntologyService::class)->makePartial();
         $fuseki->shouldReceive('query')->withArgs(fn ($q) => str_contains($q, 'ex:sourceProductId'))->andReturn([
             ['name' => ['type' => 'literal', 'value' => 'Produk Utama']],
         ]);
@@ -60,7 +60,7 @@ class CompleteYourSegmentTest extends TestCase
         $fuseki->shouldReceive('query')->once()
             ->withArgs(fn ($q) => str_contains($q, '?sameSeriesFlag') && ($candidateQueryCheck === null || $candidateQueryCheck($q)))
             ->andReturn($candidateRows);
-        $this->app->instance(FusekiService::class, $fuseki);
+        $this->app->instance(CleanOntologyService::class, $fuseki);
     }
 
     private function stepFor(array $routine, string $category): array
@@ -177,13 +177,13 @@ class CompleteYourSegmentTest extends TestCase
 
     public function test_detail_page_still_works_when_routine_query_fails(): void
     {
-        $fuseki = \Mockery::mock(FusekiService::class)->makePartial();
+        $fuseki = \Mockery::mock(CleanOntologyService::class)->makePartial();
         $fuseki->shouldReceive('query')->withArgs(fn ($q) => str_contains($q, 'ex:sourceProductId'))->andReturn([
             ['name' => ['type' => 'literal', 'value' => 'Produk Utama']],
         ]);
         $fuseki->shouldReceive('query')->withArgs(fn ($q) => str_contains($q, '?sharedConcernLabels'))->andReturn([]);
         $fuseki->shouldReceive('query')->withArgs(fn ($q) => str_contains($q, '?routineCategory'))->andThrow(new RuntimeException('Fuseki mati'));
-        $this->app->instance(FusekiService::class, $fuseki);
+        $this->app->instance(CleanOntologyService::class, $fuseki);
 
         $this->get('/produk/WAR-0001')->assertOk()
             ->assertSee('Produk Utama')
@@ -339,12 +339,12 @@ class CompleteYourSegmentTest extends TestCase
     }
 
     // ------------------------------------------------------------------
-    // Bagian 2: uji integrasi dengan Fuseki sungguhan (dilewati jika Fuseki mati).
+    // Bagian 2: uji integrasi dengan Fuseki Clean sungguhan (dilewati jika Fuseki mati).
     // ------------------------------------------------------------------
 
-    private function realFuseki(): FusekiService
+    private function realFuseki(): CleanOntologyService
     {
-        $fuseki = app(FusekiService::class);
+        $fuseki = app(CleanOntologyService::class);
         try {
             $fuseki->query('SELECT ?p WHERE { ?p a ex:Product } LIMIT 1');
         } catch (RuntimeException $e) {
@@ -354,7 +354,7 @@ class CompleteYourSegmentTest extends TestCase
         return $fuseki;
     }
 
-    private function ids(FusekiService $fuseki, string $where): array
+    private function ids(CleanOntologyService $fuseki, string $where): array
     {
         $rows = $fuseki->query("SELECT DISTINCT ?p WHERE { {$where} } ORDER BY ?p");
 
