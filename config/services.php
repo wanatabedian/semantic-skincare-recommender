@@ -36,25 +36,30 @@ return [
     ],
 
     'fuseki' => [
-    'query_url' => env(
-        'FUSEKI_QUERY_URL',
-        'http://127.0.0.1:3030/aphrodite/query'
-    ),
+        'clean_query_url' => env(
+            'FUSEKI_CLEAN_QUERY_URL',
+            'http://127.0.0.1:3030/aphrodite-clean/query'
+        ),
 
-    'update_url' => env(
-        'FUSEKI_UPDATE_URL',
-        'http://127.0.0.1:3030/aphrodite/update'
-    ),
+        'query_url' => env(
+            'FUSEKI_QUERY_URL',
+            'http://127.0.0.1:3030/aphrodite/query'
+        ),
 
-    'data_url' => env(
-        'FUSEKI_DATA_URL',
-        'http://127.0.0.1:3030/aphrodite/data'
-    ),
+        'update_url' => env(
+            'FUSEKI_UPDATE_URL',
+            'http://127.0.0.1:3030/aphrodite/update'
+        ),
 
-    'namespace' => env(
-        'FUSEKI_NAMESPACE',
-        'https://example.org/skincare-ontology#'
-    ),
-],
+        'data_url' => env(
+            'FUSEKI_DATA_URL',
+            'http://127.0.0.1:3030/aphrodite/data'
+        ),
+
+        'namespace' => env(
+            'FUSEKI_NAMESPACE',
+            'https://example.org/skincare-ontology#'
+        ),
+    ],
 
 ];
