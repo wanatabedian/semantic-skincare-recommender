@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\FusekiService;
+use App\Services\CleanOntologyService;
 use App\Services\IngredientConflictDetector;
 use App\Services\Recommendation\RecommendationEngine;
 use Illuminate\Http\Request;
@@ -28,7 +28,7 @@ class ProductController extends Controller
     ];
 
     public function __construct(
-        private FusekiService $fuseki,
+        private CleanOntologyService $fuseki,
         private RecommendationEngine $engine,
         private IngredientConflictDetector $conflictDetector,
     ) {}
@@ -439,6 +439,7 @@ class ProductController extends Controller
             : '';
 
         $rows = $this->fuseki->query(<<<SPARQL
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
             SELECT ?product ?name
                 (SAMPLE(?priceValue) AS ?price)
                 (SAMPLE(?brandName) AS ?brandLabel)
