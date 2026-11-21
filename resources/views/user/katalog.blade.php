@@ -193,10 +193,14 @@
                         <p class="text-[11px] font-black uppercase tracking-[.28em] text-teal">Koleksi</p>
                         <h2 id="katalog-list-title" class="mt-2 font-serif text-3xl font-semibold text-ink md:text-4xl">Semua produk</h2>
                         <p class="mt-2 text-sm text-muted" id="katalog-result-info">
-                            @if ($search !== '')
-                                Pencarian untuk “<span class="font-bold text-ink">{{ $search }}</span>”.
+                            @if ($error)
+                                Data produk belum dapat dimuat.
                             @else
-                                Daftar produk akan tampil di sini.
+                                Menampilkan <span class="font-bold text-ink">{{ count($products) }}</span> produk
+                                dari <span class="font-bold text-ink">{{ collect($products)->pluck('brand')->filter()->unique()->count() }}</span> brand.
+                                @if ($search !== '')
+                                    <span class="block text-xs">Pencarian “{{ $search }}” belum aktif — semua produk ditampilkan.</span>
+                                @endif
                             @endif
                         </p>
                     </div>
@@ -221,32 +225,38 @@
                     </div>
                 </div>
 
-                {{-- Grid produk: diisi pada tahap integrasi data --}}
-                <div id="katalog-grid" class="k-grid mt-8" aria-live="polite" aria-busy="false"></div>
-
-                {{-- Empty state --}}
-                <div class="mt-8">
-                    @if ($productCount === null)
-                        @include('user.katalog.empty-state', [
-                            'tone' => 'alert',
-                            'title' => 'Data produk belum dapat dimuat',
-                            'message' => 'Server ontologi (Fuseki) sedang tidak dapat diakses. Pastikan Fuseki aktif, lalu muat ulang halaman ini.',
-                            'actions' => [
-                                ['label' => 'Muat ulang', 'href' => request()->fullUrl(), 'primary' => true],
-                                ['label' => 'Ke beranda', 'href' => url('/')],
-                            ],
-                        ])
-                    @else
-                        @include('user.katalog.empty-state', [
-                            'title' => 'Rak sedang ditata',
-                            'message' => 'Daftar produk dari ontologi Aphrodite akan tampil di sini. Sambil menunggu, cari tahu produk yang cocok lewat kuis analisis kulit.',
-                            'actions' => [
-                                ['label' => 'Mulai kuis →', 'href' => route('kuis', ['new' => 1]), 'primary' => true],
-                                ['label' => 'Bandingkan produk', 'href' => route('bandingkan')],
-                            ],
-                        ])
-                    @endif
-                </div>
+                {{-- Grid produk dari ontologi --}}
+                @if (!$error && count($products) > 0)
+                    <div id="katalog-grid" class="k-grid mt-8" aria-live="polite">
+                        @foreach ($products as $product)
+                            @include('user.katalog.product-card', ['product' => $product])
+                        @endforeach
+                    </div>
+                @else
+                    {{-- Empty state --}}
+                    <div class="mt-8">
+                        @if ($error)
+                            @include('user.katalog.empty-state', [
+                                'tone' => 'alert',
+                                'title' => 'Data produk belum dapat dimuat',
+                                'message' => $error,
+                                'actions' => [
+                                    ['label' => 'Muat ulang', 'href' => request()->fullUrl(), 'primary' => true],
+                                    ['label' => 'Ke beranda', 'href' => url('/')],
+                                ],
+                            ])
+                        @else
+                            @include('user.katalog.empty-state', [
+                                'title' => 'Belum ada produk di ontologi',
+                                'message' => 'Dataset Aphrodite yang dimuat di Fuseki belum berisi produk. Sambil menunggu, cari tahu produk yang cocok lewat kuis analisis kulit.',
+                                'actions' => [
+                                    ['label' => 'Mulai kuis →', 'href' => route('kuis', ['new' => 1]), 'primary' => true],
+                                    ['label' => 'Bandingkan produk', 'href' => route('bandingkan')],
+                                ],
+                            ])
+                        @endif
+                    </div>
+                @endif
 
                 {{-- Pagination --}}
                 <nav class="k-pager mt-12" aria-label="Halaman katalog">
