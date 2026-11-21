@@ -49,7 +49,11 @@
 <div class="rounded-3xl border border-[#E6748E]/10 bg-white p-5 sm:p-6">
 <h3 class="flex items-center gap-2 text-lg font-extrabold"><span aria-hidden="true" class="text-[#E6748E]">{{ $icon }}</span> Rutinitas {{ $timeLabel }}</h3>
 <ol class="mt-4 space-y-3">
-@php $stepNumber = 0; @endphp
+@php
+    $stepNumber = 0;
+    $timeCheck = $routine['conflicts'][$time] ?? null;
+    $involvedIds = $timeCheck['involved_ids'] ?? [];
+@endphp
 @foreach($routine[$time] as $step)
 <li class="flex gap-3 rounded-2xl border border-[#E6748E]/10 p-3 {{ $step['optional'] ? 'border-dashed' : '' }}">
 <span class="grid h-8 w-8 shrink-0 place-items-center rounded-full {{ $step['optional'] ? 'bg-white text-[#6BB1AD] ring-1 ring-[#6BB1AD]/40' : 'bg-[#FDEEF1] text-[#E6748E]' }} text-sm font-extrabold">{{ $step['optional'] ? '+' : ++$stepNumber }}</span>
@@ -62,6 +66,7 @@
 <div class="mt-2 flex flex-wrap items-center gap-1.5">
 <span class="rounded-full bg-[#FDEEF1] px-2.5 py-1 text-[11px] font-bold">{{ $sourceText[$item['source']] }}</span>
 @if($item['has_retinol'] && $step['times'] === ['malam'])<span class="rounded-full bg-[#345452]/10 px-2.5 py-1 text-[11px] font-bold">Mengandung Retinol · dipakai malam</span>@endif
+@if(in_array($item['id'], $involvedIds, true))<span class="rounded-full bg-[#FFF4D6] px-2.5 py-1 text-[11px] font-bold text-[#8A5A00]">Perhatikan kombinasi bahan</span>@endif
 <button type="button" data-routine-add="{{ $item['id'] }}" class="ml-auto rounded-lg border border-[#6BB1AD]/40 px-2.5 py-1 text-[11px] font-bold text-[#345452]">+ Rutinitas</button>
 </div>
 @else
@@ -71,6 +76,40 @@
 </li>
 @endforeach
 </ol>
+{{-- Pemeriksaan kombinasi bahan antarproduk utama di waktu ini (IngredientConflictDetector). --}}
+<div class="mt-4 space-y-3" data-conflict-check="{{ $time }}">
+@if($routine['conflict_error'] ?? null)
+<p class="rounded-2xl bg-[#F4F6F6] px-4 py-3 text-xs text-[#657674]">{{ $routine['conflict_error'] }}</p>
+@elseif($timeCheck)
+@foreach($timeCheck['groups'] as $group)
+<div class="rounded-2xl border border-[#E8B54A]/40 bg-[#FFF8E6] p-4 text-sm" role="note">
+<p class="flex flex-wrap items-center gap-2"><span class="rounded-full bg-[#E8B54A]/25 px-2.5 py-1 text-[11px] font-extrabold uppercase tracking-wide text-[#8A5A00]">{{ $group['level_label'] }}</span><span class="font-bold">{{ implode(' + ', $group['ingredients']) }}</span></p>
+<p class="mt-2 text-[#345452]">{{ $group['reason'] }}</p>
+<ul class="mt-2 space-y-1 text-xs text-[#657674]">
+@foreach($group['products'] as $involved)
+<li><span class="font-semibold text-[#345452]">{{ $involved['name'] }}</span> — {{ implode(', ', $involved['ingredients']) }}</li>
+@endforeach
+</ul>
+<details class="mt-2 text-xs text-[#657674]"><summary class="cursor-pointer font-semibold">Sumber referensi</summary>
+<ul class="mt-1 list-inside list-disc space-y-1">
+@foreach($group['sources'] as $source)
+<li><a href="{{ $source['url'] }}" target="_blank" rel="noopener noreferrer" class="underline hover:text-[#E6748E]">{{ $source['title'] }}</a></li>
+@endforeach
+</ul>
+</details>
+</div>
+@endforeach
+@if($timeCheck['groups'] === [] && $timeCheck['checked_count'] > 0)
+<p class="rounded-2xl bg-[#F0F8F7] px-4 py-3 text-xs text-[#345452]">Tidak ditemukan kombinasi bahan yang perlu diperhatikan di antara {{ $timeCheck['checked_count'] }} produk yang data bahannya tersedia.</p>
+@endif
+@if($timeCheck['unchecked'] !== [])
+<p class="rounded-2xl bg-[#F4F6F6] px-4 py-3 text-xs text-[#657674]"><span class="font-semibold">Belum dapat diperiksa</span> karena data bahan belum tersedia: {{ implode(', ', array_column($timeCheck['unchecked'], 'name')) }}.</p>
+@endif
+@if($timeCheck['groups'] !== [] || $timeCheck['checked_count'] > 0)
+<p class="text-[11px] text-[#657674]">Pemeriksaan hanya mencakup bahan aktif utama yang tercatat. Informasi umum, bukan saran medis; ikuti petunjuk pada kemasan.</p>
+@endif
+@endif
+</div>
 </div>
 @endforeach
 </div>
