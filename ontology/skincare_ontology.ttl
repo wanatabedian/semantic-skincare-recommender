@@ -4,30 +4,162 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
+ex:SkincareOntology a owl:Ontology ;
+    dcterms:title "Ontologi Produk Skincare Wardah, Emina, Kahf, LABORE, Crystallure, dan TAVI"@id .
+
+# ===== Classes =====
+ex:Product a owl:Class .
+ex:Brand a owl:Class .
+ex:Category a owl:Class .
+ex:ProductSeries a owl:Class .
+ex:AgeGroup a owl:Class .
+ex:SkinType a owl:Class .
+ex:SkinConcern a owl:Class .
+ex:Ingredient a owl:Class .
+
+# ===== Properties =====
+ex:belongsToSeries a owl:ObjectProperty ; rdfs:domain ex:Product ; rdfs:range ex:ProductSeries .
+ex:estimatedPrice a owl:DatatypeProperty ; rdfs:domain ex:Product ; rdfs:range xsd:integer .
+ex:hasBrand a owl:ObjectProperty ; rdfs:domain ex:Product ; rdfs:range ex:Brand .
+ex:hasCategory a owl:ObjectProperty ; rdfs:domain ex:Product ; rdfs:range ex:Category .
+ex:hasIngredient a owl:ObjectProperty ; rdfs:domain ex:Product ; rdfs:range ex:Ingredient ;
+    rdfs:comment "Bahan aktif utama (maks. 3) dari vocabulary terstandar."@id .
+ex:productName a owl:DatatypeProperty ; rdfs:domain ex:Product ; rdfs:range xsd:string .
+ex:sourceProductId a owl:DatatypeProperty ; rdfs:domain ex:Product ; rdfs:range xsd:string .
+ex:suitableForAgeGroup a owl:ObjectProperty ; rdfs:domain ex:Product ; rdfs:range ex:AgeGroup .
+ex:suitableForSkinType a owl:ObjectProperty ; rdfs:domain ex:Product ; rdfs:range ex:SkinType ;
+    rdfs:comment "Produk 'semua jenis kulit' diisi eksplisit Dry, Normal, dan Oily agar filter kuis cukup satu kondisi."@id .
+ex:treatsConcern a owl:ObjectProperty ; rdfs:domain ex:Product ; rdfs:range ex:SkinConcern .
+ex:verificationStatus a owl:DatatypeProperty ; rdfs:domain ex:Product ; rdfs:range xsd:string .
+
+# ===== Age groups =====
+ex:Teen a ex:AgeGroup ; rdfs:label "Remaja"@id .
+ex:Adult a ex:AgeGroup ; rdfs:label "Dewasa"@id .
+
+# ===== Skin types =====
+ex:Dry a ex:SkinType ; rdfs:label "Kering"@id .
+ex:Normal a ex:SkinType ; rdfs:label "Normal"@id .
+ex:Oily a ex:SkinType ; rdfs:label "Berminyak"@id .
+
+# ===== Categories =====
+ex:CleanserCategory a ex:Category ; rdfs:label "Pembersih Wajah (Cleanser)"@id .
+ex:TonerCategory a ex:Category ; rdfs:label "Toner"@id .
+ex:SerumCategory a ex:Category ; rdfs:label "Serum & Essence"@id .
+ex:MoisturizerCategory a ex:Category ; rdfs:label "Pelembap (Moisturizer)"@id .
+ex:SunscreenCategory a ex:Category ; rdfs:label "Tabir Surya (Sunscreen)"@id .
+ex:EyeCareCategory a ex:Category ; rdfs:label "Perawatan Mata"@id .
+ex:FaceMistCategory a ex:Category ; rdfs:label "Face Mist & Spray"@id .
+ex:SpotTreatmentCategory a ex:Category ; rdfs:label "Spot Treatment"@id .
+
+# ===== Skin concerns =====
+ex:Acne a ex:SkinConcern ; rdfs:label "Jerawat"@id .
+ex:AgingFineLines a ex:SkinConcern ; rdfs:label "Tanda Penuaan & Garis Halus"@id .
+ex:Cleansing a ex:SkinConcern ; rdfs:label "Pembersihan Wajah"@id .
+ex:Comedones a ex:SkinConcern ; rdfs:label "Komedo"@id .
+ex:DarkSpotsHyperpigmentation a ex:SkinConcern ; rdfs:label "Noda & Hiperpigmentasi"@id .
+ex:DullnessBrightening a ex:SkinConcern ; rdfs:label "Kulit Kusam & Mencerahkan"@id .
+ex:ExcessOil a ex:SkinConcern ; rdfs:label "Minyak Berlebih"@id .
+ex:EyeAreaCare a ex:SkinConcern ; rdfs:label "Perawatan Area Mata"@id .
+ex:HydrationMoisture a ex:SkinConcern ; rdfs:label "Hidrasi & Kelembapan"@id .
+ex:RednessSensitivity a ex:SkinConcern ; rdfs:label "Kemerahan & Kulit Sensitif"@id .
+ex:RefreshingSoothing a ex:SkinConcern ; rdfs:label "Menyegarkan & Menenangkan"@id .
+ex:SkinBarrier a ex:SkinConcern ; rdfs:label "Skin Barrier"@id .
+ex:TextureExfoliation a ex:SkinConcern ; rdfs:label "Tekstur & Eksfoliasi"@id .
+ex:UVProtection a ex:SkinConcern ; rdfs:label "Perlindungan UV"@id .
+
+# ===== Active ingredients =====
+ex:AHA a ex:Ingredient ; rdfs:label "AHA (Glycolic Acid)"@id .
+ex:AloeVera a ex:Ingredient ; rdfs:label "Aloe Vera"@id .
+ex:AlphaArbutin a ex:Ingredient ; rdfs:label "Alpha Arbutin"@id .
+ex:AminoAcid a ex:Ingredient ; rdfs:label "Amino Acid / NMF"@id .
+ex:Centella a ex:Ingredient ; rdfs:label "Centella Asiatica (Cica)"@id .
+ex:Ceramide a ex:Ingredient ; rdfs:label "Ceramide"@id .
+ex:CoenzymeQ10 a ex:Ingredient ; rdfs:label "Coenzyme Q10"@id .
+ex:Cysteamine a ex:Ingredient ; rdfs:label "Cysteamine"@id .
+ex:Ectoin a ex:Ingredient ; rdfs:label "Ectoin"@id .
+ex:FerulicAcid a ex:Ingredient ; rdfs:label "Ferulic Acid"@id .
+ex:HyaluronicAcid a ex:Ingredient ; rdfs:label "Hyaluronic Acid"@id .
+ex:MineralFilter a ex:Ingredient ; rdfs:label "Mineral UV Filter (Zinc Oxide / Titanium Dioxide)"@id .
+ex:Niacinamide a ex:Ingredient ; rdfs:label "Niacinamide (Vitamin B3)"@id .
+ex:PHA a ex:Ingredient ; rdfs:label "PHA"@id .
+ex:Panthenol a ex:Ingredient ; rdfs:label "Panthenol (Vitamin B5)"@id .
+ex:Peptide a ex:Ingredient ; rdfs:label "Peptide"@id .
+ex:PlantOil a ex:Ingredient ; rdfs:label "Minyak Tanaman"@id .
+ex:Probiotic a ex:Ingredient ; rdfs:label "Probiotik / Prebiotik / Ferment"@id .
+ex:Retinol a ex:Ingredient ; rdfs:label "Retinol"@id .
+ex:SalicylicAcid a ex:Ingredient ; rdfs:label "Salicylic Acid (BHA)"@id .
+ex:Squalane a ex:Ingredient ; rdfs:label "Squalane"@id .
+ex:TranexamicAcid a ex:Ingredient ; rdfs:label "Tranexamic Acid"@id .
+ex:VitaminC a ex:Ingredient ; rdfs:label "Vitamin C"@id .
+ex:VitaminE a ex:Ingredient ; rdfs:label "Vitamin E"@id .
+ex:Zinc a ex:Ingredient ; rdfs:label "Zinc / Zinc PCA"@id .
+
+# ===== Brands =====
+ex:CrystallureBrand a ex:Brand .
+ex:EminaBrand a ex:Brand .
+ex:KahfBrand a ex:Brand .
+ex:LABOREBrand a ex:Brand .
+ex:TAVIBrand a ex:Brand .
+ex:WardahBrand a ex:Brand .
+
+# ===== Series =====
+ex:AcneProSeries a ex:ProductSeries .
+ex:Altero6MWHyaluSeries a ex:ProductSeries .
+ex:BiomeProtectSeries a ex:ProductSeries .
+ex:BiomeRepairSeries a ex:ProductSeries .
+ex:BrightBlemishSolutionSeries a ex:ProductSeries .
+ex:BrightStuffAcneProneSeries a ex:ProductSeries .
+ex:BrightStuffSeries a ex:ProductSeries .
+ex:BrighteningSeries a ex:ProductSeries .
+ex:CDefenseSeries a ex:ProductSeries .
+ex:CrystalSecretSeries a ex:ProductSeries .
+ex:DayNightSeries a ex:ProductSeries .
+ex:DermalabRevolutionaireSeries a ex:ProductSeries .
+ex:DoubleTheMoistSeries a ex:ProductSeries .
+ex:FaceCareSeries a ex:ProductSeries .
+ex:FirstCleanserSeries a ex:ProductSeries .
+ex:GentleBiomeSeries a ex:ProductSeries .
+ex:HydraRoseSeries a ex:ProductSeries .
+ex:LightSeries a ex:ProductSeries .
+ex:MoistureBoostSeries a ex:ProductSeries .
+ex:MoistureRichSeries a ex:ProductSeries .
+ex:NatureDailySeries a ex:ProductSeries .
+ex:RESQ10Series a ex:ProductSeries .
+ex:RadiantChargeSeries a ex:ProductSeries .
+ex:RenewYouSeries a ex:ProductSeries .
+ex:RetextureSeries a ex:ProductSeries .
+ex:SerumActiveCareSeries a ex:ProductSeries .
+ex:SlowAgingSignsSeries a ex:ProductSeries .
+ex:SunBattleSeries a ex:ProductSeries .
+ex:SupremeSeries a ex:ProductSeries .
+ex:UVShieldSeries a ex:ProductSeries .
+ex:UrbanShieldSeries a ex:ProductSeries .
+ex:WaterBrightSeries a ex:ProductSeries .
+ex:WhiteSecretSeries a ex:ProductSeries .
+
+# ===== Products =====
 ex:CRY-0001 a ex:Product ;
     ex:belongsToSeries ex:MoistureRichSeries ;
     ex:estimatedPrice 70000 ;
     ex:hasBrand ex:CrystallureBrand ;
     ex:hasCategory ex:CleanserCategory ;
-    ex:hasIngredient "Gold-Peptide Crystals dan Amino Ectoin" ;
+    ex:hasIngredient ex:Ectoin, ex:Peptide ;
     ex:productName "Crystallure Moisture Rich Cleansing Foam" ;
     ex:sourceProductId "CRY-0001" ;
     ex:suitableForAgeGroup ex:Adult ;
-    ex:suitableForSkinType "PerluVerifikasi" ;
-    ex:treatsConcern ex:Cleansing,
-        ex:HydrationMoisture ;
+    ex:suitableForSkinType ex:Dry, ex:Normal, ex:Oily ;
+    ex:treatsConcern ex:Cleansing, ex:HydrationMoisture ;
     ex:verificationStatus "Nama dan bahan utama terverifikasi di situs resmi" .
 
 ex:CRY-0002 a ex:Product ;
     ex:belongsToSeries ex:SupremeSeries ;
     ex:estimatedPrice 75000 ;
     ex:hasBrand ex:CrystallureBrand ;
-    ex:hasCategory ex:MicellarCleanserCategory ;
-    ex:hasIngredient "Perlu verifikasi dari label resmi" ;
+    ex:hasCategory ex:CleanserCategory ;
     ex:productName "Crystallure Supreme Double Action Micellar Gel" ;
     ex:sourceProductId "CRY-0002" ;
     ex:suitableForAgeGroup ex:Adult ;
-    ex:suitableForSkinType "PerluVerifikasi" ;
+    ex:suitableForSkinType ex:Dry, ex:Normal, ex:Oily ;
     ex:treatsConcern ex:Cleansing ;
     ex:verificationStatus "Nama dan bahan utama terverifikasi di situs resmi" .
 
@@ -35,36 +167,26 @@ ex:CRY-0003 a ex:Product ;
     ex:belongsToSeries ex:SupremeSeries ;
     ex:estimatedPrice 100000 ;
     ex:hasBrand ex:CrystallureBrand ;
-    ex:hasCategory ex:ExfoliatingTonerCategory ;
-    ex:hasIngredient "Ferulic Acid (perlu konfirmasi label)",
-        "PHA" ;
+    ex:hasCategory ex:TonerCategory ;
+    ex:hasIngredient ex:FerulicAcid, ex:PHA, ex:Peptide ;
     ex:productName "Crystallure Dual Refining Treatment Solution" ;
     ex:sourceProductId "CRY-0003" ;
     ex:suitableForAgeGroup ex:Adult ;
-    ex:suitableForSkinType "3% Encapsulated Ferulic Acid",
-        "Gold Peptide Crystals",
-        "Meadowfoam Lipidic Essence",
-        "PHA" ;
-    ex:treatsConcern ex:DullnessBrightening,
-        ex:TextureExfoliation ;
+    ex:suitableForSkinType ex:Dry, ex:Normal, ex:Oily ;
+    ex:treatsConcern ex:DullnessBrightening, ex:TextureExfoliation ;
     ex:verificationStatus "Nama dan bahan utama terverifikasi di situs resmi" .
 
 ex:CRY-0004 a ex:Product ;
     ex:belongsToSeries ex:SupremeSeries ;
     ex:estimatedPrice 200000 ;
     ex:hasBrand ex:CrystallureBrand ;
-    ex:hasCategory ex:EssenceCategory ;
-    ex:hasIngredient "Gold Peptide Crystals",
-        "YouthGlow Active",
-        "dan MatrixKey Molecule" ;
+    ex:hasCategory ex:SerumCategory ;
+    ex:hasIngredient ex:HyaluronicAcid, ex:Peptide ;
     ex:productName "Crystallure Supreme Activating Booster Essence" ;
     ex:sourceProductId "CRY-0004" ;
     ex:suitableForAgeGroup ex:Adult ;
-    ex:suitableForSkinType "Gold Peptide Crystals",
-        "YouthGlow Active",
-        "dan Triple Hyaluronic Acid" ;
-    ex:treatsConcern ex:AgingFineLines,
-        ex:HydrationMoisture ;
+    ex:suitableForSkinType ex:Dry, ex:Normal, ex:Oily ;
+    ex:treatsConcern ex:AgingFineLines, ex:HydrationMoisture ;
     ex:verificationStatus "Nama dan bahan utama terverifikasi di situs resmi" .
 
 ex:CRY-0005 a ex:Product ;
@@ -72,13 +194,11 @@ ex:CRY-0005 a ex:Product ;
     ex:estimatedPrice 150000 ;
     ex:hasBrand ex:CrystallureBrand ;
     ex:hasCategory ex:MoisturizerCategory ;
-    ex:hasIngredient "Gold Peptide Crystals",
-        "YouthGlow Active",
-        "dan MatrixKey Molecule" ;
+    ex:hasIngredient ex:Peptide ;
     ex:productName "Crystallure Supreme Advanced Hydra Gel" ;
     ex:sourceProductId "CRY-0005" ;
     ex:suitableForAgeGroup ex:Adult ;
-    ex:suitableForSkinType "SemuaJenisKulit" ;
+    ex:suitableForSkinType ex:Dry, ex:Normal, ex:Oily ;
     ex:treatsConcern ex:HydrationMoisture ;
     ex:verificationStatus "Nama dan bahan utama terverifikasi di situs resmi" .
 
@@ -87,26 +207,24 @@ ex:CRY-0006 a ex:Product ;
     ex:estimatedPrice 155000 ;
     ex:hasBrand ex:CrystallureBrand ;
     ex:hasCategory ex:MoisturizerCategory ;
-    ex:hasIngredient "Gold-Peptide Crystals",
-        "kombinasi dari peptida dengan kristal emas murni (pure gold crystals) dan Youth Glow Active" ;
+    ex:hasIngredient ex:Peptide ;
     ex:productName "Crystallure Supreme Revitalizing Rich Cream" ;
     ex:sourceProductId "CRY-0006" ;
     ex:suitableForAgeGroup ex:Adult ;
-    ex:suitableForSkinType "SemuaJenisKulit" ;
-    ex:treatsConcern ex:AgingFineLines,
-        ex:HydrationMoisture ;
+    ex:suitableForSkinType ex:Dry, ex:Normal, ex:Oily ;
+    ex:treatsConcern ex:AgingFineLines, ex:HydrationMoisture ;
     ex:verificationStatus "Nama dan bahan utama terverifikasi di situs resmi" .
 
 ex:CRY-0007 a ex:Product ;
     ex:belongsToSeries ex:SupremeSeries ;
     ex:estimatedPrice 190000 ;
     ex:hasBrand ex:CrystallureBrand ;
-    ex:hasCategory ex:NightCreamCategory ;
-    ex:hasIngredient "Gold Peptide Crystale dan YouthGlow Active" ;
+    ex:hasCategory ex:MoisturizerCategory ;
+    ex:hasIngredient ex:Peptide ;
     ex:productName "Crystallure Supreme Activating Overnight Cream" ;
     ex:sourceProductId "CRY-0007" ;
     ex:suitableForAgeGroup ex:Adult ;
-    ex:suitableForSkinType "SemuaJenisKulit" ;
+    ex:suitableForSkinType ex:Dry, ex:Normal, ex:Oily ;
     ex:treatsConcern ex:AgingFineLines ;
     ex:verificationStatus "Nama dan bahan utama terverifikasi di situs resmi" .
 
@@ -114,15 +232,13 @@ ex:CRY-0008 a ex:Product ;
     ex:belongsToSeries ex:SupremeSeries ;
     ex:estimatedPrice 220000 ;
     ex:hasBrand ex:CrystallureBrand ;
-    ex:hasCategory ex:OilSerumCategory ;
-    ex:hasIngredient "gold peptide crystals",
-        "youthglow active dan tujuh minyak tanaman" ;
+    ex:hasCategory ex:SerumCategory ;
+    ex:hasIngredient ex:Peptide, ex:PlantOil ;
     ex:productName "Crystallure Supreme Revitalizing Oil Serum" ;
     ex:sourceProductId "CRY-0008" ;
     ex:suitableForAgeGroup ex:Adult ;
-    ex:suitableForSkinType "SemuaJenisKulit" ;
-    ex:treatsConcern ex:AgingFineLines,
-        ex:HydrationMoisture ;
+    ex:suitableForSkinType ex:Dry, ex:Normal, ex:Oily ;
+    ex:treatsConcern ex:AgingFineLines, ex:HydrationMoisture ;
     ex:verificationStatus "Nama dan bahan utama terverifikasi di situs resmi" .
 
 ex:CRY-0009 a ex:Product ;
@@ -130,13 +246,11 @@ ex:CRY-0009 a ex:Product ;
     ex:estimatedPrice 160000 ;
     ex:hasBrand ex:CrystallureBrand ;
     ex:hasCategory ex:EyeCareCategory ;
-    ex:hasIngredient "Gold Peptide Crystals",
-        "YouthGlow Active",
-        "dan Advanced Micro Peptide" ;
+    ex:hasIngredient ex:Peptide ;
     ex:productName "Crystallure Supreme Advance Eye Serum" ;
     ex:sourceProductId "CRY-0009" ;
     ex:suitableForAgeGroup ex:Adult ;
-    ex:suitableForSkinType "SemuaJenisKulit" ;
+    ex:suitableForSkinType ex:Dry, ex:Normal, ex:Oily ;
     ex:treatsConcern ex:EyeAreaCare ;
     ex:verificationStatus "Nama dan bahan utama terverifikasi di situs resmi" .
 
@@ -145,14 +259,12 @@ ex:CRY-0010 a ex:Product ;
     ex:estimatedPrice 160000 ;
     ex:hasBrand ex:CrystallureBrand ;
     ex:hasCategory ex:MoisturizerCategory ;
-    ex:hasIngredient "Amino Ectoin",
-        "Crystals",
-        "dan SPF 35 PA+++" ;
+    ex:hasIngredient ex:Ectoin ;
     ex:productName "Crystallure Day & Night Moisturizer" ;
     ex:sourceProductId "CRY-0010" ;
     ex:suitableForAgeGroup ex:Adult ;
-    ex:suitableForSkinType "SemuaJenisKulit" ;
-    ex:treatsConcern ex:HydrationMoisture ;
+    ex:suitableForSkinType ex:Dry, ex:Normal, ex:Oily ;
+    ex:treatsConcern ex:HydrationMoisture, ex:UVProtection ;
     ex:verificationStatus "Nama dan bahan utama terverifikasi di situs resmi" .
 
 ex:EMI-0026 a ex:Product ;
@@ -160,15 +272,12 @@ ex:EMI-0026 a ex:Product ;
     ex:estimatedPrice 25000 ;
     ex:hasBrand ex:EminaBrand ;
     ex:hasCategory ex:CleanserCategory ;
-    ex:hasIngredient "Summer plum extract",
-        "Vitamin B3" ;
+    ex:hasIngredient ex:Niacinamide ;
     ex:productName "Bright Stuff Face Wash" ;
     ex:sourceProductId "EMI-0026" ;
-    ex:suitableForAgeGroup ex:Adult,
-        ex:Teen ;
-    ex:suitableForSkinType "SemuaJenisKulit" ;
-    ex:treatsConcern ex:Cleansing,
-        ex:DullnessBrightening ;
+    ex:suitableForAgeGroup ex:Adult, ex:Teen ;
+    ex:suitableForSkinType ex:Dry, ex:Normal, ex:Oily ;
+    ex:treatsConcern ex:Cleansing, ex:DullnessBrightening ;
     ex:verificationStatus "Nama/ingredients utama terverifikasi dari situs resmi" .
 
 ex:EMI-0027 a ex:Product ;
@@ -176,15 +285,12 @@ ex:EMI-0027 a ex:Product ;
     ex:estimatedPrice 35000 ;
     ex:hasBrand ex:EminaBrand ;
     ex:hasCategory ex:TonerCategory ;
-    ex:hasIngredient "Summer plum extract",
-        "niacinamide" ;
+    ex:hasIngredient ex:Niacinamide ;
     ex:productName "Bright Stuff Face Toner" ;
     ex:sourceProductId "EMI-0027" ;
-    ex:suitableForAgeGroup ex:Adult,
-        ex:Teen ;
-    ex:suitableForSkinType "SemuaJenisKulit" ;
-    ex:treatsConcern ex:DullnessBrightening,
-        ex:HydrationMoisture ;
+    ex:suitableForAgeGroup ex:Adult, ex:Teen ;
+    ex:suitableForSkinType ex:Dry, ex:Normal, ex:Oily ;
+    ex:treatsConcern ex:DullnessBrightening, ex:HydrationMoisture ;
     ex:verificationStatus "Nama/ingredients utama terverifikasi dari situs resmi" .
 
 ex:EMI-0028 a ex:Product ;
@@ -192,13 +298,11 @@ ex:EMI-0028 a ex:Product ;
     ex:estimatedPrice 55000 ;
     ex:hasBrand ex:EminaBrand ;
     ex:hasCategory ex:SerumCategory ;
-    ex:hasIngredient "Concentrated niacinamide",
-        "summer plum extract" ;
+    ex:hasIngredient ex:Niacinamide ;
     ex:productName "Bright Stuff Face Serum" ;
     ex:sourceProductId "EMI-0028" ;
-    ex:suitableForAgeGroup ex:Adult,
-        ex:Teen ;
-    ex:suitableForSkinType "Kering" ;
+    ex:suitableForAgeGroup ex:Adult, ex:Teen ;
+    ex:suitableForSkinType ex:Dry ;
     ex:treatsConcern ex:DullnessBrightening ;
     ex:verificationStatus "Nama/ingredients utama terverifikasi dari situs resmi" .
 
@@ -207,14 +311,11 @@ ex:EMI-0029 a ex:Product ;
     ex:estimatedPrice 30000 ;
     ex:hasBrand ex:EminaBrand ;
     ex:hasCategory ex:CleanserCategory ;
-    ex:hasIngredient "Summer plum extract",
-        "cinnamon bark extract" ;
     ex:productName "Bright Stuff for Acne Prone Skin Face Wash" ;
     ex:sourceProductId "EMI-0029" ;
     ex:suitableForAgeGroup ex:Teen ;
-    ex:suitableForSkinType "Berminyak" ;
-    ex:treatsConcern ex:Acne,
-        ex:ExcessOil ;
+    ex:suitableForSkinType ex:Oily ;
+    ex:treatsConcern ex:Acne, ex:ExcessOil ;
     ex:verificationStatus "Nama/ingredients utama terverifikasi dari situs resmi" .
 
 ex:EMI-0030 a ex:Product ;
@@ -222,13 +323,11 @@ ex:EMI-0030 a ex:Product ;
     ex:estimatedPrice 30000 ;
     ex:hasBrand ex:EminaBrand ;
     ex:hasCategory ex:MoisturizerCategory ;
-    ex:hasIngredient "Brightening/hydrating formula" ;
     ex:productName "Bright Stuff Ultra-Light Moisturizing Cream" ;
     ex:sourceProductId "EMI-0030" ;
     ex:suitableForAgeGroup ex:Teen ;
-    ex:suitableForSkinType "Normal" ;
-    ex:treatsConcern ex:DullnessBrightening,
-        ex:HydrationMoisture ;
+    ex:suitableForSkinType ex:Normal ;
+    ex:treatsConcern ex:DullnessBrightening, ex:HydrationMoisture ;
     ex:verificationStatus "Nama terverifikasi dari retailer" .
 
 ex:EMI-0031 a ex:Product ;
@@ -236,15 +335,12 @@ ex:EMI-0031 a ex:Product ;
     ex:estimatedPrice 35000 ;
     ex:hasBrand ex:EminaBrand ;
     ex:hasCategory ex:CleanserCategory ;
-    ex:hasIngredient "Niacinamide",
-        "oxy ceramide" ;
+    ex:hasIngredient ex:Ceramide, ex:Niacinamide ;
     ex:productName "Bright Stuff Niacinamide Oxy Ceramide Brightening Facial Cleanser" ;
     ex:sourceProductId "EMI-0031" ;
-    ex:suitableForAgeGroup ex:Adult,
-        ex:Teen ;
-    ex:suitableForSkinType "SemuaJenisKulit" ;
-    ex:treatsConcern ex:DullnessBrightening,
-        ex:HydrationMoisture ;
+    ex:suitableForAgeGroup ex:Adult, ex:Teen ;
+    ex:suitableForSkinType ex:Dry, ex:Normal, ex:Oily ;
+    ex:treatsConcern ex:DullnessBrightening, ex:HydrationMoisture ;
     ex:verificationStatus "Nama/ingredients utama terverifikasi dari retailer" .
 
 ex:EMI-0032 a ex:Product ;
@@ -252,13 +348,11 @@ ex:EMI-0032 a ex:Product ;
     ex:estimatedPrice 40000 ;
     ex:hasBrand ex:EminaBrand ;
     ex:hasCategory ex:CleanserCategory ;
-    ex:hasIngredient "Prebiotic",
-        "tranexamic acid" ;
+    ex:hasIngredient ex:Probiotic, ex:TranexamicAcid ;
     ex:productName "Bright Stuff Prebiotic Tranexamic Acid Brightening Facial Cleanser" ;
     ex:sourceProductId "EMI-0032" ;
-    ex:suitableForAgeGroup ex:Adult,
-        ex:Teen ;
-    ex:suitableForSkinType "SemuaJenisKulit" ;
+    ex:suitableForAgeGroup ex:Adult, ex:Teen ;
+    ex:suitableForSkinType ex:Dry, ex:Normal, ex:Oily ;
     ex:treatsConcern ex:DullnessBrightening ;
     ex:verificationStatus "Nama/ingredients utama terverifikasi dari retailer" .
 
@@ -267,14 +361,11 @@ ex:EMI-0033 a ex:Product ;
     ex:estimatedPrice 35000 ;
     ex:hasBrand ex:EminaBrand ;
     ex:hasCategory ex:MoisturizerCategory ;
-    ex:hasIngredient "Hydrating ingredients" ;
     ex:productName "Water Bright Glow Gel" ;
     ex:sourceProductId "EMI-0033" ;
-    ex:suitableForAgeGroup ex:Adult,
-        ex:Teen ;
-    ex:suitableForSkinType "Normal" ;
-    ex:treatsConcern ex:DullnessBrightening,
-        ex:HydrationMoisture ;
+    ex:suitableForAgeGroup ex:Adult, ex:Teen ;
+    ex:suitableForSkinType ex:Normal ;
+    ex:treatsConcern ex:DullnessBrightening, ex:HydrationMoisture ;
     ex:verificationStatus "Nama terverifikasi dari situs resmi" .
 
 ex:EMI-0034 a ex:Product ;
@@ -282,13 +373,11 @@ ex:EMI-0034 a ex:Product ;
     ex:estimatedPrice 40000 ;
     ex:hasBrand ex:EminaBrand ;
     ex:hasCategory ex:TonerCategory ;
-    ex:hasIngredient "Aloe vera",
-        "chamomile extract" ;
+    ex:hasIngredient ex:AloeVera ;
     ex:productName "Double The Moist Face Toner" ;
     ex:sourceProductId "EMI-0034" ;
-    ex:suitableForAgeGroup ex:Adult,
-        ex:Teen ;
-    ex:suitableForSkinType "Normal" ;
+    ex:suitableForAgeGroup ex:Adult, ex:Teen ;
+    ex:suitableForSkinType ex:Normal ;
     ex:treatsConcern ex:HydrationMoisture ;
     ex:verificationStatus "Nama/ingredients utama terverifikasi dari situs resmi" .
 
@@ -297,15 +386,11 @@ ex:EMI-0035 a ex:Product ;
     ex:estimatedPrice 40000 ;
     ex:hasBrand ex:EminaBrand ;
     ex:hasCategory ex:SunscreenCategory ;
-    ex:hasIngredient "UV filters",
-        "cek INCI resmi" ;
     ex:productName "Sun Battle Bright Glow SPF 35 PA+++" ;
     ex:sourceProductId "EMI-0035" ;
-    ex:suitableForAgeGroup ex:Adult,
-        ex:Teen ;
-    ex:suitableForSkinType "SemuaJenisKulit" ;
-    ex:treatsConcern ex:DullnessBrightening,
-        ex:UVProtection ;
+    ex:suitableForAgeGroup ex:Adult, ex:Teen ;
+    ex:suitableForSkinType ex:Dry, ex:Normal, ex:Oily ;
+    ex:treatsConcern ex:DullnessBrightening, ex:UVProtection ;
     ex:verificationStatus "Nama terverifikasi dari retailer; detail perlu cek kemasan" .
 
 ex:EMI-0036 a ex:Product ;
@@ -313,15 +398,12 @@ ex:EMI-0036 a ex:Product ;
     ex:estimatedPrice 45000 ;
     ex:hasBrand ex:EminaBrand ;
     ex:hasCategory ex:SunscreenCategory ;
-    ex:hasIngredient "Cica",
-        "UV filters",
-        "allantoin" ;
+    ex:hasIngredient ex:Centella ;
     ex:productName "Sun Battle SPF 35 PA+++ Acne Clear Cica + Allantoin Airy Acne Soothing" ;
     ex:sourceProductId "EMI-0036" ;
     ex:suitableForAgeGroup ex:Teen ;
-    ex:suitableForSkinType "Berminyak" ;
-    ex:treatsConcern ex:Acne,
-        ex:UVProtection ;
+    ex:suitableForSkinType ex:Oily ;
+    ex:treatsConcern ex:Acne, ex:UVProtection ;
     ex:verificationStatus "Nama/ingredients utama terverifikasi dari retailer" .
 
 ex:EMI-0037 a ex:Product ;
@@ -329,15 +411,12 @@ ex:EMI-0037 a ex:Product ;
     ex:estimatedPrice 50000 ;
     ex:hasBrand ex:EminaBrand ;
     ex:hasCategory ex:SunscreenCategory ;
-    ex:hasIngredient "Cica",
-        "UV filters" ;
+    ex:hasIngredient ex:Centella ;
     ex:productName "Sun Battle SPF 50 PA++++ Cica Acne Fighter Sunscreen" ;
     ex:sourceProductId "EMI-0037" ;
-    ex:suitableForAgeGroup ex:Adult,
-        ex:Teen ;
-    ex:suitableForSkinType "Berminyak" ;
-    ex:treatsConcern ex:Acne,
-        ex:UVProtection ;
+    ex:suitableForAgeGroup ex:Adult, ex:Teen ;
+    ex:suitableForSkinType ex:Oily ;
+    ex:treatsConcern ex:Acne, ex:UVProtection ;
     ex:verificationStatus "Nama/ingredients utama terverifikasi dari retailer" .
 
 ex:EMI-0038 a ex:Product ;
@@ -345,15 +424,11 @@ ex:EMI-0038 a ex:Product ;
     ex:estimatedPrice 55000 ;
     ex:hasBrand ex:EminaBrand ;
     ex:hasCategory ex:SunscreenCategory ;
-    ex:hasIngredient "Barrier-supporting/hydrating ingredients",
-        "cek INCI" ;
     ex:productName "Sun Battle SPF 50 PA++++ Barrier Hydraburst Sunscreen" ;
     ex:sourceProductId "EMI-0038" ;
-    ex:suitableForAgeGroup ex:Adult,
-        ex:Teen ;
-    ex:suitableForSkinType "Normal" ;
-    ex:treatsConcern ex:SkinBarrier,
-        ex:UVProtection ;
+    ex:suitableForAgeGroup ex:Adult, ex:Teen ;
+    ex:suitableForSkinType ex:Normal ;
+    ex:treatsConcern ex:SkinBarrier, ex:UVProtection ;
     ex:verificationStatus "Nama terverifikasi dari retailer" .
 
 ex:EMI-0040 a ex:Product ;
@@ -361,34 +436,25 @@ ex:EMI-0040 a ex:Product ;
     ex:estimatedPrice 60000 ;
     ex:hasBrand ex:EminaBrand ;
     ex:hasCategory ex:SerumCategory ;
-    ex:hasIngredient "Niacinamide",
-        "summer plum extract+G42" ;
+    ex:hasIngredient ex:Niacinamide ;
     ex:productName "Bright Stuff Face Serum 7.5 ml" ;
     ex:sourceProductId "EMI-0040" ;
-    ex:suitableForAgeGroup ex:Adult,
-        ex:Teen ;
-    ex:suitableForSkinType "Kering" ;
+    ex:suitableForAgeGroup ex:Adult, ex:Teen ;
+    ex:suitableForSkinType ex:Dry ;
     ex:treatsConcern ex:DullnessBrightening ;
     ex:verificationStatus "Nama/ingredients utama terverifikasi dari situs resmi" .
-
-ex:Ingredient a owl:Class .
 
 ex:KAH-0039 a ex:Product ;
     ex:belongsToSeries ex:FaceCareSeries ;
     ex:estimatedPrice 50000 ;
     ex:hasBrand ex:KahfBrand ;
-    ex:hasCategory ex:FacespraytonerCategory ;
-    ex:hasIngredient "7 Soothing Botanicals",
-        "Advanced Zinc - PCA",
-        "Swiss Glacial Water & Arctic Marine Algae" ;
+    ex:hasCategory ex:FaceMistCategory ;
+    ex:hasIngredient ex:Zinc ;
     ex:productName "Face Spray All-in-One and Power Toning" ;
     ex:sourceProductId "KAH-0039" ;
     ex:suitableForAgeGroup ex:Adult ;
-    ex:suitableForSkinType "Berminyak" ;
-    ex:treatsConcern ex:ExcessOil,
-        ex:HydrationMoisture,
-        ex:RednessSensitivity,
-        ex:RefreshingSoothing ;
+    ex:suitableForSkinType ex:Oily ;
+    ex:treatsConcern ex:ExcessOil, ex:HydrationMoisture, ex:RednessSensitivity, ex:RefreshingSoothing ;
     ex:verificationStatus "Nama dan fungsi terverifikasi di situs resmi" .
 
 ex:KAH-0041 a ex:Product ;
@@ -396,14 +462,11 @@ ex:KAH-0041 a ex:Product ;
     ex:estimatedPrice 110000 ;
     ex:hasBrand ex:KahfBrand ;
     ex:hasCategory ex:SerumCategory ;
-    ex:hasIngredient "Niosome delivery system" ;
     ex:productName "Acne Clear & Post-acne Repair Niosome Serum" ;
     ex:sourceProductId "KAH-0041" ;
-    ex:suitableForAgeGroup ex:Adult,
-        ex:Teen ;
-    ex:suitableForSkinType "Berminyak" ;
-    ex:treatsConcern ex:Acne,
-        ex:DarkSpotsHyperpigmentation ;
+    ex:suitableForAgeGroup ex:Adult, ex:Teen ;
+    ex:suitableForSkinType ex:Oily ;
+    ex:treatsConcern ex:Acne, ex:DarkSpotsHyperpigmentation ;
     ex:verificationStatus "Nama terverifikasi dari situs resmi; ingredients lengkap perlu cek" .
 
 ex:KAH-0042 a ex:Product ;
@@ -411,13 +474,11 @@ ex:KAH-0042 a ex:Product ;
     ex:estimatedPrice 115000 ;
     ex:hasBrand ex:KahfBrand ;
     ex:hasCategory ex:SerumCategory ;
-    ex:hasIngredient "Niosome delivery system" ;
     ex:productName "Bright Intensifying & Pigment Corrector Niosome Serum" ;
     ex:sourceProductId "KAH-0042" ;
     ex:suitableForAgeGroup ex:Adult ;
-    ex:suitableForSkinType "Kering" ;
-    ex:treatsConcern ex:DarkSpotsHyperpigmentation,
-        ex:DullnessBrightening ;
+    ex:suitableForSkinType ex:Dry ;
+    ex:treatsConcern ex:DarkSpotsHyperpigmentation, ex:DullnessBrightening ;
     ex:verificationStatus "Nama terverifikasi dari situs resmi" .
 
 ex:KAH-0043 a ex:Product ;
@@ -425,13 +486,12 @@ ex:KAH-0043 a ex:Product ;
     ex:estimatedPrice 45000 ;
     ex:hasBrand ex:KahfBrand ;
     ex:hasCategory ex:CleanserCategory ;
-    ex:hasIngredient "AminoGel cleansing formula" ;
+    ex:hasIngredient ex:AminoAcid ;
     ex:productName "Bright Revitalizing AminoGel Face Wash" ;
     ex:sourceProductId "KAH-0043" ;
     ex:suitableForAgeGroup ex:Adult ;
-    ex:suitableForSkinType "SemuaJenisKulit" ;
-    ex:treatsConcern ex:Cleansing,
-        ex:DullnessBrightening ;
+    ex:suitableForSkinType ex:Dry, ex:Normal, ex:Oily ;
+    ex:treatsConcern ex:Cleansing, ex:DullnessBrightening ;
     ex:verificationStatus "Nama terverifikasi dari situs resmi" .
 
 ex:KAH-0044 a ex:Product ;
@@ -439,13 +499,12 @@ ex:KAH-0044 a ex:Product ;
     ex:estimatedPrice 50000 ;
     ex:hasBrand ex:KahfBrand ;
     ex:hasCategory ex:CleanserCategory ;
-    ex:hasIngredient "AHA/Glycolic Acid" ;
+    ex:hasIngredient ex:AHA ;
     ex:productName "Skin Energizing and Brightening Face Wash" ;
     ex:sourceProductId "KAH-0044" ;
     ex:suitableForAgeGroup ex:Adult ;
-    ex:suitableForSkinType "Normal" ;
-    ex:treatsConcern ex:Cleansing,
-        ex:DullnessBrightening ;
+    ex:suitableForSkinType ex:Normal ;
+    ex:treatsConcern ex:Cleansing, ex:DullnessBrightening ;
     ex:verificationStatus "Nama terverifikasi dari retailer" .
 
 ex:KAH-0045 a ex:Product ;
@@ -453,16 +512,12 @@ ex:KAH-0045 a ex:Product ;
     ex:estimatedPrice 55000 ;
     ex:hasBrand ex:KahfBrand ;
     ex:hasCategory ex:CleanserCategory ;
-    ex:hasIngredient "AHA/Glycolic Acid",
-        "french cypress",
-        "hydrobalance",
-        "mediterranean sage" ;
+    ex:hasIngredient ex:AHA ;
     ex:productName "Oil and Acne Care Face Wash" ;
     ex:sourceProductId "KAH-0045" ;
     ex:suitableForAgeGroup ex:Adult ;
-    ex:suitableForSkinType "Berminyak" ;
-    ex:treatsConcern ex:Acne,
-        ex:ExcessOil ;
+    ex:suitableForSkinType ex:Oily ;
+    ex:treatsConcern ex:Acne, ex:ExcessOil ;
     ex:verificationStatus "Nama terverifikasi dari retailer" .
 
 ex:KAH-0046 a ex:Product ;
@@ -470,13 +525,12 @@ ex:KAH-0046 a ex:Product ;
     ex:estimatedPrice 60000 ;
     ex:hasBrand ex:KahfBrand ;
     ex:hasCategory ex:CleanserCategory ;
-    ex:hasIngredient "AHA/Glycolic Acid" ;
+    ex:hasIngredient ex:AHA ;
     ex:productName "Triple Action Oil and Comedo Defense Face Wash" ;
     ex:sourceProductId "KAH-0046" ;
     ex:suitableForAgeGroup ex:Adult ;
-    ex:suitableForSkinType "Berminyak" ;
-    ex:treatsConcern ex:Comedones,
-        ex:ExcessOil ;
+    ex:suitableForSkinType ex:Oily ;
+    ex:treatsConcern ex:Comedones, ex:ExcessOil ;
     ex:verificationStatus "Nama terverifikasi dari retailer" .
 
 ex:KAH-0047 a ex:Product ;
@@ -484,14 +538,11 @@ ex:KAH-0047 a ex:Product ;
     ex:estimatedPrice 65000 ;
     ex:hasBrand ex:KahfBrand ;
     ex:hasCategory ex:SunscreenCategory ;
-    ex:hasIngredient "Brightening Complex",
-        "Soothing & Hydrating Agents",
-        "UV filters" ;
     ex:productName "Bright Fresh Sunscreen Serum SPF 35 PA++++" ;
     ex:sourceProductId "KAH-0047" ;
-    ex:suitableForSkinType "SemuaJenisKulit" ;
-    ex:treatsConcern ex:DullnessBrightening,
-        ex:UVProtection ;
+    ex:suitableForAgeGroup ex:Adult ;
+    ex:suitableForSkinType ex:Dry, ex:Normal, ex:Oily ;
+    ex:treatsConcern ex:DullnessBrightening, ex:UVProtection ;
     ex:verificationStatus "Nama terverifikasi dari retailer" .
 
 ex:KAH-0048 a ex:Product ;
@@ -499,13 +550,11 @@ ex:KAH-0048 a ex:Product ;
     ex:estimatedPrice 70000 ;
     ex:hasBrand ex:KahfBrand ;
     ex:hasCategory ex:SunscreenCategory ;
-    ex:hasIngredient "UV filters" ;
     ex:productName "Bright Fresh Sunscreen Serum SPF 50 PA++++" ;
     ex:sourceProductId "KAH-0048" ;
     ex:suitableForAgeGroup ex:Adult ;
-    ex:suitableForSkinType "SemuaJenisKulit" ;
-    ex:treatsConcern ex:DullnessBrightening,
-        ex:UVProtection ;
+    ex:suitableForSkinType ex:Dry, ex:Normal, ex:Oily ;
+    ex:treatsConcern ex:DullnessBrightening, ex:UVProtection ;
     ex:verificationStatus "Nama terverifikasi dari retailer" .
 
 ex:KAH-0049 a ex:Product ;
@@ -513,333 +562,256 @@ ex:KAH-0049 a ex:Product ;
     ex:estimatedPrice 75000 ;
     ex:hasBrand ex:KahfBrand ;
     ex:hasCategory ex:SunscreenCategory ;
-    ex:hasIngredient "Soothing ingredients",
-        "UV filters" ;
     ex:productName "Acne Calming Sunscreen Serum SPF 50 PA++++" ;
     ex:sourceProductId "KAH-0049" ;
     ex:suitableForAgeGroup ex:Adult ;
-    ex:suitableForSkinType "Berminyak" ;
-    ex:treatsConcern ex:Acne,
-        ex:UVProtection ;
+    ex:suitableForSkinType ex:Oily ;
+    ex:treatsConcern ex:Acne, ex:UVProtection ;
     ex:verificationStatus "Nama terverifikasi dari retailer" .
 
-ex:LAB-0053-AcneOilCorrectPhysicalSunscreenSPF5 a ex:Product ;
+ex:LAB-0053 a ex:Product ;
     ex:belongsToSeries ex:BiomeProtectSeries ;
     ex:estimatedPrice 85000 ;
     ex:hasBrand ex:LABOREBrand ;
     ex:hasCategory ex:SunscreenCategory ;
-    ex:hasIngredient "Antioxidants & Conditioning",
-        "Mineral Sun Filter",
-        "Soothing & Barrier Repair",
-        "Texture & Oil Control" ;
+    ex:hasIngredient ex:MineralFilter ;
     ex:productName "Acne & Oil Correct Physical Sunscreen SPF 50+ PA++++" ;
     ex:sourceProductId "LAB-0053" ;
-    ex:suitableForAgeGroup ex:Adult,
-        ex:Teen ;
-    ex:suitableForSkinType "Berminyak" ;
-    ex:treatsConcern ex:ExcessOil,
-        ex:UVProtection ;
+    ex:suitableForAgeGroup ex:Adult, ex:Teen ;
+    ex:suitableForSkinType ex:Oily ;
+    ex:treatsConcern ex:ExcessOil, ex:UVProtection ;
     ex:verificationStatus "Nama dan bahan utama terverifikasi di situs resmi" .
 
-ex:LAB-0053-AcneProBiomeAcneSpotGel a ex:Product ;
+ex:LAB-0054 a ex:Product ;
     ex:belongsToSeries ex:AcneProSeries ;
     ex:estimatedPrice 90000 ;
     ex:hasBrand ex:LABOREBrand ;
     ex:hasCategory ex:SpotTreatmentCategory ;
-    ex:hasIngredient "AcnePro Biome™ Technology",
-        "Micro Encapsulation Retinol",
-        "Targeted Salicylic Acid" ;
+    ex:hasIngredient ex:Probiotic, ex:Retinol, ex:SalicylicAcid ;
     ex:productName "AcnePro Biome Acne Spot Gel" ;
-    ex:sourceProductId "LAB-0053" ;
-    ex:suitableForAgeGroup ex:Adult,
-        ex:Teen ;
-    ex:suitableForSkinType "Berminyak" ;
+    ex:sourceProductId "LAB-0054" ;
+    ex:suitableForAgeGroup ex:Adult, ex:Teen ;
+    ex:suitableForSkinType ex:Oily ;
     ex:treatsConcern ex:Acne ;
     ex:verificationStatus "Nama dan bahan utama terverifikasi di situs resmi" .
 
-ex:LAB-0053-AcneProBiomeMicroExfoliatingGentleT a ex:Product ;
+ex:LAB-0055 a ex:Product ;
     ex:belongsToSeries ex:AcneProSeries ;
     ex:estimatedPrice 110000 ;
     ex:hasBrand ex:LABOREBrand ;
-    ex:hasCategory ex:ExfoliatingTonerCategory ;
-    ex:hasIngredient "1",
-        "2-hexanediol",
-        "aqua",
-        "glycerin",
-        "niacinamide",
-        "peg-8",
-        "propanediol",
-        "salicylic acid" ;
+    ex:hasCategory ex:TonerCategory ;
+    ex:hasIngredient ex:Niacinamide, ex:SalicylicAcid ;
     ex:productName "AcnePro Biome Micro Exfoliating Gentle Toner" ;
-    ex:sourceProductId "LAB-0053" ;
-    ex:suitableForAgeGroup ex:Adult,
-        ex:Teen ;
-    ex:suitableForSkinType "Normal" ;
-    ex:treatsConcern ex:Acne,
-        ex:TextureExfoliation ;
+    ex:sourceProductId "LAB-0055" ;
+    ex:suitableForAgeGroup ex:Adult, ex:Teen ;
+    ex:suitableForSkinType ex:Normal ;
+    ex:treatsConcern ex:Acne, ex:TextureExfoliation ;
     ex:verificationStatus "Nama dan bahan utama terverifikasi di situs resmi" .
 
-ex:LAB-0053-AcneProBiomeSebumAcneCleansingMouss a ex:Product ;
+ex:LAB-0056 a ex:Product ;
     ex:belongsToSeries ex:AcneProSeries ;
     ex:estimatedPrice 85000 ;
     ex:hasBrand ex:LABOREBrand ;
     ex:hasCategory ex:CleanserCategory ;
-    ex:hasIngredient "Free From",
-        "Lactobacillus Ferment",
-        "Niacinamide",
-        "Salicylic Acid (BHA)",
-        "Zinc PCA" ;
+    ex:hasIngredient ex:Niacinamide, ex:SalicylicAcid, ex:Zinc ;
     ex:productName "AcnePro Biome Sebum & Acne Cleansing Mousse" ;
-    ex:sourceProductId "LAB-0053" ;
-    ex:suitableForAgeGroup ex:Adult,
-        ex:Teen ;
-    ex:suitableForSkinType "Berminyak" ;
-    ex:treatsConcern ex:Acne,
-        ex:ExcessOil ;
+    ex:sourceProductId "LAB-0056" ;
+    ex:suitableForAgeGroup ex:Adult, ex:Teen ;
+    ex:suitableForSkinType ex:Oily ;
+    ex:treatsConcern ex:Acne, ex:ExcessOil ;
     ex:verificationStatus "Nama dan bahan utama terverifikasi di situs resmi" .
 
-ex:LAB-0053-AntiPigmentationBrighteningPhysical a ex:Product ;
+ex:LAB-0057 a ex:Product ;
     ex:belongsToSeries ex:DermalabRevolutionaireSeries ;
     ex:estimatedPrice 90000 ;
     ex:hasBrand ex:LABOREBrand ;
     ex:hasCategory ex:SunscreenCategory ;
-    ex:hasIngredient "Cysteamine HCl",
-        "and Glycyrrhiza Glabra (Licorice) Root Extract",
-        "combined with active brighteners such as Niacinamide",
-        "mineral filters like Zinc Oxide (nano) and Titanium Dioxide" ;
+    ex:hasIngredient ex:Cysteamine, ex:MineralFilter, ex:Niacinamide ;
     ex:productName "Anti-Pigmentation Brightening Physical Sunscreen" ;
-    ex:sourceProductId "LAB-0053" ;
-    ex:suitableForAgeGroup ex:Adult,
-        ex:Teen ;
-    ex:suitableForSkinType "SemuaJenisKulit" ;
-    ex:treatsConcern ex:DarkSpotsHyperpigmentation,
-        ex:UVProtection ;
+    ex:sourceProductId "LAB-0057" ;
+    ex:suitableForAgeGroup ex:Adult, ex:Teen ;
+    ex:suitableForSkinType ex:Dry, ex:Normal, ex:Oily ;
+    ex:treatsConcern ex:DarkSpotsHyperpigmentation, ex:UVProtection ;
     ex:verificationStatus "Nama dan bahan utama terverifikasi di situs resmi" .
 
-ex:LAB-0053-BarrierRestorativeAdvancedLotion a ex:Product ;
+ex:LAB-0058 a ex:Product ;
     ex:belongsToSeries ex:DermalabRevolutionaireSeries ;
     ex:estimatedPrice 100000 ;
     ex:hasBrand ex:LABOREBrand ;
-    ex:hasCategory ex:LotionCategory ;
-    ex:hasIngredient "Bifida Ferment Lysate",
-        "M.E.D Hyaluronic Acid",
-        "Recombinant Collagen" ;
+    ex:hasCategory ex:MoisturizerCategory ;
+    ex:hasIngredient ex:HyaluronicAcid, ex:Probiotic ;
     ex:productName "Barrier Restorative Advanced Lotion" ;
-    ex:sourceProductId "LAB-0053" ;
-    ex:suitableForSkinType "SemuaJenisKulit" ;
+    ex:sourceProductId "LAB-0058" ;
+    ex:suitableForAgeGroup ex:Adult, ex:Teen ;
+    ex:suitableForSkinType ex:Dry, ex:Normal, ex:Oily ;
     ex:treatsConcern ex:SkinBarrier ;
     ex:verificationStatus "Nama dan bahan utama terverifikasi di situs resmi" .
 
-ex:LAB-0053-BiomeProtectPhysicalSunscreenSPF50P a ex:Product ;
+ex:LAB-0059 a ex:Product ;
     ex:belongsToSeries ex:BiomeProtectSeries ;
     ex:estimatedPrice 95000 ;
     ex:hasBrand ex:LABOREBrand ;
     ex:hasCategory ex:SunscreenCategory ;
-    ex:hasIngredient "Zinc Oxide (Nano) and Titanium Dioxide (Nano) as UV filters",
-        "combined with postbiotics (Bifida Ferment Lysate) and soothing agents" ;
+    ex:hasIngredient ex:MineralFilter, ex:Probiotic ;
     ex:productName "BiomeProtect Physical Sunscreen SPF 50+ PA++++" ;
-    ex:sourceProductId "LAB-0053" ;
-    ex:suitableForAgeGroup ex:Adult,
-        ex:Teen ;
-    ex:suitableForSkinType "Sensitif" ;
-    ex:treatsConcern ex:UVProtection ;
+    ex:sourceProductId "LAB-0059" ;
+    ex:suitableForAgeGroup ex:Adult, ex:Teen ;
+    ex:suitableForSkinType ex:Dry, ex:Normal, ex:Oily ;
+    ex:treatsConcern ex:RednessSensitivity, ex:UVProtection ;
     ex:verificationStatus "Nama dan bahan utama terverifikasi di situs resmi" .
 
-ex:LAB-0053-BiomeRepairBarrierReviveCream a ex:Product ;
+ex:LAB-0060 a ex:Product ;
     ex:belongsToSeries ex:BiomeRepairSeries ;
     ex:estimatedPrice 120000 ;
     ex:hasBrand ex:LABOREBrand ;
     ex:hasCategory ex:MoisturizerCategory ;
-    ex:hasIngredient "Hyaluronic Acid" ;
+    ex:hasIngredient ex:HyaluronicAcid ;
     ex:productName "BiomeRepair Barrier Revive Cream" ;
-    ex:sourceProductId "LAB-0053" ;
-    ex:suitableForAgeGroup ex:Adult,
-        ex:Teen ;
-    ex:suitableForSkinType "Sensitif" ;
-    ex:treatsConcern ex:HydrationMoisture,
-        ex:SkinBarrier ;
+    ex:sourceProductId "LAB-0060" ;
+    ex:suitableForAgeGroup ex:Adult, ex:Teen ;
+    ex:suitableForSkinType ex:Dry, ex:Normal, ex:Oily ;
+    ex:treatsConcern ex:HydrationMoisture, ex:RednessSensitivity, ex:SkinBarrier ;
     ex:verificationStatus "Nama dan bahan utama terverifikasi di situs resmi" .
 
-ex:LAB-0053-BiomeRepairTopiCalmCream a ex:Product ;
+ex:LAB-0061 a ex:Product ;
     ex:belongsToSeries ex:BiomeRepairSeries ;
     ex:estimatedPrice 125000 ;
     ex:hasBrand ex:LABOREBrand ;
     ex:hasCategory ex:MoisturizerCategory ;
-    ex:hasIngredient "Encapsulated Ceramide",
-        "Encapsulated Microbiome",
-        "Vitamin B12 (Cyanocobalamin)" ;
+    ex:hasIngredient ex:Ceramide, ex:Probiotic ;
     ex:productName "BiomeRepair TopiCalm Cream" ;
-    ex:sourceProductId "LAB-0053" ;
-    ex:suitableForAgeGroup ex:Adult,
-        ex:Teen ;
-    ex:suitableForSkinType "Sensitif" ;
-    ex:treatsConcern ex:HydrationMoisture,
-        ex:RednessSensitivity ;
+    ex:sourceProductId "LAB-0061" ;
+    ex:suitableForAgeGroup ex:Adult, ex:Teen ;
+    ex:suitableForSkinType ex:Dry, ex:Normal, ex:Oily ;
+    ex:treatsConcern ex:HydrationMoisture, ex:RednessSensitivity ;
     ex:verificationStatus "Nama dan bahan utama terverifikasi di situs resmi" .
 
-ex:LAB-0053-GentleBiomeBarrierRepairSerum a ex:Product ;
+ex:LAB-0062 a ex:Product ;
     ex:belongsToSeries ex:GentleBiomeSeries ;
     ex:estimatedPrice 130000 ;
     ex:hasBrand ex:LABOREBrand ;
     ex:hasCategory ex:SerumCategory ;
-    ex:hasIngredient "aqua",
-        "glycerin",
-        "methyl gluceth-20",
-        "niacinamide" ;
+    ex:hasIngredient ex:Niacinamide ;
     ex:productName "GentleBiome Barrier Repair Serum" ;
-    ex:sourceProductId "LAB-0053" ;
-    ex:suitableForAgeGroup ex:Adult,
-        ex:Teen ;
-    ex:suitableForSkinType "SemuaJenisKulit" ;
+    ex:sourceProductId "LAB-0062" ;
+    ex:suitableForAgeGroup ex:Adult, ex:Teen ;
+    ex:suitableForSkinType ex:Dry, ex:Normal, ex:Oily ;
     ex:treatsConcern ex:SkinBarrier ;
     ex:verificationStatus "Nama dan bahan utama terverifikasi di situs resmi" .
 
-ex:LAB-0053-GentleBiomeHydratingFaceBodyCleanse a ex:Product ;
+ex:LAB-0063 a ex:Product ;
     ex:belongsToSeries ex:GentleBiomeSeries ;
     ex:estimatedPrice 90000 ;
     ex:hasBrand ex:LABOREBrand ;
     ex:hasCategory ex:CleanserCategory ;
-    ex:hasIngredient "AdvancedHA",
-        "Gentle Foam Surfactant",
-        "Microbiome TechnologyTM" ;
+    ex:hasIngredient ex:HyaluronicAcid, ex:Probiotic ;
     ex:productName "GentleBiome Hydrating Face & Body Cleanser" ;
-    ex:sourceProductId "LAB-0053" ;
-    ex:suitableForAgeGroup ex:Adult,
-        ex:Teen ;
-    ex:suitableForSkinType "Sensitif" ;
-    ex:treatsConcern ex:Cleansing ;
+    ex:sourceProductId "LAB-0063" ;
+    ex:suitableForAgeGroup ex:Adult, ex:Teen ;
+    ex:suitableForSkinType ex:Dry, ex:Normal, ex:Oily ;
+    ex:treatsConcern ex:Cleansing, ex:RednessSensitivity ;
     ex:verificationStatus "Nama dan bahan utama terverifikasi di situs resmi" .
 
-ex:LAB-0053-GentleBiomeHydrationToner a ex:Product ;
+ex:LAB-0064 a ex:Product ;
     ex:belongsToSeries ex:GentleBiomeSeries ;
     ex:estimatedPrice 95000 ;
     ex:hasBrand ex:LABOREBrand ;
     ex:hasCategory ex:TonerCategory ;
-    ex:hasIngredient "Hyaluronic Acid" ;
+    ex:hasIngredient ex:HyaluronicAcid ;
     ex:productName "GentleBiome Hydration Toner" ;
-    ex:sourceProductId "LAB-0053" ;
-    ex:suitableForAgeGroup ex:Adult,
-        ex:Teen ;
-    ex:suitableForSkinType "SemuaJenisKulit" ;
+    ex:sourceProductId "LAB-0064" ;
+    ex:suitableForAgeGroup ex:Adult, ex:Teen ;
+    ex:suitableForSkinType ex:Dry, ex:Normal, ex:Oily ;
     ex:treatsConcern ex:HydrationMoisture ;
     ex:verificationStatus "Nama dan bahan utama terverifikasi di situs resmi" .
 
-ex:LAB-0053-GentleBiomeMildCleanser a ex:Product ;
+ex:LAB-0065 a ex:Product ;
     ex:belongsToSeries ex:GentleBiomeSeries ;
     ex:estimatedPrice 95000 ;
     ex:hasBrand ex:LABOREBrand ;
     ex:hasCategory ex:CleanserCategory ;
-    ex:hasIngredient "Bifida Ferment Lysate",
-        "Sodium Hyaluronate",
-        "accharide Isomerate" ;
+    ex:hasIngredient ex:HyaluronicAcid, ex:Probiotic ;
     ex:productName "GentleBiome Mild Cleanser" ;
-    ex:sourceProductId "LAB-0053" ;
-    ex:suitableForAgeGroup ex:Adult,
-        ex:Teen ;
-    ex:suitableForSkinType "SemuaJenisKulit" ;
+    ex:sourceProductId "LAB-0065" ;
+    ex:suitableForAgeGroup ex:Adult, ex:Teen ;
+    ex:suitableForSkinType ex:Dry, ex:Normal, ex:Oily ;
     ex:treatsConcern ex:Cleansing ;
     ex:verificationStatus "Nama dan bahan utama terverifikasi di situs resmi" .
 
-ex:LAB-0053-GentleBiomeSkinNutritionGel a ex:Product ;
+ex:LAB-0066 a ex:Product ;
     ex:belongsToSeries ex:GentleBiomeSeries ;
     ex:estimatedPrice 100000 ;
     ex:hasBrand ex:LABOREBrand ;
-    ex:hasCategory ex:TonerCategory ;
-    ex:hasIngredient "Hyaluronic Acid" ;
+    ex:hasCategory ex:MoisturizerCategory ;
+    ex:hasIngredient ex:HyaluronicAcid ;
     ex:productName "GentleBiome Skin Nutrition Gel" ;
-    ex:sourceProductId "LAB-0053" ;
-    ex:suitableForAgeGroup ex:Adult,
-        ex:Teen ;
-    ex:suitableForSkinType "Sensitif" ;
-    ex:treatsConcern ex:HydrationMoisture ;
+    ex:sourceProductId "LAB-0066" ;
+    ex:suitableForAgeGroup ex:Adult, ex:Teen ;
+    ex:suitableForSkinType ex:Dry, ex:Normal, ex:Oily ;
+    ex:treatsConcern ex:HydrationMoisture, ex:RednessSensitivity ;
     ex:verificationStatus "Nama dan bahan utama terverifikasi di situs resmi" .
 
-ex:LAB-0053-GentleBiomeThermalSoothingMist a ex:Product ;
+ex:LAB-0067 a ex:Product ;
     ex:belongsToSeries ex:GentleBiomeSeries ;
     ex:estimatedPrice 80000 ;
     ex:hasBrand ex:LABOREBrand ;
-    ex:hasCategory ex:FacemistCategory ;
-    ex:hasIngredient "Microbiome TechnologyTM",
-        "Mineral-Rich Spring Sea Water",
-        "Ultra Refreshing Packaging Mechanism" ;
+    ex:hasCategory ex:FaceMistCategory ;
+    ex:hasIngredient ex:Probiotic ;
     ex:productName "GentleBiome Thermal Soothing Mist" ;
-    ex:sourceProductId "LAB-0053" ;
-    ex:suitableForAgeGroup ex:Adult,
-        ex:Teen ;
-    ex:suitableForSkinType "SemuaJenisKulit" ;
+    ex:sourceProductId "LAB-0067" ;
+    ex:suitableForAgeGroup ex:Adult, ex:Teen ;
+    ex:suitableForSkinType ex:Dry, ex:Normal, ex:Oily ;
     ex:treatsConcern ex:RefreshingSoothing ;
     ex:verificationStatus "Nama dan bahan utama terverifikasi di situs resmi" .
 
-ex:LAB-0053-HydratingPlumpingConcentratedSerum a ex:Product ;
+ex:LAB-0068 a ex:Product ;
     ex:belongsToSeries ex:Altero6MWHyaluSeries ;
     ex:estimatedPrice 135000 ;
     ex:hasBrand ex:LABOREBrand ;
     ex:hasCategory ex:SerumCategory ;
-    ex:hasIngredient "Glycerin",
-        "Hyaluronic Acid (in multiple molecular weights)",
-        "Niacinamide",
-        "Panthenol (Pro-Vitamin B5)",
-        "and ferment lysates" ;
+    ex:hasIngredient ex:HyaluronicAcid, ex:Niacinamide, ex:Panthenol ;
     ex:productName "Hydrating & Plumping Concentrated Serum" ;
-    ex:sourceProductId "LAB-0053" ;
-    ex:suitableForAgeGroup ex:Adult,
-        ex:Teen ;
-    ex:suitableForSkinType "SemuaJenisKulit" ;
-    ex:treatsConcern ex:AgingFineLines,
-        ex:HydrationMoisture ;
+    ex:sourceProductId "LAB-0068" ;
+    ex:suitableForAgeGroup ex:Adult, ex:Teen ;
+    ex:suitableForSkinType ex:Dry, ex:Normal, ex:Oily ;
+    ex:treatsConcern ex:AgingFineLines, ex:HydrationMoisture ;
     ex:verificationStatus "Nama dan bahan utama terverifikasi di situs resmi" .
 
-ex:LAB-0053-IntensiveAcneSerumLactoTargetedSAL a ex:Product ;
+ex:LAB-0069 a ex:Product ;
     ex:belongsToSeries ex:AcneProSeries ;
     ex:estimatedPrice 140000 ;
     ex:hasBrand ex:LABOREBrand ;
     ex:hasCategory ex:SerumCategory ;
-    ex:hasIngredient "2% Targeted Salicylic Acid (SAL)",
-        "Ceramide NP",
-        "Lactoparabiotic (Lactobacillus Ferment)",
-        "Matrix Repairing Peptide",
-        "Niacinamide" ;
+    ex:hasIngredient ex:Ceramide, ex:Niacinamide, ex:SalicylicAcid ;
     ex:productName "Intensive Acne Serum Lacto Targeted SAL" ;
-    ex:sourceProductId "LAB-0053" ;
-    ex:suitableForAgeGroup ex:Adult,
-        ex:Teen ;
-    ex:suitableForSkinType "Berminyak" ;
+    ex:sourceProductId "LAB-0069" ;
+    ex:suitableForAgeGroup ex:Adult, ex:Teen ;
+    ex:suitableForSkinType ex:Oily ;
     ex:treatsConcern ex:Acne ;
     ex:verificationStatus "Nama dan bahan utama terverifikasi di situs resmi" .
 
-ex:LAB-0053-MultiPigmentationBrighteningSerum a ex:Product ;
-    ex:belongsToSeries ex:BighteningSeries ;
+ex:LAB-0070 a ex:Product ;
+    ex:belongsToSeries ex:BrighteningSeries ;
     ex:estimatedPrice 145000 ;
     ex:hasBrand ex:LABOREBrand ;
     ex:hasCategory ex:SerumCategory ;
-    ex:hasIngredient "acnepro biome™ technology",
-        "ceramide np & beta-glucan",
-        "lactobacillus ferment (probiotik)",
-        "salicylic acid (bha)" ;
     ex:productName "Multi-Pigmentation Brightening Serum" ;
-    ex:sourceProductId "LAB-0053" ;
-    ex:suitableForAgeGroup ex:Adult,
-        ex:Teen ;
-    ex:suitableForSkinType "SemuaJenisKulit" ;
-    ex:treatsConcern ex:DarkSpotsHyperpigmentation,
-        ex:DullnessBrightening ;
+    ex:sourceProductId "LAB-0070" ;
+    ex:suitableForAgeGroup ex:Adult, ex:Teen ;
+    ex:suitableForSkinType ex:Dry, ex:Normal, ex:Oily ;
+    ex:treatsConcern ex:DarkSpotsHyperpigmentation, ex:DullnessBrightening ;
     ex:verificationStatus "Nama dan bahan utama terverifikasi di situs resmi" .
-
-ex:SkinType a owl:Class .
-
-ex:SkincareOntology a owl:Ontology ;
-    dcterms:title "Ontologi Produk Skincare Wardah, Emina, Kahf, LABORE, Crystallure, dan TAVI"@id .
 
 ex:TAV-0001 a ex:Product ;
     ex:belongsToSeries ex:FirstCleanserSeries ;
     ex:estimatedPrice 95000 ;
     ex:hasBrand ex:TAVIBrand ;
     ex:hasCategory ex:CleanserCategory ;
-    ex:hasIngredient "Amino Acid Complex" ;
+    ex:hasIngredient ex:AminoAcid ;
     ex:productName "TAVI Gel to Oil Cleanser 1st Cleanser" ;
     ex:sourceProductId "TAV-0001" ;
     ex:suitableForAgeGroup ex:Adult ;
-    ex:suitableForSkinType "SemuaJenisKulit" ;
+    ex:suitableForSkinType ex:Dry, ex:Normal, ex:Oily ;
     ex:treatsConcern ex:Cleansing ;
     ex:verificationStatus "Nama dan bahan utama terverifikasi di situs resmi" .
 
@@ -847,15 +819,12 @@ ex:TAV-0002 a ex:Product ;
     ex:belongsToSeries ex:RetextureSeries ;
     ex:estimatedPrice 125000 ;
     ex:hasBrand ex:TAVIBrand ;
-    ex:hasCategory ex:ExfoliatingTonerCategory ;
-    ex:hasIngredient "AHA/Glycolic Acid",
-        "Antioksidan",
-        "BHA",
-        "Ceramides" ;
+    ex:hasCategory ex:TonerCategory ;
+    ex:hasIngredient ex:Ceramide, ex:PHA, ex:SalicylicAcid ;
     ex:productName "TAVI Natural PHA + BHA Retexture Toner" ;
     ex:sourceProductId "TAV-0002" ;
     ex:suitableForAgeGroup ex:Adult ;
-    ex:suitableForSkinType "SemuaJenisKulit" ;
+    ex:suitableForSkinType ex:Dry, ex:Normal, ex:Oily ;
     ex:treatsConcern ex:TextureExfoliation ;
     ex:verificationStatus "Nama dan bahan utama terverifikasi di situs resmi" .
 
@@ -864,14 +833,12 @@ ex:TAV-0003 a ex:Product ;
     ex:estimatedPrice 145000 ;
     ex:hasBrand ex:TAVIBrand ;
     ex:hasCategory ex:SerumCategory ;
-    ex:hasIngredient "Niacinamide 10%",
-        "Zinc" ;
+    ex:hasIngredient ex:Niacinamide, ex:Zinc ;
     ex:productName "TAVI 10% Niacinamide + Zinc" ;
     ex:sourceProductId "TAV-0003" ;
     ex:suitableForAgeGroup ex:Adult ;
-    ex:suitableForSkinType "Berminyak" ;
-    ex:treatsConcern ex:DarkSpotsHyperpigmentation,
-        ex:ExcessOil ;
+    ex:suitableForSkinType ex:Oily ;
+    ex:treatsConcern ex:DarkSpotsHyperpigmentation, ex:ExcessOil ;
     ex:verificationStatus "Nama dan bahan utama terverifikasi di situs resmi" .
 
 ex:TAV-0004 a ex:Product ;
@@ -879,12 +846,11 @@ ex:TAV-0004 a ex:Product ;
     ex:estimatedPrice 150000 ;
     ex:hasBrand ex:TAVIBrand ;
     ex:hasCategory ex:SerumCategory ;
-    ex:hasIngredient "Peptide",
-        "Retinol 1%" ;
+    ex:hasIngredient ex:Peptide, ex:Retinol ;
     ex:productName "TAVI 1% Encapsulated Retinol + Peptide" ;
     ex:sourceProductId "TAV-0004" ;
     ex:suitableForAgeGroup ex:Adult ;
-    ex:suitableForSkinType "SemuaJenisKulit" ;
+    ex:suitableForSkinType ex:Dry, ex:Normal, ex:Oily ;
     ex:treatsConcern ex:AgingFineLines ;
     ex:verificationStatus "Nama dan bahan utama terverifikasi di situs resmi" .
 
@@ -893,14 +859,12 @@ ex:TAV-0005 a ex:Product ;
     ex:estimatedPrice 155000 ;
     ex:hasBrand ex:TAVIBrand ;
     ex:hasCategory ex:SerumCategory ;
-    ex:hasIngredient "Ceramide",
-        "Squalane" ;
+    ex:hasIngredient ex:Ceramide, ex:Squalane ;
     ex:productName "TAVI Plant-Based Squalane + Ceramide Moisture Boost Serum" ;
     ex:sourceProductId "TAV-0005" ;
     ex:suitableForAgeGroup ex:Adult ;
-    ex:suitableForSkinType "SemuaJenisKulit" ;
-    ex:treatsConcern ex:HydrationMoisture,
-        ex:SkinBarrier ;
+    ex:suitableForSkinType ex:Dry, ex:Normal, ex:Oily ;
+    ex:treatsConcern ex:HydrationMoisture, ex:SkinBarrier ;
     ex:verificationStatus "Nama dan bahan utama terverifikasi di situs resmi" .
 
 ex:TAV-0006 a ex:Product ;
@@ -908,13 +872,11 @@ ex:TAV-0006 a ex:Product ;
     ex:estimatedPrice 85000 ;
     ex:hasBrand ex:TAVIBrand ;
     ex:hasCategory ex:FaceMistCategory ;
-    ex:hasIngredient "Acai",
-        "Superberries (Goji",
-        "dan Japanese Beauty Berry) + Amino Acid Complex" ;
+    ex:hasIngredient ex:AminoAcid ;
     ex:productName "TAVI Urban Shield 3 in 1 Serum Spray" ;
     ex:sourceProductId "TAV-0006" ;
     ex:suitableForAgeGroup ex:Adult ;
-    ex:suitableForSkinType "SemuaJenisKulit" ;
+    ex:suitableForSkinType ex:Dry, ex:Normal, ex:Oily ;
     ex:treatsConcern ex:HydrationMoisture ;
     ex:verificationStatus "Nama dan bahan utama terverifikasi di situs resmi" .
 
@@ -923,12 +885,11 @@ ex:TAV-0007 a ex:Product ;
     ex:estimatedPrice 110000 ;
     ex:hasBrand ex:TAVIBrand ;
     ex:hasCategory ex:SunscreenCategory ;
-    ex:hasIngredient "CICA",
-        "Q10" ;
+    ex:hasIngredient ex:Centella, ex:CoenzymeQ10 ;
     ex:productName "TAVI CICA RES-Q10 Adaptint Sun Shield" ;
     ex:sourceProductId "TAV-0007" ;
     ex:suitableForAgeGroup ex:Adult ;
-    ex:suitableForSkinType "SemuaJenisKulit" ;
+    ex:suitableForSkinType ex:Dry, ex:Normal, ex:Oily ;
     ex:treatsConcern ex:UVProtection ;
     ex:verificationStatus "Nama dan bahan utama terverifikasi di situs resmi" .
 
@@ -937,12 +898,11 @@ ex:TAV-0008 a ex:Product ;
     ex:estimatedPrice 115000 ;
     ex:hasBrand ex:TAVIBrand ;
     ex:hasCategory ex:SunscreenCategory ;
-    ex:hasIngredient "CICA",
-        "Q10" ;
+    ex:hasIngredient ex:Centella, ex:CoenzymeQ10 ;
     ex:productName "TAVI CICA RES-Q10 Water Break Sun Shield" ;
     ex:sourceProductId "TAV-0008" ;
     ex:suitableForAgeGroup ex:Adult ;
-    ex:suitableForSkinType "SemuaJenisKulit" ;
+    ex:suitableForSkinType ex:Dry, ex:Normal, ex:Oily ;
     ex:treatsConcern ex:UVProtection ;
     ex:verificationStatus "Nama dan bahan utama terverifikasi di situs resmi" .
 
@@ -951,17 +911,12 @@ ex:WAR-0001 a ex:Product ;
     ex:estimatedPrice 65000 ;
     ex:hasBrand ex:WardahBrand ;
     ex:hasCategory ex:SunscreenCategory ;
-    ex:hasIngredient "Antioksidan",
-        "Mineral",
-        "Vitamin C",
-        "Vitamin E" ;
+    ex:hasIngredient ex:VitaminC, ex:VitaminE ;
     ex:productName "UV Shield Airy Smooth Sunscreen Serum SPF 50 PA++++" ;
     ex:sourceProductId "WAR-0001" ;
-    ex:suitableForAgeGroup ex:Adult,
-        ex:Teen ;
-    ex:suitableForSkinType "SemuaJenisKulit" ;
-    ex:treatsConcern ex:LightweightFeel,
-        ex:UVProtection ;
+    ex:suitableForAgeGroup ex:Adult, ex:Teen ;
+    ex:suitableForSkinType ex:Dry, ex:Normal, ex:Oily ;
+    ex:treatsConcern ex:UVProtection ;
     ex:verificationStatus "Nama terverifikasi dari retailer" .
 
 ex:WAR-0002 a ex:Product ;
@@ -969,34 +924,25 @@ ex:WAR-0002 a ex:Product ;
     ex:estimatedPrice 70000 ;
     ex:hasBrand ex:WardahBrand ;
     ex:hasCategory ex:SunscreenCategory ;
-    ex:hasIngredient "Mineral",
-        "niacinamide" ;
+    ex:hasIngredient ex:MineralFilter, ex:Niacinamide ;
     ex:productName "UV Shield Acne Calming Sunscreen Serum SPF 50 PA++++" ;
     ex:sourceProductId "WAR-0002" ;
-    ex:suitableForAgeGroup ex:Adult,
-        ex:Teen ;
-    ex:suitableForSkinType "Berminyak" ;
-    ex:treatsConcern ex:Acne,
-        ex:UVProtection ;
+    ex:suitableForAgeGroup ex:Adult, ex:Teen ;
+    ex:suitableForSkinType ex:Oily ;
+    ex:treatsConcern ex:Acne, ex:UVProtection ;
     ex:verificationStatus "Nama terverifikasi dari retailer" .
 
 ex:WAR-0003 a ex:Product ;
     ex:belongsToSeries ex:UVShieldSeries ;
     ex:estimatedPrice 60000 ;
     ex:hasBrand ex:WardahBrand ;
-    ex:hasCategory ex:SunscreenmoisturizerCategory ;
-    ex:hasIngredient "Alcohol Free",
-        "Antioksidan",
-        "Hyaluronic Acid",
-        "Tanpa Pewangi",
-        "Vitamin C" ;
+    ex:hasCategory ex:SunscreenCategory ;
+    ex:hasIngredient ex:HyaluronicAcid, ex:VitaminC ;
     ex:productName "UV Shield Acne Calming Sunscreen Moisturizer SPF 35 PA+++" ;
     ex:sourceProductId "WAR-0003" ;
-    ex:suitableForAgeGroup ex:Adult,
-        ex:Teen ;
-    ex:suitableForSkinType "Berminyak" ;
-    ex:treatsConcern ex:Acne,
-        ex:UVProtection ;
+    ex:suitableForAgeGroup ex:Adult, ex:Teen ;
+    ex:suitableForSkinType ex:Oily ;
+    ex:treatsConcern ex:Acne, ex:UVProtection ;
     ex:verificationStatus "Nama terverifikasi dari retailer" .
 
 ex:WAR-0004 a ex:Product ;
@@ -1004,18 +950,12 @@ ex:WAR-0004 a ex:Product ;
     ex:estimatedPrice 75000 ;
     ex:hasBrand ex:WardahBrand ;
     ex:hasCategory ex:SunscreenCategory ;
-    ex:hasIngredient "Alcohol Free",
-        "Antioksidan",
-        "Hyaluronic Acid",
-        "Tanpa Pewangi",
-        "Vitamin C" ;
+    ex:hasIngredient ex:HyaluronicAcid, ex:VitaminC ;
     ex:productName "UV Shield Bright-C Hydrating Sunscreen Serum SPF 35 PA+++" ;
     ex:sourceProductId "WAR-0004" ;
-    ex:suitableForAgeGroup ex:Adult,
-        ex:Teen ;
-    ex:suitableForSkinType "Normal" ;
-    ex:treatsConcern ex:DullnessBrightening,
-        ex:UVProtection ;
+    ex:suitableForAgeGroup ex:Adult, ex:Teen ;
+    ex:suitableForSkinType ex:Normal ;
+    ex:treatsConcern ex:DullnessBrightening, ex:UVProtection ;
     ex:verificationStatus "Nama terverifikasi dari retailer" .
 
 ex:WAR-0005 a ex:Product ;
@@ -1023,11 +963,10 @@ ex:WAR-0005 a ex:Product ;
     ex:estimatedPrice 80000 ;
     ex:hasBrand ex:WardahBrand ;
     ex:hasCategory ex:SunscreenCategory ;
-    ex:hasIngredient "Antioksidan" ;
     ex:productName "UV Shield Active Protection Serum SPF 50 PA++++" ;
     ex:sourceProductId "WAR-0005" ;
     ex:suitableForAgeGroup ex:Adult ;
-    ex:suitableForSkinType "SemuaJenisKulit" ;
+    ex:suitableForSkinType ex:Dry, ex:Normal, ex:Oily ;
     ex:treatsConcern ex:UVProtection ;
     ex:verificationStatus "Nama terverifikasi dari retailer" .
 
@@ -1036,13 +975,12 @@ ex:WAR-0006 a ex:Product ;
     ex:estimatedPrice 85000 ;
     ex:hasBrand ex:WardahBrand ;
     ex:hasCategory ex:SunscreenCategory ;
-    ex:hasIngredient "Tanpa Paraben" ;
+    ex:hasIngredient ex:Peptide ;
     ex:productName "UV Shield Collagen Peptide Sunscreen Serum SPF 50 PA++++" ;
     ex:sourceProductId "WAR-0006" ;
     ex:suitableForAgeGroup ex:Adult ;
-    ex:suitableForSkinType "Normal" ;
-    ex:treatsConcern ex:AgingFineLines,
-        ex:UVProtection ;
+    ex:suitableForSkinType ex:Normal ;
+    ex:treatsConcern ex:AgingFineLines, ex:UVProtection ;
     ex:verificationStatus "Nama terverifikasi dari retailer" .
 
 ex:WAR-0007 a ex:Product ;
@@ -1050,36 +988,25 @@ ex:WAR-0007 a ex:Product ;
     ex:estimatedPrice 90000 ;
     ex:hasBrand ex:WardahBrand ;
     ex:hasCategory ex:SunscreenCategory ;
-    ex:hasIngredient "Alcohol Free",
-        "Antioksidan",
-        "Mineral",
-        "Organik",
-        "Tanpa Pewangi" ;
+    ex:hasIngredient ex:MineralFilter ;
     ex:productName "UV Shield Physical Sunscreen Serum SPF 50+ PA++++" ;
     ex:sourceProductId "WAR-0007" ;
-    ex:suitableForAgeGroup ex:Adult,
-        ex:Teen ;
-    ex:suitableForSkinType "Sensitif" ;
-    ex:treatsConcern ex:UVProtection ;
+    ex:suitableForAgeGroup ex:Adult, ex:Teen ;
+    ex:suitableForSkinType ex:Dry, ex:Normal, ex:Oily ;
+    ex:treatsConcern ex:RednessSensitivity, ex:UVProtection ;
     ex:verificationStatus "Nama terverifikasi dari retailer" .
 
 ex:WAR-0008 a ex:Product ;
     ex:belongsToSeries ex:UVShieldSeries ;
     ex:estimatedPrice 75000 ;
     ex:hasBrand ex:WardahBrand ;
-    ex:hasCategory ex:SunscreentintedCategory ;
-    ex:hasIngredient "Alcohol Free",
-        "Antioksidan",
-        "Mineral",
-        "Organik",
-        "Tanpa Pewangi" ;
+    ex:hasCategory ex:SunscreenCategory ;
+    ex:hasIngredient ex:MineralFilter ;
     ex:productName "UV Shield Tinted Tone Up Sunscreen SPF 50 PA+++" ;
     ex:sourceProductId "WAR-0008" ;
-    ex:suitableForAgeGroup ex:Adult,
-        ex:Teen ;
-    ex:suitableForSkinType "SemuaJenisKulit" ;
-    ex:treatsConcern ex:DullnessBrightening,
-        ex:UVProtection ;
+    ex:suitableForAgeGroup ex:Adult, ex:Teen ;
+    ex:suitableForSkinType ex:Dry, ex:Normal, ex:Oily ;
+    ex:treatsConcern ex:DullnessBrightening, ex:UVProtection ;
     ex:verificationStatus "Nama terverifikasi dari retailer" .
 
 ex:WAR-0009 a ex:Product ;
@@ -1087,14 +1014,12 @@ ex:WAR-0009 a ex:Product ;
     ex:estimatedPrice 110000 ;
     ex:hasBrand ex:WardahBrand ;
     ex:hasCategory ex:SerumCategory ;
-    ex:hasIngredient "Tranexamic acid complex",
-        "alpha-arbutin" ;
+    ex:hasIngredient ex:AlphaArbutin, ex:TranexamicAcid ;
     ex:productName "Crystal Secret 3% Tranexamic Complex Alpha-Arbutin Dark Spot Corrector Serum" ;
     ex:sourceProductId "WAR-0009" ;
     ex:suitableForAgeGroup ex:Adult ;
-    ex:suitableForSkinType "SemuaJenisKulit" ;
-    ex:treatsConcern ex:DarkSpotsHyperpigmentation,
-        ex:DullnessBrightening ;
+    ex:suitableForSkinType ex:Dry, ex:Normal, ex:Oily ;
+    ex:treatsConcern ex:DarkSpotsHyperpigmentation, ex:DullnessBrightening ;
     ex:verificationStatus "Nama/hero ingredients terverifikasi dari retailer" .
 
 ex:WAR-0010 a ex:Product ;
@@ -1102,15 +1027,12 @@ ex:WAR-0010 a ex:Product ;
     ex:estimatedPrice 40000 ;
     ex:hasBrand ex:WardahBrand ;
     ex:hasCategory ex:CleanserCategory ;
-    ex:hasIngredient "AHA/PHA",
-        "amino/NMF complex" ;
+    ex:hasIngredient ex:AHA, ex:AminoAcid, ex:PHA ;
     ex:productName "Crystal Secret NMF Amino + AHA PHA Clarifying Foaming Cleanser" ;
     ex:sourceProductId "WAR-0010" ;
-    ex:suitableForAgeGroup ex:Adult,
-        ex:Teen ;
-    ex:suitableForSkinType "Normal" ;
-    ex:treatsConcern ex:Cleansing,
-        ex:TextureExfoliation ;
+    ex:suitableForAgeGroup ex:Adult, ex:Teen ;
+    ex:suitableForSkinType ex:Normal ;
+    ex:treatsConcern ex:Cleansing, ex:TextureExfoliation ;
     ex:verificationStatus "Nama/ingredients utama terverifikasi dari retailer" .
 
 ex:WAR-0011 a ex:Product ;
@@ -1118,31 +1040,25 @@ ex:WAR-0011 a ex:Product ;
     ex:estimatedPrice 65000 ;
     ex:hasBrand ex:WardahBrand ;
     ex:hasCategory ex:MoisturizerCategory ;
-    ex:hasIngredient "Niacinamide 5%",
-        "peptide complex" ;
+    ex:hasIngredient ex:Niacinamide, ex:Peptide ;
     ex:productName "Crystal Secret Bright-Peptide 5% Niacinamide Night Moisturizer" ;
     ex:sourceProductId "WAR-0011" ;
     ex:suitableForAgeGroup ex:Adult ;
-    ex:suitableForSkinType "SemuaJenisKulit" ;
-    ex:treatsConcern ex:DarkSpotsHyperpigmentation,
-        ex:DullnessBrightening ;
+    ex:suitableForSkinType ex:Dry, ex:Normal, ex:Oily ;
+    ex:treatsConcern ex:DarkSpotsHyperpigmentation, ex:DullnessBrightening ;
     ex:verificationStatus "Nama/ingredients utama terverifikasi dari retailer" .
 
 ex:WAR-0012 a ex:Product ;
     ex:belongsToSeries ex:CrystalSecretSeries ;
     ex:estimatedPrice 85000 ;
     ex:hasBrand ex:WardahBrand ;
-    ex:hasCategory ex:DaymoisturizerSPFCategory ;
-    ex:hasIngredient "Alpha-arbutin",
-        "UV filters+G25",
-        "niacinamide 5%" ;
+    ex:hasCategory ex:MoisturizerCategory ;
+    ex:hasIngredient ex:AlphaArbutin, ex:Niacinamide ;
     ex:productName "Crystal Secret Alpha-Arbutin 5% Niacinamide Day Moisturizer SPF 35 PA+++" ;
     ex:sourceProductId "WAR-0012" ;
     ex:suitableForAgeGroup ex:Adult ;
-    ex:suitableForSkinType "SemuaJenisKulit" ;
-    ex:treatsConcern ex:DarkSpotsHyperpigmentation,
-        ex:DullnessBrightening,
-        ex:UVProtection ;
+    ex:suitableForSkinType ex:Dry, ex:Normal, ex:Oily ;
+    ex:treatsConcern ex:DarkSpotsHyperpigmentation, ex:DullnessBrightening, ex:UVProtection ;
     ex:verificationStatus "Nama/ingredients utama terverifikasi dari retailer" .
 
 ex:WAR-0013 a ex:Product ;
@@ -1150,15 +1066,12 @@ ex:WAR-0013 a ex:Product ;
     ex:estimatedPrice 45000 ;
     ex:hasBrand ex:WardahBrand ;
     ex:hasCategory ex:CleanserCategory ;
-    ex:hasIngredient "NMF amino complex",
-        "Pentavitin" ;
+    ex:hasIngredient ex:AminoAcid ;
     ex:productName "Hydra Rose NMF Amino + Pentavitin Barrier Replenish pH 5.5 Gel Cleanser" ;
     ex:sourceProductId "WAR-0013" ;
-    ex:suitableForAgeGroup ex:Adult,
-        ex:Teen ;
-    ex:suitableForSkinType "Normal" ;
-    ex:treatsConcern ex:HydrationMoisture,
-        ex:SkinBarrier ;
+    ex:suitableForAgeGroup ex:Adult, ex:Teen ;
+    ex:suitableForSkinType ex:Normal ;
+    ex:treatsConcern ex:HydrationMoisture, ex:SkinBarrier ;
     ex:verificationStatus "Nama/ingredients utama terverifikasi dari retailer" .
 
 ex:WAR-0014 a ex:Product ;
@@ -1166,15 +1079,12 @@ ex:WAR-0014 a ex:Product ;
     ex:estimatedPrice 115000 ;
     ex:hasBrand ex:WardahBrand ;
     ex:hasCategory ex:SerumCategory ;
-    ex:hasIngredient "Hyaluronic acid complex",
-        "Pentavitin" ;
+    ex:hasIngredient ex:HyaluronicAcid ;
     ex:productName "Hydra Rose 14X Hyaluronic Pentavitin Deep Barrier Repair Serum" ;
     ex:sourceProductId "WAR-0014" ;
-    ex:suitableForAgeGroup ex:Adult,
-        ex:Teen ;
-    ex:suitableForSkinType "Normal" ;
-    ex:treatsConcern ex:HydrationMoisture,
-        ex:SkinBarrier ;
+    ex:suitableForAgeGroup ex:Adult, ex:Teen ;
+    ex:suitableForSkinType ex:Normal ;
+    ex:treatsConcern ex:HydrationMoisture, ex:SkinBarrier ;
     ex:verificationStatus "Nama/ingredients utama terverifikasi dari retailer" .
 
 ex:WAR-0015 a ex:Product ;
@@ -1182,28 +1092,24 @@ ex:WAR-0015 a ex:Product ;
     ex:estimatedPrice 50000 ;
     ex:hasBrand ex:WardahBrand ;
     ex:hasCategory ex:CleanserCategory ;
-    ex:hasIngredient "Vitamin C",
-        "panthenol" ;
+    ex:hasIngredient ex:Panthenol, ex:VitaminC ;
     ex:productName "C-Defense Vitamin C + Panthenol Anti-Pollution Radiant Creamy Wash" ;
     ex:sourceProductId "WAR-0015" ;
-    ex:suitableForAgeGroup ex:Adult,
-        ex:Teen ;
-    ex:suitableForSkinType "Normal" ;
-    ex:treatsConcern ex:Cleansing,
-        ex:DullnessBrightening ;
+    ex:suitableForAgeGroup ex:Adult, ex:Teen ;
+    ex:suitableForSkinType ex:Normal ;
+    ex:treatsConcern ex:Cleansing, ex:DullnessBrightening ;
     ex:verificationStatus "Nama/ingredients utama terverifikasi dari retailer" .
 
 ex:WAR-0016 a ex:Product ;
     ex:belongsToSeries ex:RenewYouSeries ;
     ex:estimatedPrice 95000 ;
     ex:hasBrand ex:WardahBrand ;
-    ex:hasCategory ex:NightmoisturizerCategory ;
-    ex:hasIngredient "Matrixyl 3000",
-        "Retinol microcaps" ;
+    ex:hasCategory ex:MoisturizerCategory ;
+    ex:hasIngredient ex:Peptide, ex:Retinol ;
     ex:productName "Renew You Retinol Microcaps Matrixyl 3000 Lift & Rejuvenate Night Moisturizer" ;
     ex:sourceProductId "WAR-0016" ;
     ex:suitableForAgeGroup ex:Adult ;
-    ex:suitableForSkinType "SemuaJenisKulit" ;
+    ex:suitableForSkinType ex:Dry, ex:Normal, ex:Oily ;
     ex:treatsConcern ex:AgingFineLines ;
     ex:verificationStatus "Nama/ingredients utama terverifikasi dari retailer" .
 
@@ -1211,12 +1117,11 @@ ex:WAR-0017 a ex:Product ;
     ex:belongsToSeries ex:RenewYouSeries ;
     ex:estimatedPrice 85000 ;
     ex:hasBrand ex:WardahBrand ;
-    ex:hasCategory ex:EyecreamCategory ;
-    ex:hasIngredient "Formula anti-aging" ;
+    ex:hasCategory ex:EyeCareCategory ;
     ex:productName "Renew You Anti Aging Eye Cream" ;
     ex:sourceProductId "WAR-0017" ;
     ex:suitableForAgeGroup ex:Adult ;
-    ex:suitableForSkinType "SemuaJenisKulit" ;
+    ex:suitableForSkinType ex:Dry, ex:Normal, ex:Oily ;
     ex:treatsConcern ex:AgingFineLines ;
     ex:verificationStatus "Nama terverifikasi dari retailer" .
 
@@ -1224,13 +1129,12 @@ ex:WAR-0018 a ex:Product ;
     ex:belongsToSeries ex:RenewYouSeries ;
     ex:estimatedPrice 85000 ;
     ex:hasBrand ex:WardahBrand ;
-    ex:hasCategory ex:EssencetonerCategory ;
-    ex:hasIngredient "Argireline",
-        "Matrixyl 3000" ;
+    ex:hasCategory ex:TonerCategory ;
+    ex:hasIngredient ex:Peptide ;
     ex:productName "2% Argireline Peptide Matrixyl 3000 Firm & Lift Essence Toner" ;
     ex:sourceProductId "WAR-0018" ;
     ex:suitableForAgeGroup ex:Adult ;
-    ex:suitableForSkinType "SemuaJenisKulit" ;
+    ex:suitableForSkinType ex:Dry, ex:Normal, ex:Oily ;
     ex:treatsConcern ex:AgingFineLines ;
     ex:verificationStatus "Nama terverifikasi dari retailer" .
 
@@ -1239,15 +1143,12 @@ ex:WAR-0019 a ex:Product ;
     ex:estimatedPrice 55000 ;
     ex:hasBrand ex:WardahBrand ;
     ex:hasCategory ex:TonerCategory ;
-    ex:hasIngredient "Glycolic acid",
-        "niacinamide" ;
+    ex:hasIngredient ex:AHA, ex:Niacinamide ;
     ex:productName "Light+ Glycolic Acid Niacinamide Brightening Hydrating Toner" ;
     ex:sourceProductId "WAR-0019" ;
-    ex:suitableForAgeGroup ex:Adult,
-        ex:Teen ;
-    ex:suitableForSkinType "Normal" ;
-    ex:treatsConcern ex:DullnessBrightening,
-        ex:TextureExfoliation ;
+    ex:suitableForAgeGroup ex:Adult, ex:Teen ;
+    ex:suitableForSkinType ex:Normal ;
+    ex:treatsConcern ex:DullnessBrightening, ex:TextureExfoliation ;
     ex:verificationStatus "Nama/ingredients utama terverifikasi dari retailer" .
 
 ex:WAR-0020 a ex:Product ;
@@ -1255,16 +1156,12 @@ ex:WAR-0020 a ex:Product ;
     ex:estimatedPrice 55000 ;
     ex:hasBrand ex:WardahBrand ;
     ex:hasCategory ex:CleanserCategory ;
-    ex:hasIngredient "Niacinamide",
-        "hyaluronic acid",
-        "zinc" ;
+    ex:hasIngredient ex:HyaluronicAcid, ex:Niacinamide, ex:Zinc ;
     ex:productName "Light+ Low pH Nano Niacinamide Hyaluronic Zinc Whip Facial Foam" ;
     ex:sourceProductId "WAR-0020" ;
-    ex:suitableForAgeGroup ex:Adult,
-        ex:Teen ;
-    ex:suitableForSkinType "Berminyak" ;
-    ex:treatsConcern ex:DullnessBrightening,
-        ex:ExcessOil ;
+    ex:suitableForAgeGroup ex:Adult, ex:Teen ;
+    ex:suitableForSkinType ex:Oily ;
+    ex:treatsConcern ex:DullnessBrightening, ex:ExcessOil ;
     ex:verificationStatus "Nama/ingredients utama terverifikasi dari retailer" .
 
 ex:WAR-0021 a ex:Product ;
@@ -1272,42 +1169,34 @@ ex:WAR-0021 a ex:Product ;
     ex:estimatedPrice 70000 ;
     ex:hasBrand ex:WardahBrand ;
     ex:hasCategory ex:MoisturizerCategory ;
-    ex:hasIngredient "Hydrating ingredients" ;
     ex:productName "Light+ Hydrashot Intensive Moisturizer" ;
     ex:sourceProductId "WAR-0021" ;
-    ex:suitableForAgeGroup ex:Adult,
-        ex:Teen ;
-    ex:suitableForSkinType "Normal" ;
-    ex:treatsConcern ex:DullnessBrightening,
-        ex:HydrationMoisture ;
+    ex:suitableForAgeGroup ex:Adult, ex:Teen ;
+    ex:suitableForSkinType ex:Normal ;
+    ex:treatsConcern ex:DullnessBrightening, ex:HydrationMoisture ;
     ex:verificationStatus "Nama terverifikasi dari retailer" .
 
 ex:WAR-0022 a ex:Product ;
     ex:belongsToSeries ex:LightSeries ;
     ex:estimatedPrice 60000 ;
     ex:hasBrand ex:WardahBrand ;
-    ex:hasCategory ex:FacemistCategory ;
-    ex:hasIngredient "Humectants" ;
+    ex:hasCategory ex:FaceMistCategory ;
     ex:productName "Light+ Face Mist Spray" ;
     ex:sourceProductId "WAR-0022" ;
-    ex:suitableForAgeGroup ex:Adult,
-        ex:Teen ;
-    ex:suitableForSkinType "SemuaJenisKulit" ;
-    ex:treatsConcern ex:HydrationMoisture,
-        ex:RefreshingSoothing ;
+    ex:suitableForAgeGroup ex:Adult, ex:Teen ;
+    ex:suitableForSkinType ex:Dry, ex:Normal, ex:Oily ;
+    ex:treatsConcern ex:HydrationMoisture, ex:RefreshingSoothing ;
     ex:verificationStatus "Nama terverifikasi dari retailer" .
 
 ex:WAR-0023 a ex:Product ;
     ex:belongsToSeries ex:NatureDailySeries ;
     ex:estimatedPrice 35000 ;
     ex:hasBrand ex:WardahBrand ;
-    ex:hasCategory ex:MicellarwaterCategory ;
-    ex:hasIngredient "Soothing ingredients" ;
+    ex:hasCategory ex:CleanserCategory ;
     ex:productName "Nature Daily Calm & Soothe Micellar Water" ;
     ex:sourceProductId "WAR-0023" ;
-    ex:suitableForAgeGroup ex:Adult,
-        ex:Teen ;
-    ex:suitableForSkinType "SemuaJenisKulit" ;
+    ex:suitableForAgeGroup ex:Adult, ex:Teen ;
+    ex:suitableForSkinType ex:Dry, ex:Normal, ex:Oily ;
     ex:treatsConcern ex:Cleansing ;
     ex:verificationStatus "Nama terverifikasi dari retailer" .
 
@@ -1316,12 +1205,10 @@ ex:WAR-0024 a ex:Product ;
     ex:estimatedPrice 60000 ;
     ex:hasBrand ex:WardahBrand ;
     ex:hasCategory ex:CleanserCategory ;
-    ex:hasIngredient "Gentle cleansing agents" ;
     ex:productName "Micellar Gentle Wash" ;
     ex:sourceProductId "WAR-0024" ;
-    ex:suitableForAgeGroup ex:Adult,
-        ex:Teen ;
-    ex:suitableForSkinType "SemuaJenisKulit" ;
+    ex:suitableForAgeGroup ex:Adult, ex:Teen ;
+    ex:suitableForSkinType ex:Dry, ex:Normal, ex:Oily ;
     ex:treatsConcern ex:Cleansing ;
     ex:verificationStatus "Nama terverifikasi dari retailer" .
 
@@ -1329,12 +1216,11 @@ ex:WAR-0025 a ex:Product ;
     ex:belongsToSeries ex:WhiteSecretSeries ;
     ex:estimatedPrice 90000 ;
     ex:hasBrand ex:WardahBrand ;
-    ex:hasCategory ex:EyecreamCategory ;
-    ex:hasIngredient "Brightening ingredients" ;
+    ex:hasCategory ex:EyeCareCategory ;
     ex:productName "White Secret Brightening Eye Cream" ;
     ex:sourceProductId "WAR-0025" ;
     ex:suitableForAgeGroup ex:Adult ;
-    ex:suitableForSkinType "SemuaJenisKulit" ;
+    ex:suitableForSkinType ex:Dry, ex:Normal, ex:Oily ;
     ex:treatsConcern ex:EyeAreaCare ;
     ex:verificationStatus "Nama terverifikasi dari retailer; detail perlu cek kemasan" .
 
@@ -1343,13 +1229,11 @@ ex:WAR-0050 a ex:Product ;
     ex:estimatedPrice 65000 ;
     ex:hasBrand ex:WardahBrand ;
     ex:hasCategory ex:CleanserCategory ;
-    ex:hasIngredient "8X NMF Amino",
-        "Vitamin C" ;
+    ex:hasIngredient ex:AminoAcid, ex:VitaminC ;
     ex:productName "Vitamin C + 8X NMF Amino Radiant Charge Gel Cleanser" ;
     ex:sourceProductId "WAR-0050" ;
-    ex:suitableForAgeGroup ex:Adult,
-        ex:Teen ;
-    ex:suitableForSkinType "SemuaJenisKulit" ;
+    ex:suitableForAgeGroup ex:Adult, ex:Teen ;
+    ex:suitableForSkinType ex:Dry, ex:Normal, ex:Oily ;
     ex:treatsConcern ex:DullnessBrightening ;
     ex:verificationStatus "Nama dan bahan utama terverifikasi di situs resmi" .
 
@@ -1358,11 +1242,11 @@ ex:WAR-0051 a ex:Product ;
     ex:estimatedPrice 120000 ;
     ex:hasBrand ex:WardahBrand ;
     ex:hasCategory ex:SerumCategory ;
-    ex:hasIngredient "Vitamin C" ;
+    ex:hasIngredient ex:VitaminC ;
     ex:productName "Radiant Charge Vit. C Serum" ;
     ex:sourceProductId "WAR-0051" ;
     ex:suitableForAgeGroup ex:Adult ;
-    ex:suitableForSkinType "Kering" ;
+    ex:suitableForSkinType ex:Dry ;
     ex:treatsConcern ex:DullnessBrightening ;
     ex:verificationStatus "Nama terverifikasi di situs resmi" .
 
@@ -1371,246 +1255,10 @@ ex:WAR-0052 a ex:Product ;
     ex:estimatedPrice 125000 ;
     ex:hasBrand ex:WardahBrand ;
     ex:hasCategory ex:SerumCategory ;
-    ex:hasIngredient "10% niacinamide",
-        "SymRadiance399",
-        "bisabolol (Ceramide NP)",
-        "sodium hyaluronate" ;
+    ex:hasIngredient ex:HyaluronicAcid, ex:Niacinamide ;
     ex:productName "SymRadiance399 + 10% Niacinamide Bright & Barrier Repair Serum" ;
     ex:sourceProductId "WAR-0052" ;
     ex:suitableForAgeGroup ex:Adult ;
-    ex:suitableForSkinType "SemuaJenisKulit" ;
-    ex:treatsConcern ex:DarkSpotsHyperpigmentation,
-        ex:DullnessBrightening,
-        ex:SkinBarrier ;
+    ex:suitableForSkinType ex:Dry, ex:Normal, ex:Oily ;
+    ex:treatsConcern ex:DarkSpotsHyperpigmentation, ex:DullnessBrightening, ex:SkinBarrier ;
     ex:verificationStatus "Nama dan bahan utama terverifikasi di situs resmi" .
-
-ex:belongsToSeries a owl:ObjectProperty ;
-    rdfs:domain ex:Product ;
-    rdfs:range ex:ProductSeries .
-
-ex:estimatedPrice a owl:DatatypeProperty ;
-    rdfs:domain ex:Product ;
-    rdfs:range xsd:integer .
-
-ex:hasBrand a owl:ObjectProperty ;
-    rdfs:domain ex:Product ;
-    rdfs:range ex:Brand .
-
-ex:hasCategory a owl:ObjectProperty ;
-    rdfs:domain ex:Product ;
-    rdfs:range ex:Category .
-
-ex:hasIngredient a owl:DatatypeProperty ;
-    rdfs:domain ex:Product ;
-    rdfs:range xsd:string .
-
-ex:productName a owl:DatatypeProperty ;
-    rdfs:domain ex:Product ;
-    rdfs:range xsd:string .
-
-ex:sourceProductId a owl:DatatypeProperty ;
-    rdfs:domain ex:Product ;
-    rdfs:range xsd:string .
-
-ex:suitableForAgeGroup a owl:ObjectProperty ;
-    rdfs:domain ex:Product ;
-    rdfs:range ex:AgeGroup .
-
-ex:suitableForSkinType a owl:DatatypeProperty ;
-    rdfs:domain ex:Product ;
-    rdfs:range xsd:string .
-
-ex:treatsConcern a owl:ObjectProperty ;
-    rdfs:domain ex:Product ;
-    rdfs:range ex:SkinConcern .
-
-ex:verificationStatus a owl:DatatypeProperty ;
-    rdfs:domain ex:Product ;
-    rdfs:range xsd:string .
-
-ex:Altero6MWHyaluSeries a ex:ProductSeries .
-
-ex:BighteningSeries a ex:ProductSeries .
-
-ex:BrightBlemishSolutionSeries a ex:ProductSeries .
-
-ex:BrightStuffAcneProneSeries a ex:ProductSeries .
-
-ex:CDefenseSeries a ex:ProductSeries .
-
-ex:Comedones a ex:SkinConcern ;
-    rdfs:label "Komedo"@id .
-
-ex:DayNightSeries a ex:ProductSeries .
-
-ex:DaymoisturizerSPFCategory a ex:Category .
-
-ex:DoubleTheMoistSeries a ex:ProductSeries .
-
-ex:EssenceCategory a ex:Category .
-
-ex:EssencetonerCategory a ex:Category .
-
-ex:EyeCareCategory a ex:Category .
-
-ex:FaceMistCategory a ex:Category .
-
-ex:FacespraytonerCategory a ex:Category .
-
-ex:FirstCleanserSeries a ex:ProductSeries .
-
-ex:LightweightFeel a ex:SkinConcern ;
-    rdfs:label "Tampilan Ringan"@id .
-
-ex:LotionCategory a ex:Category .
-
-ex:MicellarCleanserCategory a ex:Category .
-
-ex:MicellarwaterCategory a ex:Category .
-
-ex:MoistureBoostSeries a ex:ProductSeries .
-
-ex:MoistureRichSeries a ex:ProductSeries .
-
-ex:NightCreamCategory a ex:Category .
-
-ex:NightmoisturizerCategory a ex:Category .
-
-ex:OilSerumCategory a ex:Category .
-
-ex:RetextureSeries a ex:ProductSeries .
-
-ex:SerumActiveCareSeries a ex:ProductSeries .
-
-ex:SlowAgingSignsSeries a ex:ProductSeries .
-
-ex:SpotTreatmentCategory a ex:Category .
-
-ex:SunscreenmoisturizerCategory a ex:Category .
-
-ex:SunscreentintedCategory a ex:Category .
-
-ex:UrbanShieldSeries a ex:ProductSeries .
-
-ex:WaterBrightSeries a ex:ProductSeries .
-
-ex:WhiteSecretSeries a ex:ProductSeries .
-
-ex:BiomeProtectSeries a ex:ProductSeries .
-
-ex:BiomeRepairSeries a ex:ProductSeries .
-
-ex:DermalabRevolutionaireSeries a ex:ProductSeries .
-
-ex:EyeAreaCare a ex:SkinConcern ;
-    rdfs:label "Perawatan Area Mata"@id .
-
-ex:EyecreamCategory a ex:Category .
-
-ex:FacemistCategory a ex:Category .
-
-ex:HydraRoseSeries a ex:ProductSeries .
-
-ex:NatureDailySeries a ex:ProductSeries .
-
-ex:RESQ10Series a ex:ProductSeries .
-
-ex:RadiantChargeSeries a ex:ProductSeries .
-
-ex:RednessSensitivity a ex:SkinConcern ;
-    rdfs:label "Kemerahan & Kulit Sensitif"@id .
-
-ex:AgeGroup a owl:Class .
-
-ex:ExfoliatingTonerCategory a ex:Category .
-
-ex:RefreshingSoothing a ex:SkinConcern ;
-    rdfs:label "Menyegarkan & Menenangkan"@id .
-
-ex:RenewYouSeries a ex:ProductSeries .
-
-ex:AcneProSeries a ex:ProductSeries .
-
-ex:CrystalSecretSeries a ex:ProductSeries .
-
-ex:LightSeries a ex:ProductSeries .
-
-ex:SunBattleSeries a ex:ProductSeries .
-
-ex:TextureExfoliation a ex:SkinConcern ;
-    rdfs:label "Tekstur & Eksfoliasi"@id .
-
-ex:TonerCategory a ex:Category .
-
-ex:GentleBiomeSeries a ex:ProductSeries .
-
-ex:Brand a owl:Class .
-
-ex:BrightStuffSeries a ex:ProductSeries .
-
-ex:ExcessOil a ex:SkinConcern ;
-    rdfs:label "Minyak Berlebih"@id .
-
-ex:SkinBarrier a ex:SkinConcern ;
-    rdfs:label "Skin Barrier"@id .
-
-ex:SupremeSeries a ex:ProductSeries .
-
-ex:TAVIBrand a ex:Brand .
-
-ex:UVShieldSeries a ex:ProductSeries .
-
-ex:DarkSpotsHyperpigmentation a ex:SkinConcern ;
-    rdfs:label "Noda & Hiperpigmentasi"@id .
-
-ex:MoisturizerCategory a ex:Category .
-
-ex:AgingFineLines a ex:SkinConcern ;
-    rdfs:label "Tanda Penuaan & Garis Halus"@id .
-
-ex:CrystallureBrand a ex:Brand .
-
-ex:FaceCareSeries a ex:ProductSeries .
-
-ex:KahfBrand a ex:Brand .
-
-ex:Acne a ex:SkinConcern ;
-    rdfs:label "Jerawat"@id .
-
-ex:Cleansing a ex:SkinConcern ;
-    rdfs:label "Pembersihan Wajah"@id .
-
-ex:EminaBrand a ex:Brand .
-
-ex:SerumCategory a ex:Category .
-
-ex:SkinConcern a owl:Class ;
-    rdfs:comment "Daftar pilihan concern terstandar untuk filter produk."@id .
-
-ex:LABOREBrand a ex:Brand .
-
-ex:SunscreenCategory a ex:Category .
-
-ex:CleanserCategory a ex:Category .
-
-ex:UVProtection a ex:SkinConcern ;
-    rdfs:label "Perlindungan UV"@id .
-
-ex:HydrationMoisture a ex:SkinConcern ;
-    rdfs:label "Hidrasi & Kelembapan"@id .
-
-ex:Category a owl:Class .
-
-ex:DullnessBrightening a ex:SkinConcern ;
-    rdfs:label "Kulit Kusam & Mencerahkan"@id .
-
-ex:WardahBrand a ex:Brand .
-
-ex:ProductSeries a owl:Class .
-
-ex:Teen a ex:AgeGroup .
-
-ex:Adult a ex:AgeGroup .
-
-ex:Product a owl:Class .
-

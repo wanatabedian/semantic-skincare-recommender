@@ -109,16 +109,17 @@
             <a href="#produk" class="hover:text-[#E6748E] transition">Produk</a>
             <a href="#event" class="hover:text-[#E6748E] transition">Event & Talkshow</a>
             <a href="#konsultasi" class="hover:text-[#E6748E] transition">Treatment</a>
-            <a href="#edukasi" class="hover:text-[#E6748E] transition">
-             Skin Class
-</a>
+            <a href="#edukasi" class="hover:text-[#E6748E] transition">Skin Class</a>
+            <a href="{{ route('bandingkan') }}" class="hover:text-[#E6748E] transition">Bandingkan</a>
             <a href="{{ route('kuis') }}"
-   class="smooth-btn rounded-xl bg-[#E6748E] px-5 py-2.5 text-xs font-black text-white shadow-md transition hover:bg-[#6BB1AD]">
-    Mulai Kuis →
-</a>
+               class="smooth-btn rounded-xl bg-[#E6748E] px-5 py-2.5 text-xs font-black text-white shadow-md transition hover:bg-[#6BB1AD]">
+                Mulai Kuis →
+            </a>
         </div>
 
         <div class="flex items-center gap-3">
+            <a href="{{ route('bandingkan') }}" class="md:hidden text-[10px] font-black uppercase text-[#345452]">Bandingkan</a>
+            <a href="{{ route('kuis', ['new' => 1]) }}" class="md:hidden rounded-xl bg-[#E6748E] px-3 py-2 text-[10px] font-black uppercase text-white">Kuis</a>
             @if (Route::has('login'))
                 @auth
                     <a href="{{ url('/dashboard') }}" class="smooth-btn bg-[#E6748E] hover:bg-[#E6748E] text-white px-5 py-2.5 rounded-xl text-xs font-black">
@@ -315,6 +316,18 @@
             </div>
         </section>
     </div>
+
+    {{-- RIWAYAT KUIS --}}
+    <section id="riwayat-kuis" class="bg-[#FFFEFA] px-6 py-12 relative z-20">
+        <div class="max-w-7xl mx-auto rounded-[28px] border border-[#E6748E]/15 bg-[#FDEEF1] p-6 md:p-8">
+            <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div><p class="text-xs font-black uppercase tracking-[3px] text-[#6BB1AD]">Tersimpan di perangkat ini</p><h2 class="font-serif mt-1 text-2xl font-bold text-[#E6748E]">Riwayat analisis kulit</h2><p class="mt-1 text-sm text-[#657674]">Buka lagi rekomendasi dari lima kuis terakhirmu.</p></div>
+                <a href="{{ route('kuis', ['new' => 1]) }}" class="inline-flex justify-center rounded-xl bg-[#E6748E] px-5 py-3 text-xs font-black uppercase tracking-wider text-white">Mulai kuis →</a>
+            </div>
+            <div id="quiz-history-list" class="mt-5 grid gap-3 md:grid-cols-2"></div>
+            <p id="quiz-history-empty" class="mt-4 text-sm text-[#657674]">Belum ada riwayat kuis di perangkat ini.</p>
+        </div>
+    </section>
 
     {{-- PRODUK PILIHAN (SEPERTI SECTION LOKER DI INDEX) --}}
     <section id="produk" class="bg-gradient-to-b from-[#FDEEF1] via-[#FFFEFA] to-[#FFFEFA] text-[#E6748E] py-24 relative z-20">
@@ -691,6 +704,25 @@
 
     <script>
     document.addEventListener('DOMContentLoaded', function () {
+        const historyList = document.getElementById('quiz-history-list');
+        try {
+            const history = JSON.parse(localStorage.getItem('aphrodite-quiz-history') || '[]').slice(0, 5);
+            document.getElementById('quiz-history-empty').classList.toggle('hidden', history.length > 0);
+            history.forEach((entry, index) => {
+                const a = entry.answers || {};
+                const params = new URLSearchParams();
+                ['age','skin','category','ingredient','price_min','price_max'].forEach(key => { if (a[key]) params.set(key, a[key]); });
+                (a.concern || []).slice(0, 2).forEach(value => params.append('concern[]', value));
+                const card = document.createElement('a');
+                card.href = '/rekomendasi?' + params.toString();
+                card.className = 'rounded-2xl border border-[#E6748E]/10 bg-white p-4 no-underline transition hover:border-[#6BB1AD]';
+                const date = entry.created_at ? new Date(entry.created_at).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' }) : 'Tanggal tidak tersedia';
+                const detail = [a.skin, ...(a.concern || [])].filter(Boolean).join(' · ') || 'Analisis tanpa kriteria khusus';
+                card.innerHTML = `<span class="text-[10px] font-black uppercase tracking-wider text-[#6BB1AD]">Analisis ${index + 1} · ${date}</span><span class="mt-1 block text-sm font-bold text-[#345452]">${detail.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}</span><span class="mt-2 block text-xs font-bold text-[#E6748E]">Buka hasil →</span>`;
+                historyList.appendChild(card);
+            });
+        } catch (_) { document.getElementById('quiz-history-empty').textContent = 'Riwayat kuis tidak dapat dibaca pada perangkat ini.'; }
+
         const slider = document.getElementById('services-container');
 
         if (slider) {
