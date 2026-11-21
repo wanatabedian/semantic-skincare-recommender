@@ -1,0 +1,104 @@
+
+@prefix ex: <https://example.org/skincare-ontology#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ==========================================
+# SHAPE 1: VALIDASI PRODUK
+# ==========================================
+
+ex:ProductShape
+    a sh:NodeShape ;
+    sh:targetClass ex:Product ;
+
+    # Nama produk wajib tepat satu
+    sh:property [
+        sh:path ex:productName ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+    ] ;
+
+    # Setiap produk wajib memiliki satu merek
+    sh:property [
+        sh:path ex:hasBrand ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:class ex:Brand ;
+    ] ;
+
+    # Setiap produk wajib memiliki satu kategori
+    sh:property [
+        sh:path ex:hasCategory ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:class ex:Category ;
+    ] ;
+
+    # Bahan aktif bersifat opsional
+    sh:property [
+        sh:path ex:hasIngredient ;
+        sh:nodeKind sh:IRI ;
+        sh:class ex:Ingredient ;
+    ] ;
+
+    # Jenis kulit bersifat opsional
+    sh:property [
+        sh:path ex:suitableForSkinType ;
+        sh:nodeKind sh:IRI ;
+        sh:class ex:SkinType ;
+    ] ;
+
+    # Teks sumber bahan tetap disimpan
+    sh:property [
+        sh:path ex:sourceIngredientText ;
+        sh:datatype xsd:string ;
+    ] ;
+
+    # Teks sumber jenis kulit tetap disimpan
+    sh:property [
+        sh:path ex:sourceSkinTypeText ;
+        sh:datatype xsd:string ;
+    ] .
+
+
+# ==========================================
+# SHAPE 2: VALIDASI BAHAN
+# ==========================================
+
+ex:IngredientShape
+    a sh:NodeShape ;
+    sh:targetClass ex:Ingredient ;
+
+    # Setiap bahan wajib memiliki satu prefLabel
+    sh:property [
+        sh:path skos:prefLabel ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+    ] ;
+
+    # altLabel boleh lebih dari satu
+    sh:property [
+        sh:path skos:altLabel ;
+        sh:datatype xsd:string ;
+    ] .
+
+
+# ==========================================
+# SHAPE 3: VALIDASI JENIS KULIT
+# ==========================================
+
+ex:SkinTypeShape
+    a sh:NodeShape ;
+    sh:targetClass ex:SkinType ;
+
+    sh:property [
+        sh:path skos:prefLabel ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:languageIn ( "id" ) ;
+    ] .
