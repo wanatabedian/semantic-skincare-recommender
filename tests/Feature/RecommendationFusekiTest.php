@@ -67,7 +67,7 @@ class RecommendationFusekiTest extends TestCase
         $this->assertNotEmpty($retinoid, 'Ontologi seharusnya punya produk ber-retinol.');
 
         $planA = $this->recommend(['age' => 'Teen']);
-        $planB = $this->recommend(['age' => 'Teen', 'skin' => 'DrySkinType', 'concern' => ['AgingFineLines', 'Acne'], 'price_max' => 1000]);
+        $planB = $this->recommend(['age' => 'Teen', 'skin' => 'Dry', 'concern' => ['AgingFineLines', 'Acne'], 'price_max' => 1000]);
 
         $this->assertSame('B', $planB['plan']);
         foreach ([$planA, $planB] as $result) {
@@ -77,7 +77,7 @@ class RecommendationFusekiTest extends TestCase
 
     public function test_kombinasi_mustahil_memicu_plan_b_dan_tidak_kosong(): void
     {
-        $result = $this->recommend(['age' => 'Adult', 'skin' => 'DrySkinType', 'concern' => ['Acne', 'EyeAreaCare'], 'price_max' => 1000]);
+        $result = $this->recommend(['age' => 'Adult', 'skin' => 'Dry', 'concern' => ['Acne', 'EyeAreaCare'], 'price_max' => 1000]);
 
         $this->assertSame('B', $result['plan']);
         $this->assertNotEmpty($result['products']);
@@ -87,8 +87,8 @@ class RecommendationFusekiTest extends TestCase
     public function test_contoh_query_dokumen_menghasilkan_alasan_lengkap(): void
     {
         $result = $this->recommend([
-            'age' => 'Teen', 'skin' => 'OilySkinType', 'concern' => ['Acne', 'ExcessOil'],
-            'ingredient' => 'NiacinamideIngredient', 'price_min' => 50000, 'price_max' => 100000,
+            'age' => 'Teen', 'skin' => 'Oily', 'concern' => ['Acne', 'ExcessOil'],
+            'ingredient' => 'Niacinamide', 'price_min' => 50000, 'price_max' => 100000,
         ]);
 
         $this->assertNotEmpty($result['products']);
