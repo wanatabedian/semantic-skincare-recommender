@@ -38,6 +38,7 @@ return [
         // Cadangan selama ontologi belum punya kelas ex:Retinoid:
         // individu bahan yang pasti retinoid. Hapus kalau ontologi sudah lengkap.
         'fallback_ingredients' => [
+            'Retinol',
             'RetinolIngredient',
             'RetinalIngredient',
             'RetinaldehydeIngredient',
