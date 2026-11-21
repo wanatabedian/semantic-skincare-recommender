@@ -24,5 +24,26 @@
 <div class="rounded-3xl border border-[#E6748E]/10 bg-white p-5"><h2 class="serif text-xl font-bold text-[#345452]">{{ $heading }}</h2>@if($values)<ul class="mt-3 flex flex-wrap gap-2">@foreach($values as $value)<li class="rounded-full bg-[#FDEEF1] px-3 py-1.5 text-sm">{{ $value }}</li>@endforeach</ul>@else<p class="mt-3 text-sm text-[#657674]">Belum tercantum.</p>@endif</div>
 @endforeach
 </section>
+<section class="mt-10" aria-labelledby="produk-serupa">
+<h2 id="produk-serupa" class="serif text-2xl font-bold text-[#345452]">Produk serupa</h2>
+<p class="mt-1 text-sm text-[#657674]">Dari brand lain, untuk jenis kulit dan keluhan yang sama.</p>
+@if($similarError ?? null)
+<div class="mt-4 rounded-3xl border border-[#E6748E]/10 bg-white p-6 text-center text-sm text-[#657674]">{{ $similarError }}</div>
+@elseif(empty($similarProducts))
+<div class="mt-4 rounded-3xl border border-dashed border-[#E6748E]/30 bg-white p-6 text-center"><p class="text-sm font-semibold">Belum ada produk serupa</p><p class="mt-1 text-sm text-[#657674]">Tidak ditemukan produk dari brand lain dengan jenis kulit dan keluhan yang sama.</p></div>
+@else
+<div class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+@foreach($similarProducts as $similar)
+<a href="{{ route('produk.detail', $similar['id']) }}" class="group flex flex-col rounded-3xl border border-[#E6748E]/10 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-[#E6748E]/40 hover:shadow-md">
+<p class="text-xs font-bold text-[#6BB1AD]">{{ $similar['brand'] ?? 'Brand tidak tersedia' }}</p>
+<h3 class="mt-1 font-bold leading-snug text-[#345452] group-hover:text-[#E6748E]">{{ $similar['name'] }}</h3>
+@if($similar['category'])<p class="mt-1 text-xs text-[#657674]">{{ $similar['category'] }}</p>@endif
+@if($similar['shared_concerns'])<ul class="mt-3 flex flex-wrap gap-1.5">@foreach($similar['shared_concerns'] as $concern)<li class="rounded-full bg-[#FDEEF1] px-2.5 py-1 text-xs">{{ $concern }}</li>@endforeach</ul>@endif
+<p class="mt-auto pt-4 text-sm font-extrabold">{{ $similar['price'] !== null ? 'Rp'.number_format($similar['price'],0,',','.') : 'Harga belum tersedia' }}</p>
+</a>
+@endforeach
+</div>
+@endif
+</section>
 @endif
 </main></body></html>
