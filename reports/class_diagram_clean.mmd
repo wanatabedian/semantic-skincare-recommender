@@ -1,0 +1,23 @@
+classDiagram
+    class Product {
+        productName : xsd:string
+        sourceProductId : xsd:string
+        estimatedPrice : xsd:integer
+        verificationStatus : xsd:string
+    }
+
+    class Brand
+    class Category
+    class ProductSeries
+    class AgeGroup
+    class SkinType
+    class SkinConcern
+    class Ingredient
+
+    Product --> Brand : hasBrand
+    Product --> Category : hasCategory
+    Product --> ProductSeries : belongsToSeries
+    Product --> Ingredient : hasIngredient
+    Product --> AgeGroup : suitableForAgeGroup
+    Product --> SkinType : suitableForSkinType
+    Product --> SkinConcern : treatsConcern
