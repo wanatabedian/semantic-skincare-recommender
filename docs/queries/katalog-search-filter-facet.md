@@ -9,6 +9,7 @@ Semua query dikirim lewat `App\Services\SparqlService` (PREFIX ditempel otomatis
 | `katalog-search-filter.rq` | Daftar produk dengan search + filter |
 | `katalog-facet-counts.rq` | Facet per kelompok (relasi & harga) |
 | `katalog-daftar-produk.rq` | Query daftar produk tahap 2 (tanpa filter), dibiarkan sebagai arsip |
+| `katalog-sorting-pagination.rq` | Tahap 4: ORDER BY + LIMIT/OFFSET dan jumlah hasil untuk pagination |
 
 ## Kelompok filter dan property ontologi
 
@@ -63,7 +64,7 @@ Contoh: saat brand Wardah & Emina dipilih bersama jenis kulit Berminyak,
 Opsi yang tidak muncul di hasil facet ditampilkan dengan angka 0 dan checkbox-nya dinonaktifkan,
 kecuali opsi itu sedang dipilih (supaya tetap bisa dilepas).
 
-Jumlah query per halaman: total, opsi, produk, dan 5 facet = 8 SELECT (semuanya di-cache oleh
+Jumlah query per halaman: total, opsi, jumlah hasil, produk, dan 5 facet = 9 SELECT (semuanya di-cache oleh
 `SparqlService`, default 10 menit).
 
 ## Cara menghindari duplikasi
@@ -96,3 +97,26 @@ File `ontology/aphrodite-v2.ttl` juga mempunyai `ex:AllSkinType` dan subkategori
 `MicellarCleanserCategory`). Karena opsi dibangun dari data, keduanya akan otomatis muncul sebagai
 opsi tersendiri bila v2 dimuat. Katalog **tidak** melakukan inferensi tambahan (mis. menganggap
 `AllSkinType` cocok untuk filter "Berminyak"); filter mengikuti relasi yang tertulis di ontologi.
+
+## Tahap 4 — sorting dan pagination
+
+Query lengkap: `katalog-sorting-pagination.rq`.
+
+| Parameter | Nilai sah | Default / tidak valid |
+|---|---|---|
+| `sort` | `relevansi`, `harga-asc`, `harga-desc`, `nama-asc`, `nama-desc` | `relevansi` (tidak ditulis di URL) |
+| `page` | bilangan bulat positif, maks. 6 digit | halaman 1 (tidak ditulis di URL) |
+
+- `ORDER BY` hanya berasal dari konstanta `CatalogController::SORTS`; `LIMIT 12 OFFSET (page-1)*12`
+  dihitung dari bilangan bulat tervalidasi. Tidak ada input pengguna yang masuk ke dua klausa ini.
+- Setiap sorting diakhiri urutan cadangan `sourceProductId` lalu IRI, sehingga urutan selalu pasti
+  dan tidak ada produk dobel/hilang antarhalaman (di dataset ada 23 nilai harga yang dipakai
+  lebih dari satu produk).
+- Total hasil dihitung terpisah (`# katalog:jumlah`, `COUNT(DISTINCT ?p)` dengan blok filter yang
+  sama, tanpa LIMIT), jadi info "13–24 dari N produk" dan jumlah halaman tetap akurat.
+- Sorting dan halaman **tidak** memengaruhi facet: query facet tidak memuat ORDER BY/LIMIT,
+  sehingga angkanya sama di setiap halaman dan cache-nya terpakai ulang.
+- Perubahan search, filter, atau sort selalu kembali ke halaman 1 (`page` tidak ada di form).
+  Link chip dan reset juga tanpa `page`; reset mempertahankan sort karena sorting bukan filter.
+- `page` melebihi halaman terakhir → redirect 302 ke halaman terakhir dengan state lain tetap.
+- Urutan parameter URL: `q, kategori[], kulit[], concern[], brand[], harga[], sort, page`.

@@ -13,6 +13,7 @@ use Illuminate\Support\Str;
  *
  * Tahap 3: search nama produk, filter (kategori, jenis kulit, keluhan, brand, harga),
  * dan dynamic facet counts — semuanya dihitung lewat SPARQL ke ontologi.
+ * Tahap 4: sorting (ORDER BY dari whitelist) dan pagination 12 produk (LIMIT/OFFSET).
  *
  * Logika filter: OR di dalam satu kelompok, AND antar kelompok, search selalu ikut.
  * Facet satu kelompok dihitung dengan MENGABAIKAN pilihan kelompok itu sendiri.
@@ -23,8 +24,7 @@ use Illuminate\Support\Str;
  *   lalu diubah menjadi IRI lewat SparqlService::iri().
  * - Rentang harga hanya berupa kunci PRICE_RANGES; angka tidak pernah berasal dari input.
  * - Kata kunci search dibersihkan lalu di-escape dengan SparqlService::literal().
- *
- * Sorting & pagination dikerjakan pada tahap berikutnya.
+ * - Sorting hanya berupa kunci SORTS; halaman hanya bilangan bulat positif.
  */
 class CatalogController extends Controller
 {
@@ -49,6 +49,38 @@ class CatalogController extends Controller
     public const PRICE_GROUP = 'harga';
 
     public const PRICE_TITLE = 'Rentang harga';
+
+    /** Jumlah produk per halaman katalog. */
+    public const PER_PAGE = 12;
+
+    public const DEFAULT_SORT = 'relevansi';
+
+    /** Urutan cadangan: membuat urutan selalu pasti agar pagination tidak menggandakan/menghilangkan produk. */
+    private const ORDER_TIEBREAK = 'ASC(COALESCE(?sourceId, STR(?p))) ASC(STR(?p))';
+
+    /**
+     * Whitelist sorting: kunci URL => label + klausa ORDER BY (teks konstanta, bukan input).
+     * Produk tanpa harga numerik selalu di akhir untuk sorting harga (tidak dianggap 0).
+     */
+    public const SORTS = [
+        'relevansi' => ['label' => 'Relevansi', 'order' => self::ORDER_TIEBREAK],
+        'harga-asc' => ['label' => 'Harga termurah', 'order' => 'ASC(IF(BOUND(?price) && isNumeric(?price), 0, 1)) ASC(?price) '.self::ORDER_TIEBREAK],
+        'harga-desc' => ['label' => 'Harga termahal', 'order' => 'ASC(IF(BOUND(?price) && isNumeric(?price), 0, 1)) DESC(?price) '.self::ORDER_TIEBREAK],
+        'nama-asc' => ['label' => 'Nama A–Z', 'order' => 'ASC(LCASE(STR(?name))) '.self::ORDER_TIEBREAK],
+        'nama-desc' => ['label' => 'Nama Z–A', 'order' => 'DESC(LCASE(STR(?name))) '.self::ORDER_TIEBREAK],
+    ];
+
+    /** Jumlah produk & brand yang cocok dengan search + filter (dasar pagination dan info hasil). */
+    public const COUNT_QUERY = <<<'SPARQL'
+# katalog:jumlah
+SELECT (COUNT(DISTINCT ?p) AS ?total) (COUNT(DISTINCT ?b) AS ?brands)
+WHERE {
+  ?p a ex:Product ;
+     ex:productName ?nm .
+{{FILTERS}}
+  OPTIONAL { ?p ex:hasBrand ?b }
+}
+SPARQL;
 
     /**
      * Rentang harga setengah terbuka [min, max) atas ex:estimatedPrice (xsd:integer),
@@ -126,6 +158,9 @@ WHERE {
   OPTIONAL { ?p schema:image ?img }
 }
 GROUP BY ?p
+ORDER BY {{ORDER}}
+LIMIT {{LIMIT}}
+OFFSET {{OFFSET}}
 SPARQL;
 
     /** Facet kelompok relasi. {{FILTERS}} = semua filter KECUALI kelompok ini sendiri. */
@@ -165,12 +200,21 @@ SPARQL;
         $facets = [];
         $options = [];
         $total = null;
+        $matched = ['total' => 0, 'brands' => 0];
         $error = null;
 
         try {
             $options = $this->options();
             $state = $this->state($request, $options);
             $total = $this->total();
+            $matched = $this->matched($state);
+
+            // Nomor halaman melebihi jumlah hasil: arahkan ke halaman terakhir yang valid (filter tetap).
+            $lastPage = max(1, (int) ceil($matched['total'] / self::PER_PAGE));
+            if ($state['page'] > $lastPage) {
+                return redirect()->to(self::url([...$state, 'page' => $lastPage]));
+            }
+
             $products = $this->products($state);
             $facets = $this->facets($state, $options);
         } catch (SparqlException $e) {
@@ -183,7 +227,8 @@ SPARQL;
         return view('user.katalog', [
             'products' => $products,
             'productCount' => $error === null ? $total : null,
-            'brandCount' => collect($products)->pluck('brand')->filter()->unique()->count(),
+            'matchedCount' => $matched['total'],
+            'brandCount' => $matched['brands'],
             'error' => $error,
             'search' => $state['q'],
             'state' => $state,
@@ -191,7 +236,10 @@ SPARQL;
             'chips' => $this->chips($state, $options),
             'hasFilters' => $hasFilters,
             'activeCount' => $this->activeCount($state) + ($state['q'] !== '' ? 1 : 0),
-            'resetUrl' => route('katalog'),
+            // Reset menghapus search & filter; urutan pilihan pengguna dipertahankan (sorting bukan filter).
+            'resetUrl' => self::url(['sort' => $state['sort']]),
+            'sorts' => array_map(fn ($s) => $s['label'], self::SORTS),
+            'pagination' => $error === null ? $this->pagination($state, $matched['total']) : null,
         ]);
     }
 
@@ -218,7 +266,7 @@ SPARQL;
      * State filter yang SUDAH tervalidasi.
      *
      * @param  array<string, array<string, string>>  $options  kelompok => [namaLokal => label]
-     * @return array{q: string, kategori: string[], kulit: string[], concern: string[], brand: string[], harga: string[]}
+     * @return array{q: string, kategori: string[], kulit: string[], concern: string[], brand: string[], harga: string[], sort: string, page: int}
      */
     private function state(Request $request, array $options): array
     {
@@ -228,8 +276,26 @@ SPARQL;
             $state[$key] = self::pick($request->query($key), array_keys($options[$key] ?? []));
         }
         $state[self::PRICE_GROUP] = self::pick($request->query(self::PRICE_GROUP), array_keys(self::PRICE_RANGES));
+        $state['sort'] = self::sortKey($request->query('sort'));
+        $state['page'] = self::pageNumber($request->query('page'));
 
         return $state;
+    }
+
+    /** Kunci sorting dari whitelist SORTS; selain itu kembali ke default. */
+    public static function sortKey(mixed $raw): string
+    {
+        return is_string($raw) && isset(self::SORTS[$raw]) ? $raw : self::DEFAULT_SORT;
+    }
+
+    /** Nomor halaman: hanya bilangan bulat positif; selain itu halaman 1. */
+    public static function pageNumber(mixed $raw): int
+    {
+        if (! is_string($raw) || preg_match('/^\d{1,6}$/', $raw) !== 1) {
+            return 1;
+        }
+
+        return max(1, (int) $raw);
     }
 
     /**
@@ -255,7 +321,11 @@ SPARQL;
         return $n;
     }
 
-    /** URL katalog untuk sebuah state; format sama dengan form GET (brand[]=…&harga[]=…). */
+    /**
+     * URL katalog untuk sebuah state; format sama dengan form GET (brand[]=…&harga[]=…&sort=…).
+     * Urutan parameter tetap: q, kategori, kulit, concern, brand, harga, sort, page.
+     * Sort default dan halaman 1 tidak ditulis, jadi satu kondisi = satu URL.
+     */
     public static function url(array $state): string
     {
         $params = [];
@@ -267,15 +337,25 @@ SPARQL;
                 $params[$key] = array_values($state[$key]);
             }
         }
+        if (($state['sort'] ?? self::DEFAULT_SORT) !== self::DEFAULT_SORT) {
+            $params['sort'] = $state['sort'];
+        }
+        if (($state['page'] ?? 1) > 1) {
+            $params['page'] = (int) $state['page'];
+        }
 
         $query = preg_replace('/%5B\d+%5D=/', '%5B%5D=', http_build_query($params, '', '&', PHP_QUERY_RFC1738));
 
         return route('katalog').($query === '' ? '' : '?'.$query);
     }
 
-    /** Chip filter aktif, masing-masing dengan URL untuk menghapus chip itu saja. */
+    /**
+     * Chip filter aktif, masing-masing dengan URL untuk menghapus chip itu saja.
+     * Menghapus filter mengubah hasil, jadi URL chip selalu kembali ke halaman 1 (sort tetap).
+     */
     private function chips(array $state, array $options): array
     {
+        $state['page'] = 1;
         $chips = [];
 
         if ($state['q'] !== '') {
@@ -301,6 +381,44 @@ SPARQL;
         }
 
         return $chips;
+    }
+
+    /**
+     * Data pager: nomor halaman dengan jendela (halaman pertama, terakhir, aktif ±1) dan elipsis.
+     * null bila hasil muat dalam satu halaman (pager tidak ditampilkan).
+     */
+    private function pagination(array $state, int $total): ?array
+    {
+        $last = max(1, (int) ceil($total / self::PER_PAGE));
+        $page = min($state['page'], $last);
+        if ($total <= self::PER_PAGE) {
+            return null;
+        }
+
+        $urlFor = fn (int $p) => self::url([...$state, 'page' => $p]);
+        $show = array_unique([1, $last, $page - 1, $page, $page + 1]);
+        $show = array_filter($show, fn ($p) => $p >= 1 && $p <= $last);
+        sort($show);
+
+        $items = [];
+        $prev = 0;
+        foreach ($show as $p) {
+            if ($p - $prev === 2) {
+                $items[] = ['page' => $p - 1, 'url' => $urlFor($p - 1), 'current' => false]; // celah 1 halaman: tampilkan saja
+            } elseif ($p - $prev > 2) {
+                $items[] = ['gap' => true];
+            }
+            $items[] = ['page' => $p, 'url' => $urlFor($p), 'current' => $p === $page];
+            $prev = $p;
+        }
+
+        return [
+            'page' => $page,
+            'last' => $last,
+            'items' => $items,
+            'prev_url' => $page > 1 ? $urlFor($page - 1) : null,
+            'next_url' => $page < $last ? $urlFor($page + 1) : null,
+        ];
     }
 
     /* ------------------------------------------------------------------
@@ -373,6 +491,17 @@ SPARQL;
         $rows = $this->sparql->select(self::TOTAL_QUERY);
 
         return isset($rows[0]) ? (int) SparqlService::value($rows[0], 'total') : 0;
+    }
+
+    /** @return array{total: int, brands: int} jumlah produk & brand yang cocok (tanpa LIMIT). */
+    private function matched(array $state): array
+    {
+        $rows = $this->sparql->select(str_replace('{{FILTERS}}', $this->filterBlock($state), self::COUNT_QUERY));
+
+        return [
+            'total' => isset($rows[0]) ? (int) SparqlService::value($rows[0], 'total') : 0,
+            'brands' => isset($rows[0]) ? (int) SparqlService::value($rows[0], 'brands') : 0,
+        ];
     }
 
     /** @return array<string, array<string, string>> kelompok => [namaLokal => label], urut label */
@@ -465,7 +594,13 @@ SPARQL;
     private function products(array $state): array
     {
         $split = fn (?string $s) => $s === null || $s === '' ? [] : array_values(array_unique(explode('|', $s)));
-        $query = str_replace('{{FILTERS}}', $this->filterBlock($state), self::PRODUCTS_QUERY);
+        // ORDER BY dari whitelist SORTS; LIMIT/OFFSET dihitung dari bilangan bulat tervalidasi.
+        $query = strtr(self::PRODUCTS_QUERY, [
+            '{{FILTERS}}' => $this->filterBlock($state),
+            '{{ORDER}}' => self::SORTS[$state['sort']]['order'],
+            '{{LIMIT}}' => (string) self::PER_PAGE,
+            '{{OFFSET}}' => (string) (($state['page'] - 1) * self::PER_PAGE),
+        ]);
         $products = [];
 
         foreach ($this->sparql->select($query) as $row) {
@@ -488,9 +623,7 @@ SPARQL;
             ];
         }
 
-        // Urutan tetap (bukan fitur sorting): mengikuti sourceProductId agar produk per brand berdekatan.
-        usort($products, fn ($a, $b) => strnatcmp($a['source_id'], $b['source_id']));
-
+        // Urutan sepenuhnya dari ORDER BY SPARQL (default: sourceProductId, seperti tahap sebelumnya).
         return $products;
     }
 
