@@ -16,6 +16,7 @@ Route::get('/', function () {
     return view('user.landing'); 
 });
 
+Route::view('/tentang', 'user.tentang')->name('tentang');
 Route::get('/kuis', [QuizController::class, 'index'])->name('kuis');
 Route::get('/bandingkan', [ProductComparisonController::class, 'index'])->name('bandingkan');
 Route::get('/rekomendasi', [RecommendationController::class, 'index'])->name('rekomendasi');
