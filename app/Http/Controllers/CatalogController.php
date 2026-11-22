@@ -593,7 +593,6 @@ SPARQL;
     /** @return array<int, array<string, mixed>> */
     private function products(array $state): array
     {
-        $split = fn (?string $s) => $s === null || $s === '' ? [] : array_values(array_unique(explode('|', $s)));
         // ORDER BY dari whitelist SORTS; LIMIT/OFFSET dihitung dari bilangan bulat tervalidasi.
         $query = strtr(self::PRODUCTS_QUERY, [
             '{{FILTERS}}' => $this->filterBlock($state),
@@ -601,30 +600,37 @@ SPARQL;
             '{{LIMIT}}' => (string) self::PER_PAGE,
             '{{OFFSET}}' => (string) (($state['page'] - 1) * self::PER_PAGE),
         ]);
-        $products = [];
-
-        foreach ($this->sparql->select($query) as $row) {
-            $v = fn (string $var) => SparqlService::value($row, $var);
-            $id = SparqlService::local((string) $v('p'));
-            $sourceId = $v('sourceId') ?? $id;
-            $brand = $v('brandLabel') ?? ($v('brandIri') ? Vocabulary::humanize(SparqlService::local($v('brandIri'))) : null);
-
-            $products[] = [
-                'id' => $id,
-                'source_id' => $sourceId,
-                'name' => (string) $v('name'),
-                'brand' => $brand,
-                'category' => $v('categoryLabel') ?? ($v('categoryIri') ? Vocabulary::humanize(SparqlService::local($v('categoryIri'))) : null),
-                'price' => is_numeric($v('price')) ? (int) $v('price') : null,
-                'skin_types' => $split($v('skins')),
-                'concerns' => $split($v('concerns')),
-                'image' => $this->imageFor($brand, $sourceId) ?? $this->ontologyImage($v('image')),
-                'detail_url' => preg_match('/^[A-Z]{3}-\d{4}$/', $id) === 1 ? route('produk.detail', ['id' => $id]) : null,
-            ];
-        }
 
         // Urutan sepenuhnya dari ORDER BY SPARQL (default: sourceProductId, seperti tahap sebelumnya).
-        return $products;
+        return array_map([self::class, 'productFromRow'], $this->sparql->select($query));
+    }
+
+    /**
+     * Satu baris hasil query produk (proyeksi PRODUCTS_QUERY) -> data product card.
+     * Dipakai juga oleh halaman detail bahan agar card produk identik dengan katalog.
+     *
+     * @return array<string, mixed>
+     */
+    public static function productFromRow(array $row): array
+    {
+        $split = fn (?string $s) => $s === null || $s === '' ? [] : array_values(array_unique(explode('|', $s)));
+        $v = fn (string $var) => SparqlService::value($row, $var);
+        $id = SparqlService::local((string) $v('p'));
+        $sourceId = $v('sourceId') ?? $id;
+        $brand = $v('brandLabel') ?? ($v('brandIri') ? Vocabulary::humanize(SparqlService::local($v('brandIri'))) : null);
+
+        return [
+            'id' => $id,
+            'source_id' => $sourceId,
+            'name' => (string) $v('name'),
+            'brand' => $brand,
+            'category' => $v('categoryLabel') ?? ($v('categoryIri') ? Vocabulary::humanize(SparqlService::local($v('categoryIri'))) : null),
+            'price' => is_numeric($v('price')) ? (int) $v('price') : null,
+            'skin_types' => $split($v('skins')),
+            'concerns' => $split($v('concerns')),
+            'image' => self::imageFor($brand, $sourceId) ?? self::ontologyImage($v('image')),
+            'detail_url' => preg_match('/^[A-Z]{3}-\d{4}$/', $id) === 1 ? route('produk.detail', ['id' => $id]) : null,
+        ];
     }
 
     /* ------------------------------------------------------------------
@@ -640,7 +646,7 @@ SPARQL;
     }
 
     /** URL foto lokal bila file {sourceProductId}.{ext} sudah ditaruh di folder brand. */
-    private function imageFor(?string $brand, string $sourceId): ?string
+    private static function imageFor(?string $brand, string $sourceId): ?string
     {
         $folder = self::brandFolder($brand);
         if ($folder === null || ! SparqlService::isSafeLocalName($sourceId)) {
@@ -658,7 +664,7 @@ SPARQL;
     }
 
     /** Cadangan: schema:image dari ontologi, hanya bila berupa URL http(s). */
-    private function ontologyImage(?string $url): ?string
+    private static function ontologyImage(?string $url): ?string
     {
         return $url !== null && preg_match('#^https?://#i', $url) === 1 ? $url : null;
     }

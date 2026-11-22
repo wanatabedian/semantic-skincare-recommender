@@ -55,6 +55,8 @@ Route::get('/produk/{id}', [\App\Http\Controllers\ProductController::class, 'sho
 
 // === Orang 5: Eksplorasi Katalog ===
 Route::get('/katalog', [\App\Http\Controllers\CatalogController::class, 'index'])->name('katalog');
+Route::get('/bahan', [\App\Http\Controllers\IngredientController::class, 'index'])->name('bahan');
+Route::get('/bahan/{id}', [\App\Http\Controllers\IngredientController::class, 'show'])->where('id', '[A-Za-z0-9_-]+')->name('bahan.detail');
 
 // === Ontology Explorer (Stage 5)
 Route::get('/ontologi', [OntologyController::class, 'index'])->name('ontology.dashboard');
