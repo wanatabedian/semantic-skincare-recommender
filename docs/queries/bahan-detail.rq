@@ -1,0 +1,54 @@
+# Orang 5 — Detail bahan aktif /bahan/{id}.
+# Dipakai di App\Http\Controllers\IngredientController::DETAIL_QUERY dan ::PRODUCTS_QUERY.
+# Contoh di bawah untuk /bahan/Niacinamide.
+#
+# Keamanan & ketepatan ID:
+# - {id} harus lolos pola route [A-Za-z0-9_-]+ dan SparqlService::isSafeLocalName(),
+#   lalu diubah menjadi IRI lengkap lewat SparqlService::iri() (bukan teks mentah).
+# - DETAIL_QUERY hanya mengembalikan baris bila IRI itu benar-benar "a ex:Ingredient".
+#   0 baris -> HTTP 404. Jadi ID produk (mis. CRY-0001), ID tak dikenal, atau beda huruf besar/kecil
+#   (IRI peka huruf) tidak pernah menampilkan bahan lain dengan nama mirip.
+# - Fuseki tidak dapat dihubungi -> HTTP 503 dengan pesan error (keberadaan ID tidak dapat dicek).
+PREFIX ex: <https://example.org/skincare-ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX schema: <https://schema.org/>
+
+# bahan:detail
+SELECT ?label (LANG(?label) AS ?lang)
+WHERE {
+  <https://example.org/skincare-ontology#Niacinamide> a ex:Ingredient .
+  OPTIONAL { <https://example.org/skincare-ontology#Niacinamide> rdfs:label ?label }
+}
+
+# ------------------------------------------------------------------
+# Produk yang mengandung bahan ini (relasi ex:hasIngredient).
+# Proyeksi sama dengan katalog (CatalogController::PRODUCTS_QUERY) sehingga card produk identik
+# dan tautan memakai ID produk asli -> /produk/{id} (route produk.detail milik Orang 4).
+# GROUP BY ?p: satu baris = satu produk; urut sourceProductId (sama dengan urutan default katalog).
+# ------------------------------------------------------------------
+# # bahan:produk
+# SELECT ?p
+#   (SAMPLE(?sid) AS ?sourceId) (SAMPLE(?nm) AS ?name) (SAMPLE(?pr) AS ?price)
+#   (SAMPLE(?brand) AS ?brandIri) (SAMPLE(?brandL) AS ?brandLabel)
+#   (SAMPLE(?cat) AS ?categoryIri) (SAMPLE(?catL) AS ?categoryLabel)
+#   (SAMPLE(?img) AS ?image)
+#   (GROUP_CONCAT(DISTINCT ?skinL; separator="|") AS ?skins)
+#   (GROUP_CONCAT(DISTINCT ?concernL; separator="|") AS ?concerns)
+# WHERE {
+#   ?p a ex:Product ;
+#      ex:productName ?nm ;
+#      ex:hasIngredient <https://example.org/skincare-ontology#Niacinamide> .
+#   OPTIONAL { ?p ex:sourceProductId ?sid }
+#   OPTIONAL { ?p ex:estimatedPrice ?pr }
+#   OPTIONAL { ?p ex:hasBrand ?brand .
+#              OPTIONAL { ?brand rdfs:label ?brandL FILTER(lang(?brandL) = "" || langMatches(lang(?brandL), "id")) } }
+#   OPTIONAL { ?p ex:hasCategory ?cat .
+#              OPTIONAL { ?cat rdfs:label ?catL FILTER(lang(?catL) = "" || langMatches(lang(?catL), "id")) } }
+#   OPTIONAL { ?p ex:suitableForSkinType ?skin .
+#              ?skin rdfs:label ?skinL FILTER(lang(?skinL) = "" || langMatches(lang(?skinL), "id")) }
+#   OPTIONAL { ?p ex:treatsConcern ?concern .
+#              ?concern rdfs:label ?concernL FILTER(lang(?concernL) = "" || langMatches(lang(?concernL), "id")) }
+#   OPTIONAL { ?p schema:image ?img }
+# }
+# GROUP BY ?p
+# ORDER BY ASC(COALESCE(?sourceId, STR(?p))) ASC(STR(?p))

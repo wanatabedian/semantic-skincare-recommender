@@ -1,0 +1,57 @@
+# Orang 5 — Direktori bahan aktif /bahan.
+# Dipakai di App\Http\Controllers\IngredientController::LIST_QUERY (lewat SparqlService::select,
+# yang menempelkan PREFIX otomatis). Blok PREFIX hanya agar query bisa dicoba di Fuseki UI.
+#
+# Data ontologi yang tersedia untuk ex:Ingredient (dataset "aphrodite" saat ini, 25 individu):
+#   - rdf:type ex:Ingredient
+#   - rdfs:label (@id)
+#   - relasi masuk ex:hasIngredient dari ex:Product (domain Product, range Ingredient)
+# Tidak ada properti deskripsi, fungsi, target concern, peringatan, kontraindikasi, konflik,
+# maupun subkelas golongan bahan -> halaman tidak menampilkan/mengarang bagian tersebut, dan
+# pengelompokan hanya per huruf awal nama (A–Z).
+#
+# Satu baris = satu bahan. COUNT(DISTINCT ?p) menghitung produk berbeda yang mengandungnya.
+# Label dipilih di PHP: @id -> tanpa bahasa -> label apa pun -> nama lokal dirapikan.
+# ID halaman detail = nama lokal IRI (ex:Niacinamide -> /bahan/Niacinamide).
+PREFIX ex: <https://example.org/skincare-ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# bahan:daftar
+SELECT ?i
+  (SAMPLE(?lid) AS ?labelId) (SAMPLE(?lplain) AS ?labelPlain) (SAMPLE(?lany) AS ?labelAny)
+  (GROUP_CONCAT(DISTINCT STR(?lall); separator=" | ") AS ?allLabels)
+  (COUNT(DISTINCT ?p) AS ?products)
+WHERE {
+  ?i a ex:Ingredient .
+  FILTER(isIRI(?i))
+  OPTIONAL { ?i rdfs:label ?lid FILTER(langMatches(lang(?lid), "id")) }
+  OPTIONAL { ?i rdfs:label ?lplain FILTER(lang(?lplain) = "") }
+  OPTIONAL { ?i rdfs:label ?lany }
+  OPTIONAL { ?i rdfs:label ?lall }
+  OPTIONAL { ?p a ex:Product ; ex:hasIngredient ?i }
+}
+GROUP BY ?i
+
+# ------------------------------------------------------------------
+# Pencarian nama bahan (IngredientController::SEARCH_QUERY), dipakai saat ?q= ada (tanpa JS).
+# Kata kunci dibersihkan (CatalogController::searchTerm) lalu di-escape SparqlService::literal().
+# Dengan JS, penyaringan yang sama dilakukan di browser atas teks semua label (allLabels).
+# ------------------------------------------------------------------
+# # bahan:cari
+# SELECT DISTINCT ?i
+# WHERE {
+#   ?i a ex:Ingredient ;
+#      rdfs:label ?l .
+#   FILTER(CONTAINS(LCASE(STR(?l)), LCASE("vitamin")))
+# }
+
+# ------------------------------------------------------------------
+# Jumlah produk berbeda yang mengandung minimal satu bahan (IngredientController::LINKED_PRODUCTS_QUERY).
+# ------------------------------------------------------------------
+# # bahan:produk-terhubung
+# SELECT (COUNT(DISTINCT ?p) AS ?n)
+# WHERE {
+#   ?p a ex:Product ;
+#      ex:hasIngredient ?i .
+#   ?i a ex:Ingredient .
+# }
