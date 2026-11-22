@@ -7,6 +7,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\QuizController;
 use App\Http\Controllers\ProductComparisonController;
 use App\Http\Controllers\RecommendationController;
+use App\Http\Controllers\OntologyController;
 
 // ==========================================
 // AREA PUBLIK (Tampilan User - Tanpa Login)
@@ -15,6 +16,7 @@ Route::get('/', function () {
     return view('user.landing'); 
 });
 
+Route::view('/tentang', 'user.tentang')->name('tentang');
 Route::get('/kuis', [QuizController::class, 'index'])->name('kuis');
 Route::get('/bandingkan', [ProductComparisonController::class, 'index'])->name('bandingkan');
 Route::get('/rekomendasi', [RecommendationController::class, 'index'])->name('rekomendasi');
@@ -53,3 +55,14 @@ Route::get('/produk/{id}', [\App\Http\Controllers\ProductController::class, 'sho
 
 // === Orang 5: Eksplorasi Katalog ===
 Route::get('/katalog', [\App\Http\Controllers\CatalogController::class, 'index'])->name('katalog');
+
+// === Ontology Explorer (Stage 5)
+Route::get('/ontologi', [OntologyController::class, 'index'])->name('ontology.dashboard');
+Route::get('/ontologi/download', [OntologyController::class, 'download'])->name('ontology.download');
+Route::post('/ontologi/sparql', [OntologyController::class, 'sparql'])->name('ontology.sparql');
+// Class explorer
+Route::get('/ontologi/kelas/{class}', [OntologyController::class, 'classExplorer'])->name('ontology.class');
+// Individual detail (IRI will be URL‑encoded)
+Route::get('/ontologi/individu/{iri}', [OntologyController::class, 'individualDetail'])->name('ontology.individual')->where('iri', '.*');
+// Graph data endpoint
+Route::get('/ontologi/graph', [OntologyController::class, 'graphData'])->name('ontology.graph');

@@ -1,0 +1,78 @@
+﻿# Kandidat Complete Your Segment. Contoh cabang untuk age=Teen.
+# VALUES kategori mengikuti ProductController::ROUTINE_STEPS.
+# ?ageFilter dan ?lockedFlag dibentuk kondisional oleh controller:
+# - tanpa umur valid: hapus filter umur, gunakan BIND(false AS ?lockedFlag);
+# - umur valid selain Teen: tambahkan filter umur, gunakan BIND(false AS ?lockedFlag);
+# - Teen: tambahkan filter umur dan BIND EXISTS Teen Lock seperti pada query ini.
+# Pola retinoid mengikuti RecommendationEngine::retinoidPattern dan config/recommendation.php.
+# Prefix ditulis eksplisit agar query dapat dicoba langsung di Fuseki UI; service otomatis menambahkan ex/rdfs.
+#
+# Catatan Teen Lock:
+# - Query ini hanya MEMBERI TANDA (?teenLocked = true/false); query tidak membuang produk.
+# - Penyaringan dilakukan PHP di ProductController::completeYourSegment(): baris dengan
+#   teenLocked = true dilewati (dan dihitung untuk pesan "produk ber-retinol disembunyikan").
+# - Karena itu, hasil query ini MASIH BISA berisi produk ber-retinol yang nantinya
+#   dibuang oleh controller. Jangan membaca hasil mentah query sebagai daftar akhir rutinitas.
+#
+# Keterbatasan dataset aphrodite-clean (dicek 22 Nov 2026):
+# - Belum ditemukan triple ex:Retinoid maupun ex:contraindicatedFor, sehingga tiga
+#   cabang pertama di BIND(EXISTS ...) Teen Lock tidak pernah cocok.
+# - Teen Lock saat ini bergantung pada cabang VALUES terakhir, yaitu daftar cadangan
+#   teen_lock.fallback_ingredients di config/recommendation.php yang disisipkan PHP
+#   lewat RecommendationEngine::retinoidPattern(). Di ontologi clean, yang benar-benar
+#   ada hanya ex:Retinol.
+PREFIX ex: <https://example.org/skincare-ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+SELECT ?product ?name ?category
+    (SAMPLE(?priceValue) AS ?price)
+    (SAMPLE(?brandUri) AS ?brand)
+    (SAMPLE(?brandName) AS ?brandLabel)
+    (SAMPLE(?sameSeriesFlag) AS ?sameSeries)
+    (SAMPLE(?retinolFlag) AS ?hasRetinol)
+    (SAMPLE(?lockedFlag) AS ?teenLocked)
+    (COUNT(DISTINCT ?sharedConcern) AS ?concernMatches)
+    (COUNT(DISTINCT ?sharedSkin) AS ?skinMatches)
+    (GROUP_CONCAT(DISTINCT STR(?ingredientUri); separator=" ") AS ?ingredientList)
+WHERE {
+    BIND(ex:WAR-0018 AS ?source)
+    VALUES ?category {
+        ex:CleanserCategory ex:TonerCategory ex:SerumCategory ex:SpotTreatmentCategory
+        ex:EyeCareCategory ex:MoisturizerCategory ex:SunscreenCategory ex:FaceMistCategory
+    }
+    ?product a ex:Product ; ex:productName ?name ; ex:hasCategory ?category .
+    ?product ex:suitableForAgeGroup ex:Teen .
+
+    BIND(EXISTS { ?source ex:belongsToSeries ?s . ?product ex:belongsToSeries ?s } AS ?sameSeriesFlag)
+    BIND(EXISTS { ?product ex:hasIngredient ex:Retinol } AS ?retinolFlag)
+    BIND(EXISTS {
+        ?product ex:hasIngredient ?ri .
+        { ?ri rdf:type/rdfs:subClassOf* ex:Retinoid }
+        UNION { ?ri ex:contraindicatedFor ex:Teen }
+        UNION { ?ri rdf:type/rdfs:subClassOf* ?lockClass . ?lockClass ex:contraindicatedFor ex:Teen }
+        UNION {
+            VALUES ?ri {
+                ex:Retinol ex:RetinolIngredient ex:RetinalIngredient ex:RetinaldehydeIngredient
+                ex:RetinylPalmitateIngredient ex:RetinylRetinoateIngredient
+                ex:HydroxypinacoloneRetinoateIngredient ex:GranactiveRetinoidIngredient
+                ex:AdapaleneIngredient ex:TretinoinIngredient
+            }
+        }
+    } AS ?lockedFlag)
+
+    OPTIONAL { ?product ex:estimatedPrice ?priceValue }
+    OPTIONAL { ?product ex:hasBrand ?brandUri . OPTIONAL { ?brandUri rdfs:label ?brandName } }
+    OPTIONAL {
+        ?source ex:treatsConcern ?sharedConcern . ?product ex:treatsConcern ?sharedConcern .
+        ?sharedConcern a ex:SkinConcern .
+    }
+    OPTIONAL {
+        ?source ex:suitableForSkinType ?sharedSkin . ?product ex:suitableForSkinType ?sharedSkin .
+        ?sharedSkin a ex:SkinType .
+    }
+    # Bahan dipakai PHP IngredientConflictDetector untuk pemeriksaan kombinasi.
+    OPTIONAL { ?product ex:hasIngredient ?ingredientUri . ?ingredientUri a ex:Ingredient . }
+}
+GROUP BY ?product ?name ?category
+

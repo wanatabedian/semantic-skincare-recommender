@@ -9,10 +9,10 @@ use App\Services\SparqlService;
 use Tests\TestCase;
 
 /**
- * Uji integrasi ke Fuseki SUNGGUHAN (dataset berisi ontology/aphrodite-v2.ttl).
+ * Uji integrasi ke Fuseki SUNGGUHAN pada dataset aphrodite-clean.
  * Otomatis di-skip kalau Fuseki tidak menyala.
  *
- * Endpoint bisa diganti lewat env FUSEKI_TEST_QUERY_URL, default sama dengan .env.
+ * Endpoint bisa diganti lewat env FUSEKI_TEST_QUERY_URL; default memakai services.fuseki.clean_query_url.
  *   php artisan test --filter=RecommendationFusekiTest
  */
 class RecommendationFusekiTest extends TestCase
@@ -21,7 +21,7 @@ class RecommendationFusekiTest extends TestCase
     {
         parent::setUp();
 
-        $url = env('FUSEKI_TEST_QUERY_URL') ?: config('services.fuseki.query_url');
+        $url = env('FUSEKI_TEST_QUERY_URL') ?: config('services.fuseki.clean_query_url');
         config(['services.fuseki.query_url' => $url, 'recommendation.cache_ttl' => 0]);
 
         try {
