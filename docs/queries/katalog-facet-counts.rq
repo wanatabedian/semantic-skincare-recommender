@@ -1,0 +1,65 @@
+# Orang 5 (Eksplorasi Katalog) — dynamic facet counts /katalog.
+# Dipakai di CatalogController::FACET_QUERY (kelompok relasi) dan ::PRICE_FACET_QUERY (harga).
+# Penjelasan logika lengkap: docs/queries/katalog-search-filter-facet.md
+#
+# Prinsip: facet kelompok X = jumlah produk per opsi X dengan SEARCH + SEMUA FILTER LAIN,
+#          tetapi TANPA filter X itu sendiri (filterBlock($state, except: X)).
+# Jumlah selalu COUNT(DISTINCT ?p) per opsi -> satu produk dihitung sekali per opsi walau
+# relasinya bernilai banyak atau filter lain cocok lewat beberapa nilai.
+# Opsi yang tidak muncul di hasil ditampilkan dengan jumlah 0 (daftar opsi dari katalog-opsi-filter.rq).
+#
+# Contoh di bawah untuk URL yang sama dengan katalog-search-filter.rq:
+#   /katalog?q=serum&kulit[]=Normal&kulit[]=Oily&brand[]=EminaBrand&brand[]=WardahBrand&harga[]=50-100&harga[]=100-150
+PREFIX ex: <https://example.org/skincare-ontology#>
+
+# ------------------------------------------------------------------
+# 1) Facet BRAND — filter brand diabaikan; search, jenis kulit, dan harga tetap berlaku.
+#    Pola yang sama dipakai untuk kategori (ex:hasCategory), keluhan (ex:treatsConcern),
+#    dan jenis kulit (ex:suitableForSkinType): {{PROPERTY}} diganti, filter kelompoknya dilepas.
+# ------------------------------------------------------------------
+# katalog:facet:brand
+SELECT ?opt (COUNT(DISTINCT ?p) AS ?n)
+WHERE {
+  ?p a ex:Product ;
+     ex:productName ?nm .
+  FILTER(CONTAINS(LCASE(STR(?nm)), LCASE("serum")))
+  FILTER EXISTS { ?p ex:suitableForSkinType ?f_kulit . FILTER(?f_kulit IN (<https://example.org/skincare-ontology#Normal>, <https://example.org/skincare-ontology#Oily>)) }
+  FILTER EXISTS { ?p ex:estimatedPrice ?f_harga . FILTER(isNumeric(?f_harga) && ((?f_harga >= 50000 && ?f_harga < 100000) || (?f_harga >= 100000 && ?f_harga < 150000))) }
+  ?p ex:hasBrand ?opt .
+}
+GROUP BY ?opt
+
+# ------------------------------------------------------------------
+# 2) Facet JENIS KULIT — filter jenis kulit diabaikan; search, brand, dan harga tetap berlaku.
+# ------------------------------------------------------------------
+# # katalog:facet:kulit
+# SELECT ?opt (COUNT(DISTINCT ?p) AS ?n)
+# WHERE {
+#   ?p a ex:Product ;
+#      ex:productName ?nm .
+#   FILTER(CONTAINS(LCASE(STR(?nm)), LCASE("serum")))
+#   FILTER EXISTS { ?p ex:hasBrand ?f_brand . FILTER(?f_brand IN (<https://example.org/skincare-ontology#EminaBrand>, <https://example.org/skincare-ontology#WardahBrand>)) }
+#   FILTER EXISTS { ?p ex:estimatedPrice ?f_harga . FILTER(isNumeric(?f_harga) && ((?f_harga >= 50000 && ?f_harga < 100000) || (?f_harga >= 100000 && ?f_harga < 150000))) }
+#   ?p ex:suitableForSkinType ?opt .
+# }
+# GROUP BY ?opt
+
+# ------------------------------------------------------------------
+# 3) Facet HARGA — filter harga diabaikan; search, jenis kulit, dan brand tetap berlaku.
+#    Harga numerik dipetakan ke tepat satu kunci rentang lewat BIND(IF(...)).
+#    Harga kosong / bukan angka tidak ikut dihitung (bukan dianggap 0).
+# ------------------------------------------------------------------
+# # katalog:facet:harga
+# SELECT ?opt (COUNT(DISTINCT ?p) AS ?n)
+# WHERE {
+#   ?p a ex:Product ;
+#      ex:productName ?nm .
+#   FILTER(CONTAINS(LCASE(STR(?nm)), LCASE("serum")))
+#   FILTER EXISTS { ?p ex:suitableForSkinType ?f_kulit . FILTER(?f_kulit IN (<https://example.org/skincare-ontology#Normal>, <https://example.org/skincare-ontology#Oily>)) }
+#   FILTER EXISTS { ?p ex:hasBrand ?f_brand . FILTER(?f_brand IN (<https://example.org/skincare-ontology#EminaBrand>, <https://example.org/skincare-ontology#WardahBrand>)) }
+#   ?p ex:estimatedPrice ?price .
+#   FILTER(isNumeric(?price))
+#   BIND(IF((?price < 50000), "lt50", IF((?price >= 50000 && ?price < 100000), "50-100", IF((?price >= 100000 && ?price < 150000), "100-150", IF((?price >= 150000), "gte150", "")))) AS ?opt)
+#   FILTER(?opt != "")
+# }
+# GROUP BY ?opt

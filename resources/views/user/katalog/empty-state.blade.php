@@ -1,6 +1,7 @@
 {{--
     Empty state katalog.
-    Parameter: $title, $message, $tone ('soft' | 'alert'), $actions (array of ['label', 'href', 'primary']).
+    Parameter: $title, $message, $tone ('soft' | 'alert'), $actions (array of ['label', 'href', 'primary', 'katalog']).
+    'katalog' => true menandai link yang dimuat ulang tanpa refresh oleh katalog.js.
 --}}
 @php($tone = $tone ?? 'soft')
 <div class="k-empty {{ $tone === 'alert' ? 'k-empty--alert' : '' }}" role="status">
@@ -23,7 +24,7 @@
     @if (!empty($actions))
         <div class="mt-7 flex flex-wrap justify-center gap-3">
             @foreach ($actions as $action)
-                <a href="{{ $action['href'] }}"
+                <a href="{{ $action['href'] }}" @if (!empty($action['katalog'])) data-katalog-link @endif
                    class="k-btn rounded-xl px-5 py-3 text-xs font-black uppercase tracking-wider {{ !empty($action['primary']) ? 'bg-rose text-white shadow-md hover:bg-teal' : 'border border-teal/40 text-ink hover:bg-aqua/30' }}">
                     {{ $action['label'] }}
                 </a>

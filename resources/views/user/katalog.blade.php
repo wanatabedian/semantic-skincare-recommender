@@ -122,17 +122,19 @@
 
         {{-- ================= SEARCH ================= --}}
         <section class="relative z-10 mx-auto -mt-10 max-w-5xl px-4 sm:px-6" aria-labelledby="katalog-search-label">
-            <form action="{{ route('katalog') }}" method="GET" role="search" class="k-search k-rise" style="--d:460ms">
-                <label id="katalog-search-label" for="katalog-q" class="sr-only">Cari produk</label>
-                <svg class="h-5 w-5 shrink-0 text-teal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5" stroke-linecap="round"/></svg>
-                <input id="katalog-q" name="q" type="search" value="{{ $search }}" autocomplete="off"
-                       placeholder="Cari nama produk, brand, atau bahan aktif…"
+            {{-- Kolom search tergabung ke form filter (#katalog-form) agar search & filter selalu terkirim bersama. --}}
+            <div role="search" class="k-search k-rise" style="--d:460ms">
+                <label id="katalog-search-label" for="katalog-q" class="sr-only">Cari nama produk</label>
+                <svg class="k-search__icon h-5 w-5 shrink-0 text-teal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5" stroke-linecap="round"/></svg>
+                <input id="katalog-q" name="q" type="search" value="{{ $search }}" autocomplete="off" form="katalog-form"
+                       maxlength="{{ \App\Http\Controllers\CatalogController::SEARCH_MAX_LENGTH }}" enterkeyhint="search"
+                       placeholder="Cari nama produk…"
                        class="min-w-0 flex-1 bg-transparent text-sm font-medium text-ink placeholder:text-muted/70 focus:outline-none md:text-base">
                 <kbd class="hidden rounded-md border border-ink/15 px-2 py-1 text-[10px] font-bold text-muted md:inline" title="Tekan / untuk mencari">/</kbd>
-                <button type="submit" class="k-btn shrink-0 rounded-xl bg-rose px-4 py-3 text-xs font-black uppercase tracking-wider text-white hover:bg-teal sm:px-6">
+                <button type="submit" form="katalog-form" class="k-btn shrink-0 rounded-xl bg-rose px-4 py-3 text-xs font-black uppercase tracking-wider text-white hover:bg-teal sm:px-6">
                     Cari
                 </button>
-            </form>
+            </div>
         </section>
 
         {{-- ================= KATALOG: FILTER + LISTING ================= --}}
@@ -149,57 +151,26 @@
                         <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" stroke-linecap="round"/></svg>
                     </button>
                 </div>
-                <p class="mt-2 text-xs leading-relaxed text-muted">Opsi filter dimuat dari ontologi pada tahap berikutnya.</p>
+                <p class="mt-2 text-xs leading-relaxed text-muted">Pilih beberapa opsi sekaligus. Angka di samping opsi menunjukkan jumlah produk yang cocok.</p>
 
-                <form class="mt-6" aria-describedby="katalog-filter-note" onsubmit="return false">
-                    <fieldset disabled class="space-y-1">
-                        @foreach (['Kategori' => 4, 'Jenis kulit' => 5, 'Keluhan kulit' => 6, 'Bahan aktif' => 5, 'Brand' => 4] as $group => $placeholders)
-                            <details class="k-group" {{ $loop->index < 2 ? 'open' : '' }}>
-                                <summary>{{ $group }}</summary>
-                                <div class="k-group__body" aria-hidden="true">
-                                    @for ($i = 0; $i < $placeholders; $i++)
-                                        <span class="k-skel" style="--w: {{ [62, 48, 74, 55, 68, 44][$i % 6] }}%"></span>
-                                    @endfor
-                                </div>
-                            </details>
-                        @endforeach
-
-                        <details class="k-group" open>
-                            <summary>Rentang harga</summary>
-                            <div class="k-group__body space-y-2">
-                                @foreach (['Di bawah Rp50.000', 'Rp50.000 – Rp100.000', 'Rp100.000 – Rp150.000', 'Di atas Rp150.000'] as $range)
-                                    <label class="k-option">
-                                        <input type="radio" name="harga" class="accent-teal">
-                                        <span>{{ $range }}</span>
-                                    </label>
-                                @endforeach
-                            </div>
-                        </details>
-
-                        <div class="flex gap-2 pt-5">
-                            <button type="submit" class="flex-1 rounded-xl bg-ink px-4 py-3 text-xs font-black uppercase tracking-wider text-white">Terapkan</button>
-                            <button type="reset" class="rounded-xl border border-ink/15 px-4 py-3 text-xs font-black uppercase tracking-wider text-muted">Reset</button>
-                        </div>
-                    </fieldset>
-                    <p id="katalog-filter-note" class="mt-3 text-center text-[11px] font-semibold text-muted">Filter belum aktif — segera hadir.</p>
-                </form>
+                @include('user.katalog.filter-panel')
             </aside>
 
             {{-- ---------- LISTING ---------- --}}
-            <section aria-labelledby="katalog-list-title" class="min-w-0">
+            <section id="katalog-listing" aria-labelledby="katalog-list-title" class="k-listing min-w-0">
                 {{-- Toolbar: judul hasil + sorting --}}
                 <div class="flex flex-col gap-5 border-b border-rose/15 pb-6 sm:flex-row sm:items-end sm:justify-between">
                     <div>
                         <p class="text-[11px] font-black uppercase tracking-[.28em] text-teal">Koleksi</p>
-                        <h2 id="katalog-list-title" class="mt-2 font-serif text-3xl font-semibold text-ink md:text-4xl">Semua produk</h2>
-                        <p class="mt-2 text-sm text-muted" id="katalog-result-info">
+                        <h2 id="katalog-list-title" class="mt-2 font-serif text-3xl font-semibold text-ink md:text-4xl" tabindex="-1" data-katalog-swap>{{ $hasFilters ? 'Hasil pilihanmu' : 'Semua produk' }}</h2>
+                        <p class="mt-2 text-sm text-muted" id="katalog-result-info" role="status" aria-live="polite" data-katalog-swap>
                             @if ($error)
                                 Data produk belum dapat dimuat.
                             @else
                                 Menampilkan <span class="font-bold text-ink">{{ count($products) }}</span> produk
-                                dari <span class="font-bold text-ink">{{ collect($products)->pluck('brand')->filter()->unique()->count() }}</span> brand.
+                                dari <span class="font-bold text-ink">{{ $brandCount }}</span> brand
                                 @if ($search !== '')
-                                    <span class="block text-xs">Pencarian “{{ $search }}” belum aktif — semua produk ditampilkan.</span>
+                                    untuk pencarian <span class="font-bold text-ink">“{{ $search }}”</span>
                                 @endif
                             @endif
                         </p>
@@ -210,11 +181,13 @@
                                 data-filter-open aria-controls="katalog-filter" aria-expanded="false">
                             <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4" stroke-linecap="round"/></svg>
                             Filter
+                            <span id="katalog-filter-count" data-katalog-swap>@if ($activeCount > 0)<span class="k-group__badge">{{ $activeCount }}<span class="sr-only"> aktif</span></span>@endif</span>
                         </button>
 
                         <label class="k-sort">
                             <span class="text-[11px] font-black uppercase tracking-wider text-muted">Urutkan</span>
-                            <select name="sort" disabled class="bg-transparent text-sm font-bold text-ink focus:outline-none" aria-describedby="katalog-filter-note">
+                            <span id="katalog-sort-note" class="sr-only">Pengurutan segera hadir.</span>
+                            <select name="sort" disabled class="bg-transparent text-sm font-bold text-ink focus:outline-none" aria-describedby="katalog-sort-note">
                                 <option>Relevansi</option>
                                 <option>Nama A–Z</option>
                                 <option>Nama Z–A</option>
@@ -225,38 +198,11 @@
                     </div>
                 </div>
 
-                {{-- Grid produk dari ontologi --}}
-                @if (!$error && count($products) > 0)
-                    <div id="katalog-grid" class="k-grid mt-8" aria-live="polite">
-                        @foreach ($products as $product)
-                            @include('user.katalog.product-card', ['product' => $product])
-                        @endforeach
-                    </div>
-                @else
-                    {{-- Empty state --}}
-                    <div class="mt-8">
-                        @if ($error)
-                            @include('user.katalog.empty-state', [
-                                'tone' => 'alert',
-                                'title' => 'Data produk belum dapat dimuat',
-                                'message' => $error,
-                                'actions' => [
-                                    ['label' => 'Muat ulang', 'href' => request()->fullUrl(), 'primary' => true],
-                                    ['label' => 'Ke beranda', 'href' => url('/')],
-                                ],
-                            ])
-                        @else
-                            @include('user.katalog.empty-state', [
-                                'title' => 'Belum ada produk di ontologi',
-                                'message' => 'Dataset Aphrodite yang dimuat di Fuseki belum berisi produk. Sambil menunggu, cari tahu produk yang cocok lewat kuis analisis kulit.',
-                                'actions' => [
-                                    ['label' => 'Mulai kuis →', 'href' => route('kuis', ['new' => 1]), 'primary' => true],
-                                    ['label' => 'Bandingkan produk', 'href' => route('bandingkan')],
-                                ],
-                            ])
-                        @endif
-                    </div>
-                @endif
+                {{-- Hasil: chip filter aktif + grid / empty state (ditukar oleh katalog.js) --}}
+                <div class="k-progress" aria-hidden="true"></div>
+                <div id="katalog-results" class="k-results" data-katalog-swap>
+                    @include('user.katalog.results')
+                </div>
 
                 {{-- Pagination --}}
                 <nav class="k-pager mt-12" aria-label="Halaman katalog">
