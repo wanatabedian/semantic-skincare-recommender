@@ -16,8 +16,8 @@ use Illuminate\Support\Str;
  */
 class CatalogController extends Controller
 {
-    /** Foto produk: public/images/products/{slug-brand}/{sourceProductId}.{ext} */
-    public const IMAGE_DIR = 'images/products';
+    /** Foto produk: public/images/{slug-brand}/{sourceProductId}.{ext} */
+    public const IMAGE_DIR = 'images';
 
     public const IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp'];
 
