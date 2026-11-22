@@ -1,0 +1,30 @@
+﻿# Kosakata Complete Your Segment: kelompok umur, label kategori rutinitas, dan label bahan.
+# Delapan kategori di VALUES mengikuti ProductController::ROUTINE_STEPS.
+# CleanOntologyService otomatis menambahkan PREFIX ex dan rdfs.
+#
+# Catatan hasil:
+# - UNION menghasilkan tiga jenis baris yang bercampur dalam satu hasil:
+#   1. baris kelompok umur  -> ?ageGroup, ?ageGroupLabel
+#   2. baris kategori rutinitas -> ?routineCategory, ?routineCategoryLabel
+#   3. baris bahan          -> ?ingredientItem, ?ingredientItemLabel
+# - Variabel dari cabang UNION lain TIDAK terisi pada baris tersebut (unbound).
+#   Contoh: baris kategori tidak punya ?ageGroup maupun ?ingredientItem.
+#   ProductController::routineVocabulary() memeriksa variabel mana yang terisi
+#   (isset) untuk menentukan jenis setiap baris.
+# - ?ageGroupLabel bersifat OPTIONAL, jadi juga bisa kosong pada baris kelompok umur.
+PREFIX ex: <https://example.org/skincare-ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?ageGroup ?ageGroupLabel ?routineCategory ?routineCategoryLabel ?ingredientItem ?ingredientItemLabel WHERE {
+    { ?ageGroup a ex:AgeGroup . OPTIONAL { ?ageGroup rdfs:label ?ageGroupLabel } }
+    UNION
+    {
+        VALUES ?routineCategory {
+            ex:CleanserCategory ex:TonerCategory ex:SerumCategory ex:SpotTreatmentCategory
+            ex:EyeCareCategory ex:MoisturizerCategory ex:SunscreenCategory ex:FaceMistCategory
+        }
+        ?routineCategory rdfs:label ?routineCategoryLabel
+    }
+    UNION
+    { ?ingredientItem a ex:Ingredient ; rdfs:label ?ingredientItemLabel }
+}
