@@ -17,6 +17,7 @@
                 @foreach($stats['individuals'] as $class => $count)
                 <tr><td class="border px-2 py-1">Individu {{ $class }}</td><td class="border px-2 py-1">{{ $count }}</td></tr>
                 @endforeach
+                <tr><td class="border px-2 py-1 font-semibold">Total individu (8 kelas utama)</td><td class="border px-2 py-1 font-semibold">{{ $stats['totalIndividuals'] }}</td></tr>
                 <tr><td class="border px-2 py-1">Object properties</td><td class="border px-2 py-1">{{ $stats['objectProperties'] }}</td></tr>
                 <tr><td class="border px-2 py-1">Datatype properties</td><td class="border px-2 py-1">{{ $stats['datatypeProperties'] }}</td></tr>
             </tbody>
@@ -105,6 +106,18 @@
     {{-- C. Interactive Knowledge Graph --}}
     <section class="mb-8">
         <h2 class="text-xl font-semibold mb-3">Graf Pengetahuan Interaktif</h2>
+        <p class="text-sm text-gray-600 mb-3">
+            Pilih satu produk untuk melihat produk itu beserta semua relasi langsungnya (merek, kategori, seri, kelompok usia, jenis kulit, keluhan, dan bahan), atau biarkan kosong untuk ringkasan individu dari 8 kelas utama.
+        </p>
+        <div class="mb-2">
+            <label for="graph-product" class="block text-xs font-semibold text-gray-600 mb-1">Produk</label>
+            <select id="graph-product" class="w-full md:w-2/3 border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                <option value="">Ringkasan semua kelas (tanpa produk terpilih)</option>
+                @foreach($graphProducts as $gp)
+                    <option value="{{ $gp['id'] }}">{{ $gp['id'] }} — {{ $gp['name'] }}</option>
+                @endforeach
+            </select>
+        </div>
         <div class="flex flex-wrap items-center gap-2 mb-3">
             <button id="loadGraph" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded text-sm font-medium transition-colors shadow-sm">Muat Graf</button>
             <button id="resetGraph" class="bg-gray-600 hover:bg-gray-700 text-white px-3 py-1.5 rounded text-sm font-medium transition-colors shadow-sm">Reset Tampilan</button>
@@ -122,8 +135,20 @@
                 <option value="Ingredient">Ingredient</option>
             </select>
         </div>
-        <div id="knowledge-graph" class="border border-gray-200 rounded-lg h-96 md:h-[520px] bg-white relative overflow-hidden shadow-inner flex items-center justify-center">
+        <div id="knowledge-graph" data-graph-url="{{ route('ontology.graph') }}" class="border border-gray-200 rounded-lg h-96 md:h-[520px] bg-white relative overflow-hidden shadow-inner flex items-center justify-center">
             <span class="text-gray-400 text-sm">Klik "Muat Graf" untuk memuat visualisasi Knowledge Graph.</span>
+        </div>
+
+        {{-- Informasi node yang diklik --}}
+        <div id="graph-info" class="hidden mt-3 p-3 bg-white border border-indigo-200 rounded-lg text-sm" aria-live="polite">
+            <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Node terpilih</div>
+            <div class="font-semibold text-gray-900" data-info="label"></div>
+            <div class="text-xs text-gray-600 mt-1">Kelas: <span class="font-mono" data-info="class"></span> · Relasi tampil: <span data-info="degree"></span></div>
+            <div class="text-xs text-gray-400 font-mono break-all mt-1" data-info="iri"></div>
+            <div class="flex flex-wrap gap-2 mt-2">
+                <a data-info="url" href="#" class="inline-flex items-center px-2.5 py-1 text-xs font-medium text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-md border border-indigo-200">Lihat detail individu &rarr;</a>
+                <button type="button" data-info="focus" style="display: none;" class="inline-flex items-center px-2.5 py-1 text-xs font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-md border border-emerald-200">Tampilkan relasi produk ini</button>
+            </div>
         </div>
 
         {{-- Legenda Kelas --}}
@@ -215,21 +240,92 @@
     </section>
 
     {{-- E. SPARQL Playground --}}
-    <section class="mb-8">
+    <section id="sparql-playground" class="mb-8">
         <h2 class="text-xl font-semibold mb-2">Playground SPARQL</h2>
+        <p class="text-sm text-gray-600 mb-3">
+            Hanya query <strong>SELECT</strong> dan <strong>ASK</strong> yang diterima, dijalankan pada dataset <span class="font-mono">aphrodite-clean</span>.
+            Hasil maksimal {{ $playground['maxResults'] }} baris (query SELECT tanpa LIMIT otomatis diberi LIMIT {{ $playground['maxResults'] }}),
+            batas waktu {{ $playground['timeout'] }} detik. Prefix <span class="font-mono">ex:</span> dan <span class="font-mono">rdfs:</span> sudah tersedia.
+        </p>
         <form action="{{ route('ontology.sparql') }}" method="POST" class="space-y-2">
             @csrf
-            <textarea name="query" class="w-full h-32 border p-2" placeholder="Masukkan query SELECT Anda di sini"></textarea>
+            <div>
+                <label for="sparql-example" class="block text-xs font-semibold text-gray-600 mb-1">Contoh query</label>
+                <select id="sparql-example" class="w-full md:w-2/3 border border-gray-300 rounded px-3 py-1.5 text-sm">
+                    <option value="">— Pilih contoh untuk mengisi editor —</option>
+                    @foreach($examples as $key => $example)
+                        <option value="{{ $key }}" data-query="{{ $example['query'] }}">{{ $example['label'] }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <textarea id="sparql-query" name="query" class="w-full h-40 border p-2 font-mono text-sm" spellcheck="false" placeholder="SELECT ?s ?p ?o WHERE { ?s ?p ?o } LIMIT 10">{{ old('query') }}</textarea>
             <div>
                 <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Jalankan Query</button>
             </div>
         </form>
-        @if(session('sparqlResult'))
-            <pre class="bg-gray-100 p-2 mt-2">{{ json_encode(session('sparqlResult'), JSON_PRETTY_PRINT) }}</pre>
-        @endif
+
         @if(session('sparqlError'))
-            <div class="text-red-600 mt-2">Error: {{ session('sparqlError') }}</div>
+            <div class="mt-3 p-3 bg-red-50 border border-red-200 text-red-700 rounded text-sm" role="alert">
+                <span class="font-semibold">Query tidak dijalankan:</span> {{ session('sparqlError') }}
+            </div>
         @endif
+
+        @php $sparqlResult = session('sparqlResult'); @endphp
+        @if(is_array($sparqlResult) && ($sparqlResult['type'] ?? null) === 'ask')
+            <div class="mt-3 p-3 rounded border text-sm {{ $sparqlResult['boolean'] ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-gray-50 border-gray-200 text-gray-800' }}">
+                Hasil ASK: <span class="font-mono font-semibold">{{ $sparqlResult['boolean'] ? 'true' : 'false' }}</span>
+                — {{ $sparqlResult['boolean'] ? 'pola ditemukan di ontologi.' : 'pola tidak ditemukan di ontologi.' }}
+            </div>
+        @elseif(is_array($sparqlResult) && ($sparqlResult['type'] ?? null) === 'select')
+            @php
+                $vars = $sparqlResult['vars'];
+                if ($vars === [] && ! empty($sparqlResult['rows'])) {
+                    $vars = array_keys($sparqlResult['rows'][0]);
+                }
+            @endphp
+            <div class="mt-3 text-xs text-gray-600">
+                {{ count($sparqlResult['rows']) }} baris.
+                @if($sparqlResult['limitApplied']) LIMIT {{ $playground['maxResults'] }} ditambahkan otomatis. @endif
+                @if($sparqlResult['truncated']) Hasil dipotong menjadi {{ $playground['maxResults'] }} baris. @endif
+            </div>
+            <div class="mt-1 overflow-x-auto border border-gray-200 rounded-lg bg-white">
+                <table class="min-w-full divide-y divide-gray-200 text-xs">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            @foreach($vars as $var)
+                                <th class="px-3 py-2 text-left font-semibold text-gray-700 font-mono">?{{ $var }}</th>
+                            @endforeach
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        @forelse($sparqlResult['rows'] as $row)
+                            <tr>
+                                @foreach($vars as $var)
+                                    <td class="px-3 py-1.5 align-top break-all">{{ $row[$var]['value'] ?? '' }}</td>
+                                @endforeach
+                            </tr>
+                        @empty
+                            <tr><td colspan="{{ max(count($vars), 1) }}" class="px-3 py-4 text-center text-gray-500 italic">Tidak ada hasil.</td></tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        @endif
+
+        <script>
+            (function () {
+                var select = document.getElementById('sparql-example');
+                var editor = document.getElementById('sparql-query');
+                if (!select || !editor) return;
+                select.addEventListener('change', function () {
+                    var option = select.options[select.selectedIndex];
+                    if (option && option.dataset.query) {
+                        editor.value = option.dataset.query;
+                        editor.focus();
+                    }
+                });
+            })();
+        </script>
     </section>
 
     {{-- F. Download Ontology --}}

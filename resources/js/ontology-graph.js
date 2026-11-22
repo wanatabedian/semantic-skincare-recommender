@@ -24,6 +24,9 @@ const resetBtn = document.getElementById('resetGraph');
 const clearBtn = document.getElementById('clearGraph');
 const searchInp = document.getElementById('graph-search');
 const filterSel = document.getElementById('graph-filter');
+const productSel = document.getElementById('graph-product');
+const infoPanel = document.getElementById('graph-info');
+const graphUrl = container?.dataset.graphUrl || '/ontologi/graph';
 
 let cy = null; // Cytoscape instance
 
@@ -51,6 +54,18 @@ const coseLayoutOptions = {
     initialTemp: 200,
     coolingFactor: 0.95,
     minTemp: 1.0,
+};
+
+// Graf satu produk: produk di tengah, tetangga melingkar di sekelilingnya.
+const productLayoutOptions = {
+    name: 'concentric',
+    animate: true,
+    animationDuration: 600,
+    fit: true,
+    padding: 40,
+    minNodeSpacing: 30,
+    concentric: (node) => (node.data('focus') ? 2 : 1),
+    levelWidth: () => 1,
 };
 
 function applyStyle() {
@@ -89,6 +104,16 @@ function applyStyle() {
             'font-weight': 'bold',
             'font-size': '10px',
         })
+        .selector('node[?focus]')
+        .style({
+            width: '40px',
+            height: '40px',
+            'border-color': '#14532d',
+            'border-width': 3,
+            'font-size': '11px',
+            'text-max-width': '140px',
+            label: 'data(label)',
+        })
         .selector('edge')
         .style({
             width: 1.5,
@@ -124,9 +149,22 @@ async function loadGraph() {
         </div>
     `;
 
+    hideInfo();
+    const productId = productSel?.value ?? '';
+    const url = productId ? `${graphUrl}?product=${encodeURIComponent(productId)}` : graphUrl;
+
     try {
-        const resp = await fetch('/ontologi/graph');
-        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const resp = await fetch(url, { headers: { Accept: 'application/json' } });
+        if (!resp.ok) {
+            let message = `HTTP ${resp.status}`;
+            try {
+                message = (await resp.json()).message || message;
+            } catch {
+                // biarkan pesan HTTP
+            }
+            showMessage(message, 'text-red-600');
+            return;
+        }
         const data = await resp.json();
 
         if (!data.nodes || data.nodes.length === 0) {
@@ -140,7 +178,7 @@ async function loadGraph() {
         cy = cytoscape({
             container,
             elements: { nodes: data.nodes, edges: data.edges },
-            layout: coseLayoutOptions,
+            layout: data.mode === 'product' ? productLayoutOptions : coseLayoutOptions,
             wheelSensitivity: 0.2,
         });
 
@@ -151,10 +189,7 @@ async function loadGraph() {
             cy.fit(undefined, 40);
         });
 
-        cy.on('tap', 'node', (evt) => {
-            const node = evt.target;
-            alert(`IRI: ${node.id()}\nLabel: ${node.data('label')}\nClass: ${node.data('class')}`);
-        });
+        cy.on('tap', 'node', (evt) => showInfo(evt.target));
 
         if (filterSel && filterSel.value) {
             filterByClass();
@@ -166,6 +201,58 @@ async function loadGraph() {
         console.error('Failed to load knowledge graph:', e);
         container.innerHTML = '<div class="flex items-center justify-center h-full text-red-600 text-sm">Gagal memuat graf pengetahuan. Silakan coba lagi.</div>';
     }
+}
+
+// Pesan teks di dalam kontainer graf (textContent supaya aman dari HTML).
+function showMessage(text, colorClass) {
+    if (cy) {
+        cy.destroy();
+        cy = null;
+    }
+    const div = document.createElement('div');
+    div.className = `flex items-center justify-center h-full text-sm ${colorClass}`;
+    div.textContent = text;
+    container.replaceChildren(div);
+}
+
+function hideInfo() {
+    if (infoPanel) infoPanel.classList.add('hidden');
+}
+
+// Panel informasi node yang diklik.
+function showInfo(node) {
+    if (!infoPanel) {
+        alert(`IRI: ${node.id()}\nLabel: ${node.data('label')}\nClass: ${node.data('class')}`);
+        return;
+    }
+    const field = (name) => infoPanel.querySelector(`[data-info="${name}"]`);
+    field('label').textContent = node.data('label') || node.id();
+    field('class').textContent = node.data('class') || '-';
+    field('degree').textContent = String(node.connectedEdges().length);
+    field('iri').textContent = node.id();
+
+    const link = field('url');
+    if (node.data('url')) {
+        link.href = node.data('url');
+        link.style.display = '';
+    } else {
+        link.style.display = 'none';
+    }
+
+    // Untuk produk di mode ringkasan: tombol untuk membuka graf produk itu.
+    const focusBtn = field('focus');
+    const productId = node.id().split('#').pop();
+    const canFocus = node.data('class') === 'Product' && !node.data('focus') && productSel
+        && Array.from(productSel.options).some((o) => o.value === productId);
+    focusBtn.style.display = canFocus ? '' : 'none';
+    focusBtn.onclick = canFocus
+        ? () => {
+              productSel.value = productId;
+              loadGraph();
+          }
+        : null;
+
+    infoPanel.classList.remove('hidden');
 }
 
 function resetView() {
@@ -186,6 +273,7 @@ function clearGraph() {
     }
     if (searchInp) searchInp.value = '';
     if (filterSel) filterSel.value = '';
+    hideInfo();
 }
 
 function searchNodes() {
@@ -221,3 +309,4 @@ if (resetBtn) resetBtn.addEventListener('click', resetView);
 if (clearBtn) clearBtn.addEventListener('click', clearGraph);
 if (searchInp) searchInp.addEventListener('input', searchNodes);
 if (filterSel) filterSel.addEventListener('change', filterByClass);
+if (productSel) productSel.addEventListener('change', loadGraph);
