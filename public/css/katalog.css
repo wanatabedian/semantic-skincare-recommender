@@ -238,14 +238,204 @@ body.k-lock { overflow: hidden; }
     to   { background-position: -100% 0; }
 }
 
-.k-option {
-    display: flex;
-    align-items: center;
-    gap: .65rem;
-    font-size: .85rem;
+.k-group summary > span:first-child { flex: 1; }
+.k-group__meta { display: inline-flex; margin-right: .75rem; }
+.k-group__badge {
+    display: inline-grid;
+    place-items: center;
+    min-width: 1.35rem;
+    height: 1.35rem;
+    padding: 0 .35rem;
+    border-radius: 999px;
+    background: var(--k-rose);
+    color: #fff;
+    font-size: 10.5px;
+    font-weight: 900;
+    letter-spacing: 0;
+    animation: k-pop .45s var(--k-ease) both;
+}
+/* fieldset opsi filter: hapus gaya bawaan browser */
+.k-group__body { gap: .15rem; border: 0; margin: 0; min-width: 0; padding-left: 0; padding-right: 0; padding-top: 0; }
+.k-filter__note {
+    border-radius: 1rem;
+    background: var(--k-cream);
+    padding: .9rem 1rem;
+    font-size: .78rem;
+    line-height: 1.55;
     font-weight: 600;
     color: var(--k-muted);
 }
+.k-filter__actions {
+    display: flex;
+    gap: .5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid rgba(230, 116, 142, .14);
+}
+/* Dengan JS, filter langsung diterapkan: tombol Terapkan hanya perlu di drawer mobile. */
+@media (min-width: 1024px) {
+    .k-js .k-filter__apply { display: none; }
+    .k-js .k-filter__actions > a { flex: 1; }
+}
+
+.k-option {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: .65rem;
+    margin: 0 -.6rem;
+    padding: .4rem .6rem;
+    border-radius: .8rem;
+    cursor: pointer;
+    font-size: .85rem;
+    font-weight: 600;
+    color: var(--k-muted);
+    transition: background-color .3s ease, color .3s ease, opacity .3s ease;
+}
+.k-option:hover { background: rgba(253, 238, 241, .85); color: var(--k-ink); }
+.k-option.is-selected { color: var(--k-ink); }
+.k-option.is-empty { opacity: .45; cursor: not-allowed; }
+.k-option.is-empty:hover { background: transparent; color: var(--k-muted); }
+.k-option__label { flex: 1; min-width: 0; line-height: 1.35; }
+.k-option__count {
+    min-width: 1.9rem;
+    border-radius: 999px;
+    background: rgba(184, 232, 238, .35);
+    padding: .1rem .45rem;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--k-ink);
+    font-variant-numeric: tabular-nums;
+    transition: background-color .3s ease, color .3s ease;
+}
+.k-option.is-selected .k-option__count { background: var(--k-teal); color: #fff; }
+.k-option.is-empty .k-option__count { background: transparent; color: var(--k-muted); }
+.k-option__count.is-bump { animation: k-pop .45s var(--k-ease); }
+
+/* Checkbox custom */
+.k-check {
+    appearance: none;
+    -webkit-appearance: none;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    width: 1.1rem;
+    height: 1.1rem;
+    margin: 0;
+    border-radius: .35rem;
+    border: 1.5px solid rgba(52, 84, 82, .3);
+    background: #fff;
+    cursor: inherit;
+    transition: background-color .25s ease, border-color .25s ease, transform .3s var(--k-ease);
+}
+.k-check::after {
+    content: "";
+    width: .3rem;
+    height: .55rem;
+    margin-top: -.1rem;
+    border-right: 2px solid #fff;
+    border-bottom: 2px solid #fff;
+    transform: rotate(45deg) scale(0);
+    transition: transform .3s var(--k-ease);
+}
+.k-option:hover .k-check:not(:disabled) { border-color: var(--k-rose); }
+.k-check:checked { background: var(--k-rose); border-color: var(--k-rose); }
+.k-check:checked::after { transform: rotate(45deg) scale(1); }
+.k-check:active:not(:disabled) { transform: scale(.88); }
+.k-check:focus-visible { outline: 2px solid var(--k-teal); outline-offset: 2px; }
+
+@keyframes k-pop {
+    0%   { transform: scale(.6); opacity: 0; }
+    60%  { transform: scale(1.12); opacity: 1; }
+    100% { transform: scale(1); }
+}
+
+/* ---------- Chip filter aktif ---------- */
+.k-chips { margin-top: 1.5rem; }
+.k-chip-wrap { animation: k-rise .5s var(--k-ease) both; animation-delay: calc(var(--i, 0) * 40ms); }
+.k-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    max-width: 100%;
+    border-radius: 999px;
+    border: 1px solid rgba(107, 177, 173, .45);
+    background: var(--k-warm);
+    padding: .4rem .45rem .4rem .85rem;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--k-ink);
+    text-decoration: none;
+    transition: border-color .3s ease, background-color .3s ease, transform .35s var(--k-ease), box-shadow .35s ease;
+}
+.k-chip__group {
+    font-size: 9.5px;
+    font-weight: 900;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--k-teal);
+}
+.k-chip__label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 14rem; }
+.k-chip__x {
+    display: grid;
+    place-items: center;
+    width: 1.35rem;
+    height: 1.35rem;
+    border-radius: 999px;
+    background: var(--k-cream);
+    color: var(--k-rose);
+    transition: background-color .3s ease, color .3s ease, transform .35s var(--k-ease);
+}
+.k-chip__x svg { width: .6rem; height: .6rem; }
+.k-chip:hover, .k-chip:focus-visible {
+    border-color: rgba(230, 116, 142, .55);
+    transform: translateY(-1px);
+    box-shadow: 0 10px 22px -16px rgba(230, 116, 142, .8);
+}
+.k-chip:hover .k-chip__x, .k-chip:focus-visible .k-chip__x { background: var(--k-rose); color: #fff; transform: rotate(90deg); }
+.k-chips__reset {
+    padding: .4rem .5rem;
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--k-muted);
+    text-decoration: underline;
+    text-decoration-color: rgba(230, 116, 142, .4);
+    text-underline-offset: 4px;
+    transition: color .3s ease;
+}
+.k-chips__reset:hover { color: var(--k-rose); }
+
+/* ---------- Transisi hasil ---------- */
+.k-listing { position: relative; scroll-margin-top: 6rem; }
+.k-results { transition: opacity .35s ease, filter .35s ease; }
+.k-listing.is-loading .k-results { opacity: .45; filter: saturate(.7); pointer-events: none; }
+.k-progress {
+    position: relative;
+    height: 2px;
+    margin-top: -1px;
+    overflow: hidden;
+    border-radius: 999px;
+    opacity: 0;
+    transition: opacity .3s ease;
+}
+.k-progress::after {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 35%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, transparent, var(--k-rose), var(--k-teal), transparent);
+    animation: k-progress 1.1s ease-in-out infinite;
+}
+.k-listing.is-loading .k-progress { opacity: 1; }
+@keyframes k-progress {
+    from { transform: translateX(-100%); }
+    to   { transform: translateX(300%); }
+}
+.k-search__icon { transition: transform .4s var(--k-ease); }
+.k-search:focus-within .k-search__icon { transform: scale(1.1) rotate(-8deg); }
 fieldset:disabled .k-option { opacity: .65; cursor: not-allowed; }
 fieldset:disabled button { opacity: .5; cursor: not-allowed; }
 
@@ -275,6 +465,7 @@ fieldset:disabled button { opacity: .5; cursor: not-allowed; }
 /* ---------- Product card ---------- */
 .k-card {
     animation: k-rise .7s var(--k-ease) both;
+    animation-delay: calc(var(--i, 0) * 35ms);
 }
 .k-card__link {
     display: flex;
@@ -516,6 +707,12 @@ a.k-card__link:focus-visible .k-card__cta { opacity: 1; transform: none; }
 
 /* ---------- Gerak dikurangi ---------- */
 @media (prefers-reduced-motion: reduce) {
-    .k-rise, .k-float, .k-drip, .k-empty__drop, .k-skel, .k-hero__rings span, .k-card { animation: none !important; }
-    .k-btn, .k-filter, .k-overlay, .k-card__media, .k-card__img, .k-card__cta { transition: none !important; }
+    .k-rise, .k-float, .k-drip, .k-empty__drop, .k-skel, .k-hero__rings span, .k-card,
+    .k-chip-wrap, .k-group__badge, .k-option__count, .k-progress::after { animation: none !important; }
+    .k-btn, .k-filter, .k-overlay, .k-card__media, .k-card__img, .k-card__cta,
+    .k-option, .k-option__count, .k-check, .k-check::after, .k-chip, .k-chip__x, .k-results, .k-search__icon { transition: none !important; }
+    .k-btn:hover, .k-chip:hover, .k-chip:focus-visible { transform: none; }
+    .k-chip:hover .k-chip__x, .k-chip:focus-visible .k-chip__x { transform: none; }
+    .k-search:focus-within .k-search__icon { transform: none; }
+    .k-listing.is-loading .k-progress { opacity: 0; }
 }

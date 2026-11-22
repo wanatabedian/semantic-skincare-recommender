@@ -10,7 +10,7 @@
     $initial = mb_strtoupper(mb_substr($product['brand'] ?? $product['name'], 0, 1));
 @endphp
 
-<article class="k-card" data-product-id="{{ $product['id'] }}">
+<article class="k-card" data-product-id="{{ $product['id'] }}" style="--i: {{ min($index ?? 0, 11) }}">
     <{{ $tag }} @if ($product['detail_url']) href="{{ $product['detail_url'] }}" @endif class="k-card__link">
         <div class="k-card__media">
             @if ($product['image'])

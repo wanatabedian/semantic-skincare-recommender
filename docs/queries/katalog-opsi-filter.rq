@@ -1,0 +1,41 @@
+# Orang 5 (Eksplorasi Katalog) — opsi filter /katalog (brand, kategori, keluhan, jenis kulit).
+# Dipakai di App\Http\Controllers\CatalogController::OPTIONS_QUERY (lewat SparqlService::select,
+# yang menempelkan PREFIX otomatis). Blok PREFIX di bawah hanya agar query bisa dicoba di Fuseki UI.
+#
+# - Opsi = nilai relasi yang BENAR-BENAR dipakai produk, bukan daftar statis. Menambah data di
+#   ontologi otomatis menambah opsi.
+# - Hasil query ini sekaligus menjadi whitelist anti SPARQL injection: nilai filter dari URL
+#   hanya diterima bila nama lokalnya ada di sini.
+# - Satu baris = satu (kelompok, opsi). GROUP BY + SAMPLE mencegah baris ganda bila satu opsi
+#   punya beberapa label; PHP memilih label @id -> tanpa bahasa -> label apa pun.
+PREFIX ex: <https://example.org/skincare-ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# katalog:opsi
+SELECT ?group ?opt (SAMPLE(?lid) AS ?labelId) (SAMPLE(?lplain) AS ?labelPlain) (SAMPLE(?lany) AS ?labelAny)
+WHERE {
+  VALUES (?group ?prop) {
+    ("kategori" ex:hasCategory)
+    ("kulit"    ex:suitableForSkinType)
+    ("concern"  ex:treatsConcern)
+    ("brand"    ex:hasBrand)
+  }
+  ?p a ex:Product ;
+     ex:productName ?nm ;
+     ?prop ?opt .
+  FILTER(isIRI(?opt))
+  OPTIONAL { ?opt rdfs:label ?lid FILTER(langMatches(lang(?lid), "id")) }
+  OPTIONAL { ?opt rdfs:label ?lplain FILTER(lang(?lplain) = "") }
+  OPTIONAL { ?opt rdfs:label ?lany }
+}
+GROUP BY ?group ?opt
+
+# ------------------------------------------------------------------
+# Total produk (angka "Produk terdata" di hero) — CatalogController::TOTAL_QUERY
+# ------------------------------------------------------------------
+# # katalog:total
+# SELECT (COUNT(DISTINCT ?p) AS ?total)
+# WHERE {
+#   ?p a ex:Product ;
+#      ex:productName ?nm .
+# }

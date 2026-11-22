@@ -1,0 +1,58 @@
+# Orang 5 (Eksplorasi Katalog) — daftar produk /katalog dengan search + filter.
+# Dipakai di App\Http\Controllers\CatalogController::PRODUCTS_QUERY; placeholder {{FILTERS}}
+# diisi CatalogController::filterBlock(). Contoh di bawah adalah hasil generate untuk URL:
+#
+#   /katalog?q=serum&kulit[]=Normal&kulit[]=Oily&brand[]=EminaBrand&brand[]=WardahBrand&harga[]=50-100&harga[]=100-150
+#
+# Aturan:
+# - Search : nama produk saja, tidak peka huruf besar/kecil -> CONTAINS(LCASE(STR(?nm)), LCASE("…")).
+#            Kata kunci dibersihkan (karakter kontrol dibuang, maks. 100 karakter) lalu di-escape
+#            dengan SparqlService::literal(). Search kosong = baris FILTER ini tidak ditulis.
+# - OR dalam satu kelompok   : FILTER(?f_x IN (<iri1>, <iri2>)).
+# - AND antar kelompok       : satu FILTER EXISTS per kelompok aktif.
+# - FILTER EXISTS hanya menguji keberadaan, TIDAK menambah baris; jadi produk dengan beberapa
+#   jenis kulit/keluhan tidak tergandakan. Ditambah GROUP BY ?p: satu baris = satu produk.
+# - IRI filter dibuat dengan SparqlService::iri() dari nama lokal yang lolos whitelist
+#   (katalog-opsi-filter.rq). Nilai di luar whitelist dibuang.
+# - Harga  : ex:estimatedPrice (xsd:integer), rentang setengah terbuka [min, max) sehingga tidak
+#            tumpang tindih. isNumeric() memastikan harga kosong/bukan angka TIDAK dianggap 0:
+#            produk tanpa harga tidak lolos filter harga mana pun.
+#
+#   lt50    : ?harga < 50000
+#   50-100  : ?harga >= 50000  && ?harga < 100000
+#   100-150 : ?harga >= 100000 && ?harga < 150000
+#   gte150  : ?harga >= 150000
+PREFIX ex: <https://example.org/skincare-ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX schema: <https://schema.org/>
+
+# katalog:produk
+SELECT ?p
+  (SAMPLE(?sid) AS ?sourceId) (SAMPLE(?nm) AS ?name) (SAMPLE(?pr) AS ?price)
+  (SAMPLE(?brand) AS ?brandIri) (SAMPLE(?brandL) AS ?brandLabel)
+  (SAMPLE(?cat) AS ?categoryIri) (SAMPLE(?catL) AS ?categoryLabel)
+  (SAMPLE(?img) AS ?image)
+  (GROUP_CONCAT(DISTINCT ?skinL; separator="|") AS ?skins)
+  (GROUP_CONCAT(DISTINCT ?concernL; separator="|") AS ?concerns)
+WHERE {
+  ?p a ex:Product ;
+     ex:productName ?nm .
+  # ---- {{FILTERS}} ----
+  FILTER(CONTAINS(LCASE(STR(?nm)), LCASE("serum")))
+  FILTER EXISTS { ?p ex:suitableForSkinType ?f_kulit . FILTER(?f_kulit IN (<https://example.org/skincare-ontology#Normal>, <https://example.org/skincare-ontology#Oily>)) }
+  FILTER EXISTS { ?p ex:hasBrand ?f_brand . FILTER(?f_brand IN (<https://example.org/skincare-ontology#EminaBrand>, <https://example.org/skincare-ontology#WardahBrand>)) }
+  FILTER EXISTS { ?p ex:estimatedPrice ?f_harga . FILTER(isNumeric(?f_harga) && ((?f_harga >= 50000 && ?f_harga < 100000) || (?f_harga >= 100000 && ?f_harga < 150000))) }
+  # ---- akhir {{FILTERS}} ----
+  OPTIONAL { ?p ex:sourceProductId ?sid }
+  OPTIONAL { ?p ex:estimatedPrice ?pr }
+  OPTIONAL { ?p ex:hasBrand ?brand .
+             OPTIONAL { ?brand rdfs:label ?brandL FILTER(lang(?brandL) = "" || langMatches(lang(?brandL), "id")) } }
+  OPTIONAL { ?p ex:hasCategory ?cat .
+             OPTIONAL { ?cat rdfs:label ?catL FILTER(lang(?catL) = "" || langMatches(lang(?catL), "id")) } }
+  OPTIONAL { ?p ex:suitableForSkinType ?skin .
+             ?skin rdfs:label ?skinL FILTER(lang(?skinL) = "" || langMatches(lang(?skinL), "id")) }
+  OPTIONAL { ?p ex:treatsConcern ?concern .
+             ?concern rdfs:label ?concernL FILTER(lang(?concernL) = "" || langMatches(lang(?concernL), "id")) }
+  OPTIONAL { ?p schema:image ?img }
+}
+GROUP BY ?p
