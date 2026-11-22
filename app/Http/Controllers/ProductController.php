@@ -146,7 +146,10 @@ class ProductController extends Controller
         [$age, $categoryLabels, $ingredientLabels] = $this->routineVocabulary($ageParam, $categories);
         $teenLock = $age !== null && $age['value'] === config('recommendation.teen_lock.age_group', 'Teen');
         // Filter keras kelompok umur (sama seperti mesin rekomendasi).
-        $ageFilter = $age !== null ? "?product ex:suitableForAgeGroup ex:{$age['value']} ." : '';
+        // Tandai kelayakan umur tanpa membuang baris sebelum Teen Lock dihitung.
+        $ageEligibilityFlag = $age !== null
+            ? "BIND(EXISTS { ?product ex:suitableForAgeGroup ex:{$age['value']} } AS ?ageEligibleFlag)"
+            : 'BIND(true AS ?ageEligibleFlag)';
         // Teen Lock memakai pola milik Orang 3 supaya aturannya sama persis.
         $lockedFlag = $teenLock
             ? 'BIND(EXISTS { ?product ex:hasIngredient ?ri . '.$this->engine->retinoidPattern('?ri', $age['value']).' } AS ?lockedFlag)'
@@ -161,6 +164,7 @@ class ProductController extends Controller
                 (SAMPLE(?sameSeriesFlag) AS ?sameSeries)
                 (SAMPLE(?retinolFlag) AS ?hasRetinol)
                 (SAMPLE(?lockedFlag) AS ?teenLocked)
+                (SAMPLE(?ageEligibleFlag) AS ?ageEligible)
                 (COUNT(DISTINCT ?sharedConcern) AS ?concernMatches)
                 (COUNT(DISTINCT ?sharedSkin) AS ?skinMatches)
                 (GROUP_CONCAT(DISTINCT STR(?ingredientUri); separator=" ") AS ?ingredientList)
@@ -168,7 +172,7 @@ class ProductController extends Controller
                 BIND(ex:{$id} AS ?source)
                 VALUES ?category { {$categories} }
                 ?product a ex:Product ; ex:productName ?name ; ex:hasCategory ?category .
-                {$ageFilter}
+                {$ageEligibilityFlag}
 
                 BIND(EXISTS { ?source ex:belongsToSeries ?s . ?product ex:belongsToSeries ?s } AS ?sameSeriesFlag)
                 BIND(EXISTS { ?product ex:hasIngredient ex:Retinol } AS ?retinolFlag)
@@ -205,7 +209,6 @@ class ProductController extends Controller
             }
 
             $sameSeries = $this->isTrue($row['sameSeries'] ?? null);
-            $sourceHasSkin = $sourceHasSkin || (int) ($row['skinMatches']['value'] ?? 0) > 0;
 
             if ($this->isTrue($row['teenLocked'] ?? null)) {
                 if ($productId === $id) {
@@ -213,8 +216,18 @@ class ProductController extends Controller
                 } elseif ($sameSeries) {
                     $hiddenSeries++;
                 }
+                // Pertahankan sinyal kecocokan kulit dari baris yang lolos umur.
+                if ($age === null || ! isset($row['ageEligible']) || $this->isTrue($row['ageEligible'])) {
+                    $sourceHasSkin = $sourceHasSkin || (int) ($row['skinMatches']['value'] ?? 0) > 0;
+                }
                 continue;
             }
+
+            // Teen Lock sudah dihitung; baru sekarang gugurkan produk di luar kelompok umur.
+            if ($age !== null && isset($row['ageEligible']) && ! $this->isTrue($row['ageEligible'])) {
+                continue;
+            }
+            $sourceHasSkin = $sourceHasSkin || (int) ($row['skinMatches']['value'] ?? 0) > 0;
 
             $candidates[$category][] = [
                 'id' => $productId,

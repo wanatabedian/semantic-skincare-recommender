@@ -1,0 +1,34 @@
+﻿# Detail produk Orang 4. Ganti WAR-0018 dengan ID produk dari /produk/{id}.
+# CleanOntologyService otomatis menambahkan PREFIX ex dan rdfs.
+#
+# Catatan hasil:
+# - DISTINCT TIDAK menjamin satu baris per produk. Satu produk bisa punya beberapa
+#   bahan, keluhan (concern), jenis kulit, dan kelompok umur. Setiap OPTIONAL
+#   menghasilkan kombinasi baris (mis. 3 bahan x 2 keluhan x 3 jenis kulit = 18 baris).
+#   DISTINCT hanya membuang baris yang persis sama.
+# - ProductController::show() menggabungkan semua baris itu menjadi satu produk dan
+#   membuang nilai duplikat (array_unique) untuk setiap daftar.
+#
+# Keterbatasan dataset aphrodite-clean (dicek 22 Nov 2026):
+# - Belum ditemukan triple ex:verificationNote, sehingga ?note selalu kosong.
+PREFIX ex: <https://example.org/skincare-ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT DISTINCT ?product ?name ?sourceId ?price ?brand ?brandLabel ?series ?seriesLabel
+    ?category ?categoryLabel ?skin ?skinLabel ?age ?ageLabel ?concern ?concernLabel ?ingredient ?ingredientLabel
+    ?status ?note
+WHERE {
+    BIND(ex:WAR-0018 AS ?product)
+    ?product a ex:Product ; ex:productName ?name .
+    OPTIONAL { ?product ex:sourceProductId ?sourceId }
+    OPTIONAL { ?product ex:estimatedPrice ?price }
+    OPTIONAL { ?product ex:hasBrand ?brand . OPTIONAL { ?brand rdfs:label ?brandLabel } }
+    OPTIONAL { ?product ex:belongsToSeries ?series . OPTIONAL { ?series rdfs:label ?seriesLabel } }
+    OPTIONAL { ?product ex:hasCategory ?category . OPTIONAL { ?category rdfs:label ?categoryLabel } }
+    OPTIONAL { ?product ex:suitableForSkinType ?skin . OPTIONAL { ?skin rdfs:label ?skinLabel } }
+    OPTIONAL { ?product ex:suitableForAgeGroup ?age . OPTIONAL { ?age rdfs:label ?ageLabel } }
+    OPTIONAL { ?product ex:treatsConcern ?concern . OPTIONAL { ?concern rdfs:label ?concernLabel } }
+    OPTIONAL { ?product ex:hasIngredient ?ingredient . OPTIONAL { ?ingredient rdfs:label ?ingredientLabel } }
+    OPTIONAL { ?product ex:verificationStatus ?status }
+    OPTIONAL { ?product ex:verificationNote ?note }
+}

@@ -1,0 +1,58 @@
+﻿# Produk serupa Orang 4: brand berbeda, minimal satu jenis kulit dan satu keluhan yang sama.
+# Contoh cabang untuk age=Teen. Filter umur dan FILTER NOT EXISTS Teen Lock bersifat kondisional:
+# selain Teen, kode hanya menyisipkan filter kelompok umur jika umur valid diberikan.
+# Dengan umur kosong, kedua filter tersebut tidak disisipkan.
+# Aplikasi mengambil maksimal 20 kandidat dari SPARQL, lalu menyaring ID dan menampilkan maksimal 4.
+# Prefix ditulis eksplisit agar query dapat dicoba langsung di Fuseki UI; service otomatis menambahkan ex/rdfs.
+PREFIX ex: <https://example.org/skincare-ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+SELECT ?product ?name
+    (SAMPLE(?priceValue) AS ?price)
+    (SAMPLE(?brandName) AS ?brandLabel)
+    (SAMPLE(?brand) AS ?brandUri)
+    (SAMPLE(?categoryName) AS ?categoryLabel)
+    (COUNT(DISTINCT ?sharedConcern) AS ?concernMatches)
+    (COUNT(DISTINCT ?sharedSkin) AS ?skinMatches)
+    (GROUP_CONCAT(DISTINCT ?sharedConcernName; separator="|") AS ?sharedConcernLabels)
+WHERE {
+    BIND(ex:WAR-0018 AS ?source)
+    ?source ex:hasBrand ?sourceBrand .
+
+    ?product a ex:Product ; ex:productName ?name ; ex:hasBrand ?brand .
+    ?product ex:suitableForAgeGroup ex:Teen .
+    FILTER NOT EXISTS {
+        ?product ex:hasIngredient ?teenLockedIngredient .
+        { ?teenLockedIngredient rdf:type/rdfs:subClassOf* ex:Retinoid }
+        UNION { ?teenLockedIngredient ex:contraindicatedFor ex:Teen }
+        UNION { ?teenLockedIngredient rdf:type/rdfs:subClassOf* ?lockClass . ?lockClass ex:contraindicatedFor ex:Teen }
+        UNION {
+            VALUES ?teenLockedIngredient {
+                ex:Retinol ex:RetinolIngredient ex:RetinalIngredient ex:RetinaldehydeIngredient
+                ex:RetinylPalmitateIngredient ex:RetinylRetinoateIngredient
+                ex:HydroxypinacoloneRetinoateIngredient ex:GranactiveRetinoidIngredient
+                ex:AdapaleneIngredient ex:TretinoinIngredient
+            }
+        }
+    }
+    FILTER(?product != ?source)
+    FILTER NOT EXISTS { ?product ex:hasBrand ?sourceBrand }
+
+    # Kecocokan harus memakai individu ontologi, bukan teks lama.
+    ?source ex:suitableForSkinType ?sharedSkin .
+    ?product ex:suitableForSkinType ?sharedSkin .
+    ?sharedSkin a ex:SkinType .
+    ?source ex:treatsConcern ?sharedConcern .
+    ?product ex:treatsConcern ?sharedConcern .
+    ?sharedConcern a ex:SkinConcern .
+
+    OPTIONAL { ?sharedConcern rdfs:label ?sharedConcernName }
+    OPTIONAL { ?product ex:estimatedPrice ?priceValue }
+    OPTIONAL { ?brand rdfs:label ?brandName }
+    OPTIONAL { ?product ex:hasCategory ?category . OPTIONAL { ?category rdfs:label ?categoryName } }
+}
+GROUP BY ?product ?name
+ORDER BY DESC(?concernMatches) DESC(?skinMatches) ?name
+LIMIT 20
+
