@@ -167,10 +167,19 @@
                             @if ($error)
                                 Data produk belum dapat dimuat.
                             @else
-                                Menampilkan <span class="font-bold text-ink">{{ count($products) }}</span> produk
+                                @php($from = $matchedCount > 0 ? ($state['page'] - 1) * \App\Http\Controllers\CatalogController::PER_PAGE + 1 : 0)
+                                @if ($pagination)
+                                    Menampilkan <span class="font-bold text-ink tabular-nums">{{ $from }}–{{ $from + count($products) - 1 }}</span>
+                                    dari <span class="font-bold text-ink tabular-nums">{{ $matchedCount }}</span> produk
+                                @else
+                                    Menampilkan <span class="font-bold text-ink tabular-nums">{{ $matchedCount }}</span> produk
+                                @endif
                                 dari <span class="font-bold text-ink">{{ $brandCount }}</span> brand
                                 @if ($search !== '')
                                     untuk pencarian <span class="font-bold text-ink">“{{ $search }}”</span>
+                                @endif
+                                @if ($pagination)
+                                    <span class="k-info__page">Halaman {{ $pagination['page'] }} dari {{ $pagination['last'] }}</span>
                                 @endif
                             @endif
                         </p>
@@ -184,38 +193,24 @@
                             <span id="katalog-filter-count" data-katalog-swap>@if ($activeCount > 0)<span class="k-group__badge">{{ $activeCount }}<span class="sr-only"> aktif</span></span>@endif</span>
                         </button>
 
+                        {{-- Sorting ikut #katalog-form; perubahan sort selalu kembali ke halaman 1 (page tidak ada di form). --}}
                         <label class="k-sort">
-                            <span class="text-[11px] font-black uppercase tracking-wider text-muted">Urutkan</span>
-                            <span id="katalog-sort-note" class="sr-only">Pengurutan segera hadir.</span>
-                            <select name="sort" disabled class="bg-transparent text-sm font-bold text-ink focus:outline-none" aria-describedby="katalog-sort-note">
-                                <option>Relevansi</option>
-                                <option>Nama A–Z</option>
-                                <option>Nama Z–A</option>
-                                <option>Harga terendah</option>
-                                <option>Harga tertinggi</option>
+                            <span class="k-sort__label text-[11px] font-black uppercase tracking-wider text-muted">Urutkan</span>
+                            <select id="katalog-sort" name="sort" form="katalog-form" class="k-sort__select bg-transparent text-sm font-bold text-ink focus:outline-none">
+                                @foreach ($sorts as $value => $label)
+                                    <option value="{{ $value === \App\Http\Controllers\CatalogController::DEFAULT_SORT ? '' : $value }}" @selected($state['sort'] === $value)>{{ $label }}</option>
+                                @endforeach
                             </select>
+                            <svg class="k-sort__chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="m3 4.5 3 3 3-3" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         </label>
                     </div>
                 </div>
 
-                {{-- Hasil: chip filter aktif + grid / empty state (ditukar oleh katalog.js) --}}
+                {{-- Hasil: chip filter aktif + grid + pager / empty state (ditukar oleh katalog.js) --}}
                 <div class="k-progress" aria-hidden="true"></div>
                 <div id="katalog-results" class="k-results" data-katalog-swap>
                     @include('user.katalog.results')
                 </div>
-
-                {{-- Pagination --}}
-                <nav class="k-pager mt-12" aria-label="Halaman katalog">
-                    <span class="k-pager__btn" aria-disabled="true">
-                        <span aria-hidden="true">←</span> Sebelumnya
-                    </span>
-                    <ol class="flex items-center gap-1.5">
-                        <li><span class="k-pager__num is-current" aria-current="page">1</span></li>
-                    </ol>
-                    <span class="k-pager__btn" aria-disabled="true">
-                        Berikutnya <span aria-hidden="true">→</span>
-                    </span>
-                </nav>
             </section>
         </div>
     </main>

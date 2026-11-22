@@ -1,0 +1,80 @@
+# Orang 5 (Eksplorasi Katalog) — sorting + pagination /katalog (Prompt 4).
+# Melengkapi katalog-search-filter.rq: query produk yang sama, ditambah ORDER BY + LIMIT/OFFSET,
+# serta query jumlah hasil untuk pagination. Penjelasan: katalog-search-filter-facet.md.
+#
+# Contoh di bawah adalah hasil generate untuk URL:
+#   /katalog?q=a&brand[]=WardahBrand&sort=harga-desc&page=2
+#
+# ------------------------------------------------------------------
+# Sorting (CatalogController::SORTS — whitelist; ?sort= di luar daftar -> relevansi)
+# ------------------------------------------------------------------
+#   relevansi  : ORDER BY ASC(COALESCE(?sourceId, STR(?p))) ASC(STR(?p))
+#   harga-asc  : ORDER BY ASC(IF(BOUND(?price) && isNumeric(?price), 0, 1)) ASC(?price)  + cadangan
+#   harga-desc : ORDER BY ASC(IF(BOUND(?price) && isNumeric(?price), 0, 1)) DESC(?price) + cadangan
+#   nama-asc   : ORDER BY ASC(LCASE(STR(?name)))  + cadangan
+#   nama-desc  : ORDER BY DESC(LCASE(STR(?name))) + cadangan
+#   cadangan   : ASC(COALESCE(?sourceId, STR(?p))) ASC(STR(?p))
+#
+# - Cadangan WAJIB: banyak produk berharga sama; tanpa urutan pasti, LIMIT/OFFSET bisa membuat
+#   produk muncul di dua halaman atau hilang.
+# - Produk tanpa harga numerik selalu di akhir (kunci pertama 1), baik termurah maupun termahal;
+#   tidak pernah dianggap 0.
+# - Sorting nama memakai LCASE (tidak peka huruf besar/kecil), urutan karakter Unicode.
+#
+# ------------------------------------------------------------------
+# Pagination (CatalogController::PER_PAGE = 12)
+# ------------------------------------------------------------------
+# - ?page= hanya bilangan bulat positif (maks. 6 digit); selain itu halaman 1.
+# - OFFSET = (page - 1) * 12. GROUP BY ?p membuat satu baris = satu produk, jadi LIMIT
+#   menghitung produk, bukan baris hasil join relasi bernilai banyak.
+# - page > halaman terakhir -> redirect 302 ke halaman terakhir (search/filter/sort tetap).
+PREFIX ex: <https://example.org/skincare-ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX schema: <https://schema.org/>
+
+# katalog:produk
+SELECT ?p
+  (SAMPLE(?sid) AS ?sourceId) (SAMPLE(?nm) AS ?name) (SAMPLE(?pr) AS ?price)
+  (SAMPLE(?brand) AS ?brandIri) (SAMPLE(?brandL) AS ?brandLabel)
+  (SAMPLE(?cat) AS ?categoryIri) (SAMPLE(?catL) AS ?categoryLabel)
+  (SAMPLE(?img) AS ?image)
+  (GROUP_CONCAT(DISTINCT ?skinL; separator="|") AS ?skins)
+  (GROUP_CONCAT(DISTINCT ?concernL; separator="|") AS ?concerns)
+WHERE {
+  ?p a ex:Product ;
+     ex:productName ?nm .
+  # ---- {{FILTERS}} ----
+  FILTER(CONTAINS(LCASE(STR(?nm)), LCASE("a")))
+  FILTER EXISTS { ?p ex:hasBrand ?f_brand . FILTER(?f_brand IN (<https://example.org/skincare-ontology#WardahBrand>)) }
+  # ---- akhir {{FILTERS}} ----
+  OPTIONAL { ?p ex:sourceProductId ?sid }
+  OPTIONAL { ?p ex:estimatedPrice ?pr }
+  OPTIONAL { ?p ex:hasBrand ?brand .
+             OPTIONAL { ?brand rdfs:label ?brandL FILTER(lang(?brandL) = "" || langMatches(lang(?brandL), "id")) } }
+  OPTIONAL { ?p ex:hasCategory ?cat .
+             OPTIONAL { ?cat rdfs:label ?catL FILTER(lang(?catL) = "" || langMatches(lang(?catL), "id")) } }
+  OPTIONAL { ?p ex:suitableForSkinType ?skin .
+             ?skin rdfs:label ?skinL FILTER(lang(?skinL) = "" || langMatches(lang(?skinL), "id")) }
+  OPTIONAL { ?p ex:treatsConcern ?concern .
+             ?concern rdfs:label ?concernL FILTER(lang(?concernL) = "" || langMatches(lang(?concernL), "id")) }
+  OPTIONAL { ?p schema:image ?img }
+}
+GROUP BY ?p
+ORDER BY ASC(IF(BOUND(?price) && isNumeric(?price), 0, 1)) DESC(?price) ASC(COALESCE(?sourceId, STR(?p))) ASC(STR(?p))
+LIMIT 12
+OFFSET 12
+
+# ------------------------------------------------------------------
+# Jumlah hasil (CatalogController::COUNT_QUERY) — dasar jumlah halaman & info "13–24 dari N produk".
+# Memakai {{FILTERS}} yang sama, TANPA ORDER BY/LIMIT, sehingga total tetap akurat walau hanya
+# 12 produk yang dimuat. COUNT(DISTINCT ...) mencegah hitungan ganda dari OPTIONAL brand.
+# ------------------------------------------------------------------
+# # katalog:jumlah
+# SELECT (COUNT(DISTINCT ?p) AS ?total) (COUNT(DISTINCT ?b) AS ?brands)
+# WHERE {
+#   ?p a ex:Product ;
+#      ex:productName ?nm .
+#   FILTER(CONTAINS(LCASE(STR(?nm)), LCASE("a")))
+#   FILTER EXISTS { ?p ex:hasBrand ?f_brand . FILTER(?f_brand IN (<https://example.org/skincare-ontology#WardahBrand>)) }
+#   OPTIONAL { ?p ex:hasBrand ?b }
+# }

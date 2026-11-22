@@ -1,7 +1,7 @@
 /* =========================================================
    Katalog Aphrodite — interaksi khusus halaman /katalog (Orang 5)
    - Drawer filter (mobile/tablet) & pintasan "/" ke pencarian.
-   - Search & filter diterapkan tanpa muat ulang halaman (progressive enhancement):
+   - Search, filter, sorting, dan pagination diterapkan tanpa muat ulang (progressive enhancement):
      tanpa JavaScript, #katalog-form tetap berupa form GET biasa.
    ========================================================= */
 (function () {
@@ -68,17 +68,22 @@
     const listing = document.getElementById('katalog-listing');
     if (!form || !results || !window.fetch || !window.DOMParser || !window.URLSearchParams) return;
 
+    const sortSelect = document.getElementById('katalog-sort');
     const SEARCH_DELAY = 400;
     let controller = null;
     let timer = null;
+    let seq = 0;
     let currentUrl = window.location.href;
 
-    /** URL dari isi form (search ikut lewat atribut form="katalog-form"); format sama dengan GET biasa. */
+    /**
+     * URL dari isi form (search & sort ikut lewat atribut form="katalog-form"); format sama dengan GET biasa.
+     * "page" sengaja tidak ada di form: setiap perubahan search/filter/sort kembali ke halaman 1.
+     */
     function formUrl() {
         const params = new URLSearchParams();
         new FormData(form).forEach((value, key) => {
             const v = String(value).trim();
-            if (key === 'q' && v === '') return;
+            if ((key === 'q' || key === 'sort') && v === '') return;
             params.append(key, key === 'q' ? v : value);
         });
         const qs = params.toString();
@@ -133,6 +138,40 @@
             const freshSearch = doc.getElementById('katalog-q');
             search.value = freshSearch ? freshSearch.value : '';
         }
+
+        const freshSort = doc.getElementById('katalog-sort');
+        if (sortSelect && freshSort && sortSelect.value !== freshSort.value) sortSelect.value = freshSort.value;
+    }
+
+    /** Pesan gagal memuat (jaringan/server) dengan tombol coba lagi; hasil lama disembunyikan. */
+    function showFailure(url, opts) {
+        const box = document.createElement('div');
+        box.className = 'k-empty k-empty--alert k-fail mt-8';
+        box.setAttribute('role', 'alert');
+
+        const title = document.createElement('h3');
+        title.className = 'font-serif text-2xl font-bold text-ink';
+        title.textContent = 'Hasil belum dapat dimuat';
+        const text = document.createElement('p');
+        text.className = 'mx-auto mt-3 max-w-md text-sm leading-relaxed text-muted';
+        text.textContent = 'Koneksi ke server terputus atau server sedang bermasalah. Periksa koneksi, lalu coba lagi.';
+
+        const actions = document.createElement('div');
+        actions.className = 'mt-7 flex flex-wrap justify-center gap-3';
+        const retry = document.createElement('button');
+        retry.type = 'button';
+        retry.className = 'k-btn rounded-xl bg-rose px-5 py-3 text-xs font-black uppercase tracking-wider text-white shadow-md hover:bg-teal';
+        retry.textContent = 'Coba lagi';
+        retry.addEventListener('click', () => load(url, opts));
+        const full = document.createElement('a');
+        full.href = url;
+        full.className = 'k-btn rounded-xl border border-teal/40 px-5 py-3 text-xs font-black uppercase tracking-wider text-ink hover:bg-aqua/30';
+        full.textContent = 'Muat ulang halaman';
+
+        actions.append(retry, full);
+        box.append(title, text, actions);
+        results.replaceChildren(box);
+        retry.focus({ preventScroll: true });
     }
 
     function apply(doc, opts) {
@@ -155,6 +194,7 @@
         opts = opts || {};
         controller && controller.abort();
         const ctrl = (controller = new AbortController());
+        const id = ++seq; // hanya respons request terbaru yang boleh diterapkan
         setLoading(true);
 
         try {
@@ -164,11 +204,17 @@
                 signal: ctrl.signal,
             });
             if (!res.ok) throw new Error('HTTP ' + res.status);
-            const doc = new DOMParser().parseFromString(await res.text(), 'text/html');
+            const html = await res.text();
+            if (id !== seq) return;
+            // Nomor halaman di luar jangkauan dialihkan server ke halaman valid: pakai URL akhirnya.
+            const redirected = res.redirected && !!res.url;
+            if (redirected) url = res.url;
+            const doc = new DOMParser().parseFromString(html, 'text/html');
 
             apply(doc, opts);
             if (opts.history === 'push' && url !== currentUrl) history.pushState({ katalog: true }, '', url);
-            if (opts.history === 'replace') history.replaceState({ katalog: true }, '', url);
+            // replace saat mengetik search, atau saat Back/Forward dialihkan server (mis. page=99 → halaman terakhir).
+            else if (opts.history === 'replace' || (redirected && url !== window.location.href)) history.replaceState({ katalog: true }, '', url);
             currentUrl = url;
 
             revealResults(opts);
@@ -177,9 +223,13 @@
                 title && title.focus({ preventScroll: true });
             }
         } catch (err) {
-            if (err.name === 'AbortError') return;
-            // Jaringan/server bermasalah: jatuh ke navigasi biasa agar state tetap benar.
-            window.location.assign(url);
+            if (err.name === 'AbortError' || id !== seq) return;
+            // Jaringan/server bermasalah: tampilkan pesan + tombol coba lagi. URL tetap mencerminkan
+            // permintaan pengguna (push/replace) agar "Coba lagi" maupun muat ulang membuka kondisi yang sama.
+            if (opts.history === 'push' && url !== currentUrl) history.pushState({ katalog: true }, '', url);
+            if (opts.history === 'replace') history.replaceState({ katalog: true }, '', url);
+            currentUrl = url;
+            showFailure(url, { syncSearch: true });
         } finally {
             if (ctrl === controller) setLoading(false);
         }
@@ -207,7 +257,10 @@
 
     search && search.addEventListener('input', () => schedule(SEARCH_DELAY, { history: 'replace', fromSearch: true }));
 
-    // Chip hapus-satu, "Hapus semua", Reset, dan tombol reset di empty state.
+    // Sorting: select berada di luar <form> (atribut form=), jadi event change didengar langsung.
+    sortSelect && sortSelect.addEventListener('change', () => schedule(0, { history: 'push' }));
+
+    // Chip hapus-satu, "Hapus semua", Reset, pager, dan tombol reset di empty state.
     document.addEventListener('click', (e) => {
         const link = e.target.closest('a[data-katalog-link]');
         if (!link || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;

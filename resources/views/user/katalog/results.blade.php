@@ -1,7 +1,7 @@
 {{--
-    Area hasil katalog (Orang 5): chip filter aktif + grid / empty state / error state.
-    Isi elemen #katalog-results ini yang ditukar oleh katalog.js setiap filter berubah.
-    Parameter: $products, $error, $chips, $hasFilters, $search, $resetUrl.
+    Area hasil katalog (Orang 5): chip filter aktif + grid + pager / empty state / error state.
+    Isi elemen #katalog-results ini yang ditukar oleh katalog.js setiap filter/sort/halaman berubah.
+    Parameter: $products, $error, $chips, $hasFilters, $search, $resetUrl, $pagination.
 --}}
 @include('user.katalog.active-filters')
 
@@ -23,6 +23,8 @@
             @include('user.katalog.product-card', ['product' => $product, 'index' => $loop->index])
         @endforeach
     </div>
+
+    @include('user.katalog.pagination')
 @elseif ($hasFilters)
     <div class="mt-8">
         @include('user.katalog.empty-state', [

@@ -66,18 +66,22 @@ class CatalogPageTest extends TestCase
      *
      * @param  array<string, array<string, int>>  $facets  kelompok => [nilai => jumlah]
      */
-    private function fakeSparql(array $products, array $facets = [], ?array $options = null, int $total = 88): void
+    private function fakeSparql(array $products, array $facets = [], ?array $options = null, int $total = 88, ?int $matched = null, int $brands = 1): void
     {
         $options ??= self::DEFAULT_OPTIONS;
+        $matched ??= count($products);
 
-        $this->partialMock(SparqlService::class, function ($mock) use ($products, $facets, $options, $total) {
-            $mock->shouldReceive('select')->andReturnUsing(function (string $query) use ($products, $facets, $options, $total) {
+        $this->partialMock(SparqlService::class, function ($mock) use ($products, $facets, $options, $total, $matched, $brands) {
+            $mock->shouldReceive('select')->andReturnUsing(function (string $query) use ($products, $facets, $options, $total, $matched, $brands) {
                 preg_match('/# katalog:([\w:]+)/', $query, $m);
                 $marker = $m[1] ?? 'lain';
                 $this->queries[$marker] = $query;
 
                 if ($marker === 'total') {
                     return [['total' => self::lit((string) $total)]];
+                }
+                if ($marker === 'jumlah') {
+                    return [['total' => self::lit((string) $matched), 'brands' => self::lit((string) $brands)]];
                 }
                 if ($marker === 'opsi') {
                     return array_map(fn ($o) => $this->option(...$o), $options);
@@ -103,11 +107,12 @@ class CatalogPageTest extends TestCase
 
     public function test_catalog_lists_products_from_every_brand_with_actual_fields(): void
     {
+        // Fuseki mengembalikan baris sudah terurut (ORDER BY); halaman menampilkan urutan itu apa adanya.
         $this->fakeSparql([
-            $this->row('WAR-0010', 'Produk Wardah Uji', 'Wardah', ['categoryLabel' => 'Serum', 'price' => '85000', 'skins' => 'Berminyak|Normal', 'concerns' => 'Jerawat']),
             $this->row('KAH-0039', 'Produk Kahf Uji', 'Kahf', ['categoryLabel' => 'Face spray/toner', 'price' => '50000']),
             $this->row('TAV-0001', 'Produk TAVI Uji', 'TAVI'),
-        ]);
+            $this->row('WAR-0010', 'Produk Wardah Uji', 'Wardah', ['categoryLabel' => 'Serum', 'price' => '85000', 'skins' => 'Berminyak|Normal', 'concerns' => 'Jerawat']),
+        ], brands: 3);
 
         $response = $this->get('/katalog')->assertOk();
 
@@ -122,12 +127,119 @@ class CatalogPageTest extends TestCase
             ->assertSee('3</span> produk', false)
             ->assertSee('Semua produk');
 
-        // Urutan stabil mengikuti sourceProductId.
-        $response->assertSeeInOrder(['Produk Kahf Uji', 'Produk TAVI Uji', 'Produk Wardah Uji']);
+        $response->assertSeeInOrder(['Produk Kahf Uji', 'Produk TAVI Uji', 'Produk Wardah Uji'])
+            ->assertSee('3</span> brand', false)
+            ->assertDontSee('class="k-pager', false); // ≤ 12 hasil: pager tidak ditampilkan
 
-        // Tanpa filter: query produk tidak memuat FILTER apa pun.
+        // Tanpa filter: query produk tidak memuat FILTER apa pun; urutan default = sourceProductId.
         $this->assertStringNotContainsString('FILTER EXISTS', $this->queries['produk']);
         $this->assertStringNotContainsString('CONTAINS', $this->queries['produk']);
+        $this->assertStringContainsString("ORDER BY ASC(COALESCE(?sourceId, STR(?p))) ASC(STR(?p))\nLIMIT 12\nOFFSET 0", $this->queries['produk']);
+    }
+
+    public function test_sorting_uses_whitelisted_order_by_with_deterministic_tiebreak(): void
+    {
+        $tiebreak = 'ASC(COALESCE(?sourceId, STR(?p))) ASC(STR(?p))';
+        $expected = [
+            'harga-asc' => 'ASC(IF(BOUND(?price) && isNumeric(?price), 0, 1)) ASC(?price) '.$tiebreak,
+            'harga-desc' => 'ASC(IF(BOUND(?price) && isNumeric(?price), 0, 1)) DESC(?price) '.$tiebreak,
+            'nama-asc' => 'ASC(LCASE(STR(?name))) '.$tiebreak,
+            'nama-desc' => 'DESC(LCASE(STR(?name))) '.$tiebreak,
+            'relevansi' => $tiebreak,
+            'tidak-ada' => $tiebreak,
+            urlencode('harga-asc") } DROP ALL #') => $tiebreak,
+        ];
+
+        foreach ($expected as $sort => $order) {
+            $this->queries = [];
+            $this->fakeSparql([]);
+            $this->get('/katalog?sort='.$sort.'&brand[]=WardahBrand')->assertOk();
+
+            $this->assertStringContainsString("ORDER BY {$order}\nLIMIT 12", $this->queries['produk'], "sort={$sort}");
+            $this->assertStringNotContainsString('DROP', $this->queries['produk']);
+            // Sorting tidak mengubah search/filter maupun facet.
+            $this->assertStringContainsString('?f_brand IN', $this->queries['produk']);
+            $this->assertStringNotContainsString('ORDER BY', $this->queries['facet:brand']);
+            $this->assertStringNotContainsString('LIMIT', $this->queries['jumlah']);
+        }
+    }
+
+    public function test_selected_sort_is_kept_in_select(): void
+    {
+        $this->fakeSparql([]);
+
+        $html = $this->get('/katalog?sort=nama-desc')->assertOk()->getContent();
+
+        $this->assertMatchesRegularExpression('/<option value="nama-desc"\s+selected>/', $html);
+        $this->assertMatchesRegularExpression('/<option value=""\s*>Relevansi<\/option>/', $html);
+        $this->assertSame(1, substr_count($html, 'selected>'));
+    }
+
+    public function test_pagination_uses_limit_offset_and_filtered_total(): void
+    {
+        $rows = array_map(fn ($i) => $this->row(sprintf('WAR-%04d', $i), "Produk {$i}", 'Wardah'), range(13, 24));
+        $this->fakeSparql($rows, matched: 30, brands: 2);
+
+        $response = $this->get('/katalog?q=serum&brand[]=WardahBrand&sort=harga-asc&page=2')->assertOk();
+
+        $this->assertStringContainsString("LIMIT 12\nOFFSET 12", $this->queries['produk']);
+        $this->assertStringContainsString('LCASE("serum")', $this->queries['jumlah']);
+        $this->assertStringContainsString('?f_brand IN', $this->queries['jumlah']);
+        $this->assertStringContainsString('COUNT(DISTINCT ?p)', $this->queries['jumlah']);
+
+        $base = route('katalog').'?q=serum&amp;brand%5B%5D=WardahBrand&amp;sort=harga-asc';
+        $response->assertSee('13–24</span>', false)
+            ->assertSee('30</span> produk', false)
+            ->assertSee('Halaman 2 dari 3')
+            ->assertSee('aria-current="page"><span class="sr-only">Halaman </span>2</span>', false)
+            // Link pager membawa search, filter, dan sort; halaman 1 tanpa parameter page.
+            ->assertSee('href="'.$base.'" class="k-pager__btn" rel="prev"', false)
+            ->assertSee('href="'.$base.'&amp;page=3" class="k-pager__btn" rel="next"', false)
+            ->assertSee('href="'.$base.'&amp;page=3" class="k-pager__num"', false)
+            // Chip & reset kembali ke halaman 1 dan mempertahankan sort.
+            ->assertSee('href="'.route('katalog').'?brand%5B%5D=WardahBrand&amp;sort=harga-asc" class="k-chip"', false)
+            ->assertSee('href="'.route('katalog').'?sort=harga-asc" class="k-chips__reset"', false);
+    }
+
+    public function test_pager_window_uses_ellipsis(): void
+    {
+        $this->fakeSparql([$this->row('WAR-0001', 'Produk', 'Wardah')], matched: 120);
+
+        $html = $this->get('/katalog?page=5')->assertOk()->getContent();
+
+        preg_match_all('/<li[^>]*>\s*(?:<a[^>]*>|<span[^>]*>)?(?:<span class="sr-only">Halaman <\/span>)?(\d+|…)/', $html, $m);
+        $this->assertSame(['1', '…', '4', '5', '6', '…', '10'], $m[1]);
+    }
+
+    public function test_invalid_page_numbers_fall_back_to_first_page(): void
+    {
+        foreach (['abc', '-1', '0', '1.5', '9999999'] as $page) {
+            $this->queries = [];
+            $this->fakeSparql([], matched: 30);
+            // Bukan bilangan bulat positif (atau > 6 digit) -> halaman 1, tanpa error.
+            $this->get('/katalog?page='.$page)->assertOk();
+            $this->assertStringContainsString('OFFSET 0', $this->queries['produk'], "page={$page}");
+        }
+
+        $this->fakeSparql([], matched: 30);
+        $this->get('/katalog?page[]=2')->assertOk();
+        $this->assertStringContainsString('OFFSET 0', $this->queries['produk']);
+    }
+
+    public function test_page_beyond_last_redirects_to_last_valid_page_keeping_state(): void
+    {
+        $this->fakeSparql([], matched: 30);
+
+        $this->get('/katalog?q=gel&brand[]=WardahBrand&sort=nama-asc&page=99')
+            ->assertRedirect(route('katalog').'?q=gel&brand%5B%5D=WardahBrand&sort=nama-asc&page=3');
+        $this->assertArrayNotHasKey('produk', $this->queries);
+    }
+
+    public function test_page_with_no_results_redirects_to_first_page(): void
+    {
+        $this->fakeSparql([], matched: 0);
+
+        $this->get('/katalog?q=tidakada&page=2')->assertRedirect(route('katalog').'?q=tidakada');
     }
 
     public function test_products_without_photo_show_fallback_and_are_not_hidden(): void
