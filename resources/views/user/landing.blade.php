@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#FDEEF1">
-    <title>{{ config('app.name', 'Skinova') }} — Temukan Skincare yang Tepat</title>
+    <title>{{ config('app.name', 'Aph') }} — Temukan Skincare yang Tepat</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -25,10 +25,9 @@
                         cream: '#FDEEF1',
                         blush: '#E5A9A9',
                         rose: '#E6748E',
-                        rose: '#E6748E',
                         muted: '#657674',
                         whitewarm: '#FFFEFA',
-                        aqua mist: '#B8E8EE',
+                        'aqua-mist': '#B8E8EE',
                         wardah: '#7ADDF2',
                     }
                 }
@@ -102,15 +101,13 @@
     <nav class="fixed top-0 left-0 w-full z-50 px-6 md:px-16 py-4 flex items-center justify-between bg-[#FDEEF1]/85 backdrop-blur-md border-b border-[#E6748E]/10">
         <a href="{{ url('/') }}" class="flex items-center gap-3 font-extrabold text-xl tracking-tight text-[#E6748E] no-underline">
             <span class="w-9 h-9 rounded-xl bg-[#6BB1AD] grid place-items-center text-white text-lg shadow-sm">✦</span>
-            <span>{{ config('app.name', 'Skinova') }}</span>
+            <span>{{ config('app.name', 'Aphro') }}</span>
         </a>
 
         <div class="hidden md:flex items-center gap-8 text-xs font-bold uppercase tracking-wider text-[#657674]">
-            <a href="#produk" class="hover:text-[#E6748E] transition">Produk</a>
-            <a href="#event" class="hover:text-[#E6748E] transition">Event & Talkshow</a>
-            <a href="#konsultasi" class="hover:text-[#E6748E] transition">Treatment</a>
-            <a href="#edukasi" class="hover:text-[#E6748E] transition">Skin Class</a>
-            <a href="{{ route('bandingkan') }}" class="hover:text-[#E6748E] transition">Bandingkan</a>
+            <a href="{{ route('katalog') }}" class="hover:text-[#E6748E] transition">Katalog</a>
+            <a href="{{ route('bahan') }}" class="hover:text-[#E6748E] transition">Kandungan</a>
+            <a href="{{ route('ontology.dashboard') }}" class="hover:text-[#E6748E] transition">Eksplorasi Ontologi</a>
             <a href="{{ route('kuis', ['new' => 1]) }}"
                class="smooth-btn rounded-xl bg-[#E6748E] px-5 py-2.5 text-xs font-black text-white shadow-md transition hover:bg-[#6BB1AD]">
                 Mulai Kuis →
@@ -118,11 +115,11 @@
         </div>
 
         <div class="flex items-center gap-3">
-            <a href="{{ route('bandingkan') }}" class="md:hidden text-[10px] font-black uppercase text-[#345452]">Bandingkan</a>
+            <a href="{{ route('katalog') }}" class="md:hidden text-[10px] font-black uppercase text-[#345452]">Katalog</a>
             <a href="{{ route('kuis', ['new' => 1]) }}" class="md:hidden rounded-xl bg-[#E6748E] px-3 py-2 text-[10px] font-black uppercase text-white">Kuis</a>
             @if (Route::has('login'))
                 @auth
-                    <a href="{{ url('/dashboard') }}" class="smooth-btn bg-[#E6748E] hover:bg-[#E6748E] text-white px-5 py-2.5 rounded-xl text-xs font-black">
+                    <a href="{{ route('admin.dashboard') }}" class="smooth-btn bg-[#E6748E] hover:bg-[#E6748E] text-white px-5 py-2.5 rounded-xl text-xs font-black">
                         Dashboard
                     </a>
                 @else
@@ -140,8 +137,13 @@
     </nav>
 
     {{-- HERO (STICKY PARALLAX SEPERTI INDEX) --}}
-    <header class="sticky top-0 h-screen flex items-center overflow-hidden w-full z-10"
-        style="background-image: url('{{ asset('images/bg_skincare.jpg') }}'); background-size: cover; background-position: center;">
+    <header class="sticky top-0 h-screen flex items-center overflow-hidden w-full z-10 bg-[#FDEEF1]">
+
+        {{-- BACKGROUND VIDEO --}}
+        <video autoplay loop muted playsinline preload="auto"
+               class="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none">
+            <source src="{{ asset('videos/video-aphrodite.mp4') }}" type="video/mp4">
+        </video>
 
         <div class="absolute inset-0 bg-gradient-to-br from-[#FDEEF1]/95 via-[#FDEEF1]/80 to-[#6BB1AD]/30"></div>
 
@@ -160,14 +162,14 @@
             </h1>
 
             <p class="mt-6 text-base md:text-xl text-[#657674] max-w-xl leading-relaxed mx-auto md:mx-0 font-medium">
-                Temukan rekomendasi produk yang sesuai jenis kulit, event kecantikan, kelas edukasi, dan konsultasi ahli kulit terpercaya.
+                Jelajahi produk dan kandungannya dari dataset ontologi Aphrodite, lalu temukan pilihan yang sesuai dengan kebutuhan kulitmu.
             </p>
 
             <div class="mt-8 flex flex-wrap gap-4 justify-center md:justify-start">
                 <a href="#produk" class="smooth-btn bg-[#E6748E] hover:bg-[#E6748E] text-white px-8 py-4 rounded-2xl text-xs font-black uppercase tracking-wider shadow-lg">
                     Eksplor Skincare ➔
                 </a>
-                <a href="{{ route('kuis') }}" class="smooth-btn bg-[#FFFEFA] text-[#E6748E] border border-[#E6748E]/15 px-8 py-4 rounded-2xl text-xs font-black uppercase tracking-wider">
+                <a href="{{ route('kuis', ['new' => 1]) }}" class="smooth-btn bg-[#FFFEFA] text-[#E6748E] border border-[#E6748E]/15 px-8 py-4 rounded-2xl text-xs font-black uppercase tracking-wider">
                     Mulai Skin Quiz
                 </a>
             </div>
@@ -180,7 +182,7 @@
         {{-- INTRO SECTION --}}
         <section class="max-w-7xl mx-auto px-6 pt-24 pb-24 grid md:grid-cols-2 gap-16 items-start relative animate-fade-up">
 
-            {{-- KOLOM KIRI STICKY --}}
+   {{-- KOLOM KIRI STICKY --}}
             <div class="md:sticky md:top-28 self-start">
 
                 <div class="bg-[#f4ebee] rounded-[40px] p-4 shadow-2xl border border-[#6BB1AD]/30 overflow-hidden group animate-float-soft">
@@ -191,28 +193,22 @@
 
                         <div class="relative z-10">
                             <p class="text-xs uppercase tracking-[4px] mb-4 text-[#E6748E] font-black">
-                                Formula Terbaru
+                                apakah skincaremu sudah benar?
                             </p>
 
-                            <h3 class="font-serif text-4xl md:text-5xl font-bold mb-4 leading-tight">
-                                {{ isset($products) && $products->count() > 0 ? $products->first()->nama_produk : 'Hydra Barrier Serum' }}
+                            <h3 class="font-serif text-5xl md:text-5xl font-bold mb-4 leading-tight">
+                                Ayo mulai dengar kulitmu!
                             </h3>
 
-                            <p class="text-sm md:text-base text-[#FDEEF1]/90 font-medium leading-relaxed">
-                                @if(isset($products) && $products->count() > 0)
-                                    {{ $products->first()->brand->nama_brand ?? 'Skinova Lab' }} •
-                                    {{ $products->first()->jenis_kulit ?? 'Semua Jenis Kulit' }} •
-                                    {{ $products->first()->kategori ?? 'Serum' }}
-                                @else
-                                    Skinova Botanical Lab • Kulit Sensitif & Kering • BPOM Certified
-                                @endif
+                            <p class="text-sm md:text-base text-[#b582a1] font-medium leading-relaxed">
+                                Jawab 5 pertanyaan singkat untuk mendapatkan rekomendasi produk yang paling sesuai.
                             </p>
                         </div>
 
                         <div class="relative z-10 mt-8">
-                            <a href="#produk"
+                            <a href="{{ route('kuis', ['new' => 1]) }}"
                                class="smooth-btn inline-flex items-center justify-center bg-[#FFFEFA] text-[#E6748E] px-8 py-4 rounded-2xl font-black hover:bg-[#E6748E] hover:text-white shadow-lg no-underline text-xs uppercase tracking-wider">
-                                Lihat Detail
+                                Mulai Kuis Sekarang ➔
                             </a>
                         </div>
 
@@ -220,96 +216,70 @@
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
-                    <a href="#produk"
+                    <a href="{{ url('/katalog') }}"
                        class="smooth-btn bg-[#E6748E] hover:bg-[#E6748E] text-white px-6 py-4 rounded-2xl font-black shadow-xl animate-pulse-glow text-center no-underline text-xs uppercase tracking-wider">
-                        Lihat Semua Brand
+                        Lihat Semua Produk
                     </a>
 
-                    <a href="#event"
+                    <a href="{{ route('ontology.dashboard') }}"
                        class="smooth-btn bg-[#FFFEFA] text-[#E6748E] px-6 py-4 rounded-2xl font-black shadow-xl text-center border border-[#7ADDF2]/40 no-underline text-xs uppercase tracking-wider hover:bg-[#7ADDF2]/20">
-                        Gabung Komunitas
+                        Lihat Statistika Produk
                     </a>
                 </div>
             </div>
 
-            {{-- KOLOM KANAN SCROLLING --}}
+            {{-- KOLOM KANAN SCROLLING (ELEGAN, TANPA GRADASI & TANPA KOTAK LOGO) --}}
             <div class="space-y-16">
 
-                <div class="bg-[#FFFEFA]/80 backdrop-blur-sm border border-[#7ADDF2]/30 rounded-[32px] p-8 shadow-xl">
-                    <p class="text-[#E6748E] text-xl md:text-2xl leading-relaxed font-medium">
-                        Temukan rangkaian skincare terbaik berdasarkan kondisi skin barrier, kandungan aktif, dan kebutuhan kulitmu bersama
-                        <span class="text-[#E6748E] font-black">Skinova</span>. Kami bermitra dengan klinik dan brand teruji klinis untuk kesehatan kulit jangka panjang.
+                {{-- Editorial Intro (Lebih besar & elegan) --}}
+                <div class="border-l-2 border-[#E6748E]/40 pl-6 md:pl-8 py-2">
+                    <p class="font-serif text-2xl md:text-3xl text-[#2D2426] leading-relaxed font-normal">
+                        Temukan rangkaian skincare terbaik berdasarkan kondisi <span class="italic text-[#6BB1AD]">skin barrier</span>, kandungan aktif, dan kebutuhan kulitmu bersama
+                        <span class="font-bold text-[#E6748E]">Aphrodite</span>. Kami bermitra dengan brand teruji klinis untuk kesehatan kulit jangka panjang.
                     </p>
                 </div>
 
-                <div class="border-t border-[#E6748E]/10 pt-10">
-                    <p class="text-xs uppercase tracking-[3px] text-[#6BB1AD] font-black mb-8">
-                        Brand Partner Terpercaya
-                    </p>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-
-                        <a href="#produk"
-                           class="smooth-card bg-gradient-to-br from-[#E6748E] to-[#1A2B2A] p-8 rounded-[32px] border border-[#6BB1AD]/30 shadow-xl hover:border-[#E6748E] text-center flex flex-col items-center justify-center min-h-[200px] text-white no-underline animate-fade-scale group">
-                            <div class="w-20 h-20 bg-[#FDEEF1] rounded-3xl flex items-center justify-center mb-5 shadow-lg p-3 text-3xl text-[#6BB1AD] font-serif font-bold">
-                                <img src="{{ asset('images/logo/labore.jpg') }}" alt="Shopee" class="smooth-img w-full h-full object-contain">
-                            </div>
-                            <span class="font-serif font-bold text-xl tracking-wide">labore</span>
-                        </a>
-
-                        <a href="#produk"
-                           class="smooth-card bg-gradient-to-br from-[#E6748E] to-[#1A2B2A] p-8 rounded-[32px] border border-[#6BB1AD]/30 shadow-xl hover:border-[#E6748E] text-center flex flex-col items-center justify-center min-h-[200px] text-white no-underline animate-fade-scale group">
-                            <div class="w-20 h-20 bg-[#FDEEF1] rounded-3xl flex items-center justify-center mb-5 shadow-lg p-3 text-3xl text-[#E6748E] font-serif font-bold">
-                                <img src="{{ asset('images/logo/wardah.png') }}" alt="wardah" class="smooth-img w-full h-full object-contain">
-                            </div>
-                            <span class="font-serif font-bold text-xl tracking-wide">wardah</span>
-                        </a>
-
-                        <a href="#produk"
-                           class="smooth-card bg-gradient-to-br from-[#E6748E] to-[#1A2B2A] p-8 rounded-[32px] border border-[#6BB1AD]/30 shadow-xl hover:border-[#E6748E] text-center flex flex-col items-center justify-center min-h-[200px] text-white no-underline animate-fade-scale group">
-                            <div class="w-20 h-20 bg-[#FDEEF1] rounded-3xl flex items-center justify-center mb-5 shadow-lg p-3 text-3xl text-[#6BB1AD] font-serif font-bold">
-                                <img src="{{ asset('images/logo/tavi.jpg') }}"">
-                            </div>
-                            <span class="font-serif font-bold text-xl tracking-wide">tavi</span>
-                        </a>
-
-                        <a href="#produk"
-                           class="smooth-card bg-gradient-to-br from-[#E6748E] to-[#1A2B2A] p-8 rounded-[32px] border border-[#6BB1AD]/30 shadow-xl hover:border-[#E6748E] text-center flex flex-col items-center justify-center min-h-[200px] text-white no-underline animate-fade-scale group">
-                            <div class="w-20 h-20 bg-[#FDEEF1] rounded-3xl flex items-center justify-center mb-5 shadow-lg p-3 text-3xl text-[#E6748E] font-serif font-bold">
-                                <img src="{{ asset('images/logo/emina.jpg') }}" alt="Shopee" class="smooth-img w-full h-full object-contain">
-                            </div>
-                            <span class="font-serif font-bold text-xl tracking-wide">emina</span>
-                        </a>
-
+                {{-- Brand Partner Terpercaya --}}
+                <div class="border-t border-[#E6748E]/15 pt-12">
+                    <div class="flex items-center justify-between mb-8">
+                        <p class="text-xs uppercase tracking-[4px] text-[#6BB1AD] font-black">
+                            Brand Partner Terpercaya
+                        </p>
+                        <span class="text-xs font-serif italic text-[#657674]">6 Curated Brands</span>
                     </div>
-                </div>
 
-                <div class="bg-[#FFFEFA] rounded-[36px] p-8 md:p-10 shadow-2xl border border-[#7ADDF2]/30">
-                    <p class="text-xs uppercase tracking-[3px] text-[#6BB1AD] font-black mb-8">
-                        Skinova Dalam Angka
-                    </p>
+                    @php
+                        $brands = [
+                            ['name' => 'Laboré', 'logo' => 'images/logo/labore.jpg'],
+                            ['name' => 'Wardah', 'filter' => 'WardahBrand', 'logo' => 'images/logo/wardah.png'],
+                            ['name' => 'Emina', 'filter' => 'EminaBrand', 'logo' => 'images/logo/emina.jpg'],
+                            ['name' => 'Kahf', 'filter' => 'KahfBrand', 'logo' => 'images/logo/kahf.png'],
+                            ['name' => 'Tavi', 'filter' => 'TAVIBrand', 'logo' => 'images/logo/tavi.jpg'],
+                            ['name' => 'Crystallure', 'filter' => 'CrystallureBrand', 'logo' => 'images/logo/Crystallure.jpg'],
+                        ];
+                    @endphp
 
-                    <div class="grid grid-cols-2 gap-5">
-                        <div class="smooth-card bg-[#FDEEF1] rounded-[28px] p-6">
-                            <h3 class="font-serif text-5xl md:text-6xl font-bold text-[#6BB1AD] tracking-tight">120+</h3>
-                            <p class="text-[#657674] font-black text-xs mt-3 uppercase tracking-wider">
-                                Formula Teruji Klinis
-                            </p>
-                        </div>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-5">
+                        @foreach($brands as $brand)
+                            <a href="{{ route('katalog', ['brand' => $brand['filter'] ?? 'LABOREBrand']) }}"
+                               class="smooth-card bg-[#FFFEFA] hover:bg-white p-7 rounded-[28px] border border-[#E6748E]/15 hover:border-[#E6748E]/50 shadow-[0_8px_30px_rgba(230,116,142,0.06)] hover:shadow-[0_18px_40px_rgba(230,116,142,0.14)] flex flex-col items-center justify-between min-h-[190px] no-underline group">
 
-                        <div class="smooth-card bg-[#FDEEF1] rounded-[28px] p-6">
-                            <h3 class="font-serif text-5xl md:text-6xl font-bold text-[#E6748E] tracking-tight">98%</h3>
-                            <p class="text-[#657674] font-black text-xs mt-3 uppercase tracking-wider">
-                                Kulit Lebih Sehat
-                            </p>
-                        </div>
+                                {{-- Area Logo Bebas Tanpa Kotak --}}
+                                <div class="flex-1 w-full flex items-center justify-center py-2">
+                                    <img src="{{ asset($brand['logo']) }}"
+                                         alt="{{ $brand['name'] }}"
+                                         class="smooth-img max-h-16 max-w-[125px] w-auto object-contain mix-blend-multiply opacity-90 group-hover:opacity-100">
+                                </div>
 
-                        <div class="smooth-card col-span-2 bg-[#E6748E] rounded-[28px] p-6">
-                            <h3 class="font-serif text-5xl font-bold text-[#E5A9A9] tracking-tight">0%</h3>
-                            <p class="text-[#FDEEF1] text-base mt-3 font-medium">
-                                Bebas paraben, alkohol keras, dan bahan iritan berbahaya untuk kulit sensitif.
-                            </p>
-                        </div>
+                                {{-- Nama Brand Elegan di Bawah --}}
+                                <div class="w-full pt-3 border-t border-[#E6748E]/10 text-center">
+                                    <span class="font-serif text-lg font-semibold tracking-wide text-[#2D2426] group-hover:text-[#E6748E] transition-colors duration-300">
+                                        {{ $brand['name'] }}
+                                    </span>
+                                </div>
+
+                            </a>
+                        @endforeach
                     </div>
                 </div>
 
@@ -317,158 +287,139 @@
         </section>
     </div>
 
-    {{-- RIWAYAT KUIS --}}
+   {{-- RIWAYAT KUIS (LAYOUT 1:3 MENYAMPING) --}}
     <section id="riwayat-kuis" class="bg-[#FFFEFA] px-6 py-12 relative z-20">
         <div class="max-w-7xl mx-auto rounded-[28px] border border-[#E6748E]/15 bg-[#FDEEF1] p-6 md:p-8">
-            <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                <div><p class="text-xs font-black uppercase tracking-[3px] text-[#6BB1AD]">Tersimpan di perangkat ini</p><h2 class="font-serif mt-1 text-2xl font-bold text-[#E6748E]">Riwayat analisis kulit</h2><p class="mt-1 text-sm text-[#657674]">Buka lagi rekomendasi dari lima kuis terakhirmu.</p></div>
-                <a href="{{ route('kuis', ['new' => 1]) }}" class="inline-flex justify-center rounded-xl bg-[#E6748E] px-5 py-3 text-xs font-black uppercase tracking-wider text-white">Mulai kuis →</a>
-            </div>
-            <div id="quiz-history-list" class="mt-5 grid gap-3 md:grid-cols-2"></div>
-            <p id="quiz-history-empty" class="mt-4 text-sm text-[#657674]">Belum ada riwayat kuis di perangkat ini.</p>
-        </div>
-    </section>
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
 
-    {{-- PRODUK PILIHAN (SEPERTI SECTION LOKER DI INDEX) --}}
-    <section id="produk" class="bg-gradient-to-b from-[#FDEEF1] via-[#FFFEFA] to-[#FFFEFA] text-[#E6748E] py-24 relative z-20">
-        <div class="max-w-7xl mx-auto px-6">
+                {{-- KOLOM KIRI (1 Bagian: Judul & Tombol Kuis) --}}
+                <div class="lg:col-span-1 flex flex-col justify-between space-y-5 lg:border-r lg:border-[#E6748E]/15 lg:pr-6">
+                    <div>
+                        <h2 class="font-serif mt-2 text-4xl font-bold text-[#E6748E] leading-snug">
+                            Riwayat Analisis Kulit
+                        </h2>
+                        <p class="mt-2 text-sm text-[#657674] leading-relaxed">
+                            Buka lagi rekomendasi dari lima kuis terakhirmu.
+                        </p>
+                    </div>
 
-            <div class="text-center md:text-left mb-16">
-                <p class="text-xs uppercase tracking-[4px] text-[#6BB1AD] font-black mb-2">
-                    Rekomendasi Pilihan
-                </p>
-
-                <h2 class="font-serif text-5xl font-bold text-[#E6748E] tracking-tight overflow-hidden flex flex-wrap justify-center md:justify-start gap-x-3">
-                    <span>Temukan</span>
-                    <span class="text-[#E6748E] italic inline-block animate-[textReveal_0.8s_cubic-bezier(0.77,0,0.175,1)_1_both] delay-[200ms]">skincare</span>
-                    <span class="text-[#E6748E] italic inline-block animate-[textReveal_0.8s_cubic-bezier(0.77,0,0.175,1)_1_both] delay-[400ms]">terbaik</span>
-                </h2>
-            </div>
-
-            @php
-                $dummyProducts = [
-                    (object)[
-                        'id' => 1,
-                        'nama_produk' => 'Calming Cica Cleanser',
-                        'brand' => 'Skinova Botanical',
-                        'jenis_kulit' => 'Kulit Sensitif & Berjerawat',
-                        'harga' => '115.000',
-                        'kandungan' => 'Centella + Panthenol',
-                        'ikon' => '🌿'
-                    ],
-                    (object)[
-                        'id' => 2,
-                        'nama_produk' => 'Rose Glow Niacinamide Serum',
-                        'brand' => 'Skinova Radiance',
-                        'jenis_kulit' => 'Kulit Kusam & Noda Hitam',
-                        'harga' => '149.000',
-                        'kandungan' => '5% Niacinamide + Rosehip',
-                        'ikon' => '🌸'
-                    ],
-                    (object)[
-                        'id' => 3,
-                        'nama_produk' => 'Ceramide Barrier Cloud Cream',
-                        'brand' => 'Skinova Derma',
-                        'jenis_kulit' => 'Kulit Kering & Rusak Barrier',
-                        'harga' => '165.000',
-                        'kandungan' => '5X Ceramide + Hyaluronic',
-                        'ikon' => '💧'
-                    ],
-                ];
-                $listProduk = (isset($products) && count($products) > 0) ? $products : $dummyProducts;
-            @endphp
-
-            <div class="grid md:grid-cols-3 gap-8">
-                @foreach($listProduk as $item)
-                    <a href="#produk" class="relative bg-[#FFFEFA] rounded-[32px] border border-[#7ADDF2]/40 text-center shadow-lg transition-all duration-500 flex flex-col items-center justify-center min-h-[360px] p-8 group overflow-hidden hover:bg-[#E6748E] hover:border-[#6BB1AD] hover:shadow-[0_20px_50px_rgba(107,177,173,0.28)] hover:-translate-y-2 no-underline">
-                        <!-- Icon / Foto Produk -->
-                        <div class="w-28 h-28 bg-[#FDEEF1] rounded-3xl p-4 shadow-sm mb-6 flex items-center justify-center text-4xl transition-all duration-500 group-hover:scale-90">
-                            {{ $item->ikon ?? '🧴' }}
-                        </div>
-
-                        <div class="transition-all duration-500 group-hover:-translate-y-4">
-                            <h3 class="font-serif text-2xl font-bold text-[#E6748E] group-hover:text-white transition-colors duration-500">
-                                {{ $item->nama_produk }}
-                            </h3>
-
-                            <p class="mt-2 text-[#657674] font-medium group-hover:text-[#7ADDF2] transition-colors duration-500">
-                                {{ is_object($item->brand) ? $item->brand->nama_brand : $item->brand }}
-                            </p>
-                        </div>
-
-                        <div class="mt-6 flex flex-col items-center gap-3 opacity-0 max-h-0 overflow-hidden transition-all duration-500 group-hover:opacity-100 group-hover:max-h-44">
-                            <p class="text-[#E5A9A9] text-xs font-black uppercase tracking-wider">
-                                ✨ {{ $item->jenis_kulit }}
-                            </p>
-                            <p class="text-white font-bold text-lg">
-                                Rp {{ $item->harga }}
-                            </p>
-                            <span class="bg-[#6BB1AD] text-white px-4 py-2 rounded-full text-xs font-black uppercase tracking-wider">
-                                {{ $item->kandungan }}
-                            </span>
-                        </div>
-                    </a>
-                @endforeach
-            </div>
-
-            <div class="mt-16 text-center">
-                <a href="#produk"
-                   class="inline-block bg-[#E6748E] text-white font-black px-16 md:px-24 py-5 rounded-2xl shadow-xl transition-all duration-300 transform hover:bg-[#E6748E] hover:scale-105 uppercase tracking-wider text-xs animate-pulse-glow">
-                    Lihat Semua Katalog Skincare ➔
-                </a>
-            </div>
-
-        </div>
-    </section>
-
-    {{-- EVENT & BEAUTY TALKSHOW (SEPERTI SECTION EVENT DI INDEX) --}}
-    <section id="event" class="bg-gradient-to-b from-[#FFFEFA] via-[#B8E8EE] to-[#E6748E] text-white py-24 relative overflow-hidden z-20">
-        <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
-
-            <div class="space-y-6">
-                <div>
-                    <span class="bg-[#E6748E] text-white px-4 py-1.5 rounded-full text-xs font-black tracking-widest uppercase">
-                        Beauty Event & Workshop
-                    </span>
-                </div>
-
-                <h2 class="font-serif text-5xl font-bold leading-tight text-white">
-                    Rawat kulitmu lewat<br>
-                    <span class="text-[#E5A9A9] italic">edukasi yang tepat.</span>
-                </h2>
-
-                <p class="text-[#FDEEF1]/85 text-lg leading-relaxed">
-                    Ikuti beauty talkshow, skin check gratis, dan workshop interaktif bersama dermatolog serta formulator pilihan.
-                </p>
-
-                <div class="pt-4">
-                    <a href="#event"
-                       class="inline-flex items-center gap-3 bg-[#6BB1AD] text-white px-8 py-4 rounded-2xl font-black hover:bg-[#E6748E] transition no-underline hover:scale-105 text-xs uppercase tracking-wider shadow-lg">
-                        Lihat Jadwal Event <span>➔</span>
-                    </a>
-                </div>
-            </div>
-
-            {{-- Visual Botol & Kartu Klinik Estetik --}}
-            <div class="relative rounded-[36px] overflow-hidden bg-gradient-to-br from-[#6BB1AD]/40 to-[#E6748E] aspect-[4/3] border border-[#6BB1AD]/40 flex items-center justify-center group shadow-2xl hover:-translate-y-2 transition duration-500 p-8">
-                <div class="absolute w-72 h-72 rounded-full border border-[#FDEEF1]/20 animate-spin" style="animation-duration: 30s;"></div>
-                <div class="relative z-10 w-64 h-72 rounded-[45%_45%_32%_32%] bg-gradient-to-br from-[#7ADDF2] to-[#E5A9A9] flex items-center justify-center shadow-2xl">
-                    <div class="w-24 h-44 rounded-3xl bg-gradient-to-r from-[#FDEEF1] via-[#FFFEFA] to-[#E5D9C7] shadow-xl flex flex-col items-center justify-center -rotate-6 border border-white">
-                        <span class="text-[9px] tracking-[2px] text-[#657674] font-extrabold uppercase">SKINOVA</span>
-                        <strong class="font-serif text-lg text-[#E6748E] my-1">Elixir</strong>
-                        <span class="text-[8px] text-[#6BB1AD] font-bold">30 ML • SERUM</span>
+                    <div>
+                        <a href="{{ route('kuis', ['new' => 1]) }}"
+                           class="smooth-btn inline-flex items-center justify-center w-full sm:w-auto lg:w-full rounded-xl bg-[#E6748E] hover:bg-[#6BB1AD] px-5 py-3 text-xs font-black uppercase tracking-wider text-white shadow-sm no-underline">
+                            Mulai kuis →
+                        </a>
                     </div>
                 </div>
-                <div class="absolute bottom-6 left-6 bg-[#FFFEFA]/95 text-[#E6748E] px-5 py-3 rounded-2xl shadow-lg text-xs font-bold">
-                    ✨ Live Skin Analysis • 24 Nov 2026
-                </div>
-            </div>
 
+                {{-- KOLOM KANAN (3 Bagian: Daftar Kartu Riwayat) --}}
+                <div class="lg:col-span-3">
+                    <div id="quiz-history-list" class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3"></div>
+                    <div id="quiz-history-empty" class="rounded-2xl border border-dashed border-[#E6748E]/25 bg-white/60 p-6 text-center">
+                        <p class="text-sm text-[#657674]">
+                            Belum ada riwayat kuis di perangkat ini.
+                        </p>
+                    </div>
+                </div>
+
+            </div>
         </div>
     </section>
 
+    {{-- PRODUK PILIHAN (EFEK HOVER DUAL-IMAGE ALA KAHF) --}}
+<section id="produk" class="bg-gradient-to-b from-[#FFFEFA] via-[#B8E8EE] to-[#c8eef3] text-white py-24 relative overflow-hidden z-20">
+    <div class="max-w-7xl mx-auto px-6">
+
+        <div class="text-center md:text-left mb-16">
+            <p class="text-xs uppercase tracking-[4px] text-[#6BB1AD] font-black mb-2">
+                Rekomendasi Pilihan
+            </p>
+
+            <h2 class="font-serif text-5xl font-bold text-[#E6748E] tracking-tight overflow-hidden flex flex-wrap justify-center md:justify-start gap-x-3">
+                <span>Temukan</span>
+                <span class="text-[#E6748E] italic inline-block animate-[textReveal_0.8s_cubic-bezier(0.77,0,0.175,1)_1_both] delay-[200ms]">skincare</span>
+                <span class="text-[#E6748E] italic inline-block animate-[textReveal_0.8s_cubic-bezier(0.77,0,0.175,1)_1_both] delay-[400ms]">terbaik</span>
+            </h2>
+        </div>
+
+        @php
+            // Menggunakan foto produk asli yang sudah ada di folder public/images/
+        @endphp
+
+<div class="grid md:grid-cols-3 gap-8">
+            @foreach($products as $item)
+                @php
+                    $brandName = $item['brand'] ?? 'Brand tidak tersedia';
+                    $fotoUtama = $item['image'] ?? asset('images/logo/logo-aphrodite.png');
+                    $fotoHover = $fotoUtama;
+                @endphp
+
+                <a href="{{ $item['detail_url'] ?? route('katalog') }}"
+                   class="group relative h-[450px] rounded-[28px] bg-[#F7F3F4] border border-[#E5A9A9]/40 overflow-hidden shadow-md hover:shadow-[0_20px_50px_rgba(230,116,142,0.25)] hover:-translate-y-2 transition-all duration-500 block no-underline">
+
+                    {{-- LAYER 1: TAMPILAN NORMAL (Foto Produk di Tengah Atas) --}}
+                    <div class="relative z-10 h-[310px] flex items-center justify-center p-6 pt-8 transition-all duration-500 group-hover:opacity-0 group-hover:scale-95">
+                        <img src="{{ $fotoUtama }}"
+                             alt="{{ $item['name'] }}"
+                             class="max-h-60 w-auto object-contain drop-shadow-md">
+                    </div>
+
+                    {{-- LAYER 2: FOTO HOVER FULL-CARD --}}
+                    <div class="absolute inset-0 z-10 opacity-0 scale-105 group-hover:opacity-100 group-hover:scale-100 transition-all duration-700 ease-out pointer-events-none">
+                        <img src="{{ $fotoHover }}"
+                             alt="{{ $item['name'] }} preview"
+                             class="w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/55 to-transparent"></div>
+                    </div>
+
+                    {{-- LAYER 3: KONTEN TEKS MENEMPEL DI BAWAH (Tumbuh ke atas saat hover, anti kepotong) --}}
+                    <div class="absolute inset-x-0 bottom-0 z-20 p-7 flex items-end justify-between gap-4">
+                        <div class="text-left flex-1 min-w-0">
+                            {{-- Badge Brand --}}
+                            <span class="inline-block text-[11px] font-black uppercase tracking-[2px] text-[#6BB1AD] group-hover:text-[#FDEEF1] transition-colors duration-300 mb-1">
+                                {{ $brandName }}
+                            </span>
+
+                            {{-- Nama Produk --}}
+                            <h3 class="font-serif text-xl font-bold text-[#2D2426] group-hover:text-white leading-snug transition-colors duration-300">
+                                {{ $item['name'] }}
+                            </h3>
+
+                            {{-- Deskripsi Tambahan --}}
+                            <div class="max-h-0 opacity-0 overflow-hidden group-hover:max-h-48 group-hover:opacity-100 transition-all duration-500 ease-out">
+                                <p class="text-white/90 text-xs leading-relaxed mt-2">
+                                    {{ $item['category'] ?? 'Kategori skincare' }} · Cocok untuk {{ implode(', ', $item['skin_types']) ?: 'berbagai jenis kulit' }}.
+                                </p>
+                                <p class="text-[#7ADDF2] font-bold text-sm mt-2">
+                                    {{ $item['price'] !== null ? 'Rp '.number_format($item['price'], 0, ',', '.') : 'Harga belum tercatat' }}
+                                </p>
+                            </div>
+                        </div>
+
+                        {{-- Ikon Panah Kanan --}}
+                        <div class="shrink-0 w-9 h-9 rounded-full flex items-center justify-center text-[#2D2426] group-hover:text-white group-hover:translate-x-1 transition-all duration-300">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </div>
+                    </div>
+
+                </a>
+            @endforeach
+        </div>
+
+        <div class="mt-16 text-center">
+            <a href="{{ url('/katalog') }}"
+               class="inline-block bg-[#E6748E] text-white font-black px-16 md:px-24 py-5 rounded-2xl shadow-xl transition-all duration-300 transform hover:bg-[#d6627d] hover:scale-105 uppercase tracking-wider text-xs animate-pulse-glow">
+                Lihat Semua Katalog Skincare ➔
+            </a>
+        </div>
+
+    </div>
+</section>
+
+
     {{-- TREATMENT & KONSULTASI SLIDER (SEPERTI SECTION SERVICES DI INDEX) --}}
-    <section id="konsultasi" class="bg-[#E6748E] text-white py-24 relative z-20 overflow-hidden">
+    <section id="konsul" class="bg-gradient-to-b from-[#FFFEFA] via-[#B8E8EE] to-[#FDEEF1] text-white py-24 relative overflow-hidden z-20">
         <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(107,177,173,0.28),transparent_40%)] pointer-events-none"></div>
 
         <div class="max-w-7xl mx-auto px-6 relative z-10">
@@ -476,216 +427,78 @@
             <div class="flex flex-col md:flex-row md:items-end md:justify-between mb-14 gap-8">
                 <div class="text-center md:text-left">
                     <p class="text-xs uppercase tracking-[4px] text-[#6BB1AD] font-black mb-3">
-                        Konsultasi & Klinik
+                        Kategori Produk Skincare
                     </p>
 
                     <h2 class="font-serif text-4xl md:text-5xl font-bold text-white tracking-tight leading-tight">
-                        Perawatan
+                        Jenis Produk
                         <span class="text-[#E5A9A9] italic">terbaik</span>
                     </h2>
                 </div>
 
                 <div class="flex justify-center md:justify-end">
-                    <a href="#konsultasi"
+                    <a href="{{ route('katalog') }}"
                        class="bg-[#E6748E] hover:bg-[#6BB1AD] text-white px-8 py-4 rounded-2xl font-black shadow-xl transition-all duration-300 hover:scale-105 no-underline text-xs uppercase tracking-wider">
-                        Lihat Semua Treatment
+                        Lihat Semua Kategori
                     </a>
                 </div>
             </div>
 
             @php
-                $dummyTreatments = [
-                    (object)['nama' => 'Deep Hydration Facial', 'dokter' => 'dr. Clara Wijaya, Sp.KK', 'lokasi' => 'Jakarta Selatan', 'desc' => 'Perawatan infus kelembapan mendalam untuk mengembalikan elastisitas dan menenangkan kulit kemerahan.', 'harga' => 350000, 'kode' => 'DH'],
-                    (object)['nama' => 'Acne Calming LED Therapy', 'dokter' => 'dr. Nadya Putri', 'lokasi' => 'Bandung', 'desc' => 'Terapi sinar biru dan merah untuk meredakan peradangan jerawat aktif tanpa rasa sakit.', 'harga' => 290000, 'kode' => 'AC'],
-                    (object)['nama' => 'Personal Skin Barrier Consult', 'dokter' => 'dr. Reza Pratama, Sp.DVE', 'lokasi' => 'Online / Medan', 'desc' => 'Sesi konsultasi 1-on-1 untuk menyusun urutan skincare pagi dan malam sesuai kondisi kulitmu.', 'harga' => 120000, 'kode' => 'SB'],
-                    (object)['nama' => 'Botanical Peeling Glow', 'dokter' => 'dr. Amelia Santoso', 'lokasi' => 'Surabaya', 'desc' => 'Eksfoliasi lembut berbahan ekstrak tumbuhan alami untuk mengangkat sel kulit mati dan mencerahkan.', 'harga' => 420000, 'kode' => 'BP'],
-                ];
+                $categoryIcons = ['CleanserCategory' => 'CL', 'TonerCategory' => 'TN', 'SerumCategory' => 'SR', 'MoisturizerCategory' => 'MO', 'SunscreenCategory' => 'SS', 'EyeCareCategory' => 'EC', 'FaceMistCategory' => 'FM', 'SpotTreatmentCategory' => 'ST'];
             @endphp
 
             <div id="services-container"
                  class="flex overflow-x-auto gap-7 pb-8 cursor-grab active:cursor-grabbing scroll-smooth no-scrollbar">
 
-                @foreach($dummyTreatments as $srv)
-                    <div class="flex-none w-[300px] md:w-[360px] bg-[#FDEEF1] text-[#E6748E]
+                @foreach($categories as $category)
+                    @php($categoryUrl = route('katalog', ['kategori' => [$category['id']]]))
+                    <a href="{{ $categoryUrl }}" class="flex-none w-[300px] md:w-[360px] bg-[#FDEEF1] text-[#E6748E]
                                 p-7 rounded-[32px] border border-[#7ADDF2]/40
                                 shadow-[0_18px_40px_rgba(0,0,0,0.25)]
                                 transition-all duration-500
                                 hover:-translate-y-2 hover:bg-[#FFFEFA]
                                 hover:shadow-[0_25px_60px_rgba(107,177,173,0.28)]
-                                flex flex-col justify-between group">
+                                flex flex-col justify-between group no-underline">
 
                         <div>
                             <div class="w-20 h-20 bg-[#6BB1AD] rounded-3xl flex items-center justify-center mb-6 overflow-hidden
                                         text-white font-serif text-2xl font-bold shadow-md transition-all duration-500 group-hover:scale-105 group-hover:bg-[#E6748E]">
-                                <span>{{ $srv->kode }}</span>
+                                <span>{{ $categoryIcons[$category['id']] ?? 'SK' }}</span>
                             </div>
 
                             <h3 class="font-serif text-2xl font-bold mb-2 leading-snug text-[#E6748E] line-clamp-2">
-                                {{ $srv->nama }}
+                                {{ $category['name'] }}
                             </h3>
 
                             <p class="text-xs font-black text-[#6BB1AD] mb-4 tracking-wide uppercase line-clamp-1">
-                                {{ $srv->dokter }} • {{ $srv->lokasi }}
+                                Kategori produk dari ontologi
                             </p>
 
                             <p class="text-[#657674] leading-relaxed text-sm line-clamp-3 mb-6">
-                                {{ $srv->desc }}
+                                Jelajahi produk kategori {{ strtolower($category['name']) }} yang tercatat dalam katalog Aphrodite.
                             </p>
                         </div>
 
                         <div class="pt-5 border-t border-[#E6748E]/15 flex items-center justify-between gap-4 mt-auto">
                             <div>
                                 <p class="text-xs text-[#657674] font-bold mb-1">
-                                    Mulai dari
+                                    Telusuri
                                 </p>
 
                                 <p class="text-xl font-black text-[#E6748E]">
-                                    Rp{{ number_format($srv->harga, 0, ',', '.') }}
+                                    Katalog
                                 </p>
                             </div>
 
-                            <a href="#konsultasi"
-                               class="shrink-0 bg-[#E6748E] text-white px-5 py-3 rounded-2xl text-xs font-black tracking-wider
+                            <span class="shrink-0 bg-[#E6748E] text-white px-5 py-3 rounded-2xl text-xs font-black tracking-wider
                                       hover:bg-[#E6748E] transition-all duration-300 uppercase no-underline">
-                                Booking ➔
-                            </a>
+                                Lihat produk ➔
+                            </span>
                         </div>
-                    </div>
-                @endforeach
-
-            </div>
-
-        </div>
-    </section>
-
-    {{-- SKIN CLASS & EDUKASI (SEPERTI SECTION COURSES DI INDEX) --}}
-    <section id="edukasi" class="bg-gradient-to-b from-[#E6748E] via-[#345452] to-[#FDEEF1] text-white py-24 relative z-20">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-
-            <div class="flex flex-col md:flex-row md:items-end md:justify-between mb-12 gap-6">
-                <div class="text-center md:text-left">
-                    <span class="text-xs font-black uppercase tracking-[4px] text-[#E5A9A9]">
-                        Kelas & Panduan Terpilih
-                    </span>
-
-                    <h2 class="font-serif text-4xl md:text-5xl font-bold mt-2 tracking-tight leading-tight">
-                        Pahami Kandungan
-                        <span class="text-[#E5A9A9] italic">Skincare</span>
-                    </h2>
-                </div>
-
-                <div class="hidden md:block">
-                    <a href="#edukasi"
-                       class="inline-flex items-center justify-center bg-[#E5A9A9] hover:bg-[#FFFEFA] text-[#E6748E] px-7 py-4 rounded-2xl font-black shadow-xl transition-all duration-300 hover:scale-105 no-underline text-xs uppercase tracking-wider">
-                        Lihat Semua Kelas
-                        <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                        </svg>
                     </a>
-                </div>
-            </div>
-
-            @php
-                $dummyClasses = [
-                    (object)[
-                        'id' => 1,
-                        'title' => 'Basic Skincare 101: Mengenal Jenis & Kebutuhan Kulit',
-                        'description' => 'Pelajari cara membaca daftar komposisi (ingredients list), urutan pemakaian CTMP yang benar, dan menghindari layering bahan aktif yang memicu iritasi.',
-                        'benefit' => 'E-Book Panduan Layering + Sertifikat + Voucher Belanja 20%',
-                        'price' => 0
-                    ],
-                    (object)[
-                        'id' => 2,
-                        'title' => 'Masterclass Perbaikan Skin Barrier & Kulit Sensitif',
-                        'description' => 'Panduan lengkap mengatasi kulit kemerahan, perih, dan dehidrasi dengan pendekatan minimalis berbasis ceramide dan microbiome.',
-                        'benefit' => 'Sesi Tanya Jawab Live Dermatolog + Sampel Kit Skinova',
-                        'price' => 99000
-                    ],
-                ];
-            @endphp
-
-            <div class="space-y-5">
-                @foreach($dummyClasses as $class)
-                    <div class="reveal-item opacity-0 translate-y-10 relative overflow-hidden
-                                bg-gradient-to-r from-[#2E4D4B] via-[#E6748E] to-[#1D302F]
-                                border border-[#6BB1AD]/40
-                                rounded-[28px]
-                                p-7 md:p-8
-                                flex flex-col lg:flex-row lg:items-center justify-between gap-6
-                                shadow-[0_15px_40px_rgba(0,0,0,0.22)]
-                                transition-all duration-500
-                                hover:-translate-y-2
-                                hover:border-[#E5A9A9]
-                                hover:shadow-[0_20px_50px_rgba(229,169,169,0.2)]
-                                group">
-
-                        <div class="absolute top-0 right-0 w-40 h-40 bg-[#6BB1AD]/15 rounded-full blur-3xl pointer-events-none"></div>
-
-                        <div class="flex-1 min-w-0 relative z-10">
-                            <div class="flex flex-wrap items-center gap-3 mb-4">
-                                <span class="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-black bg-[#E5A9A9] text-[#E6748E] shadow-md">
-                                    {{ $class->price > 0 ? 'Masterclass' : 'Gratis' }}
-                                </span>
-
-                                <span class="text-xs font-bold text-[#7ADDF2]">
-                                    Modul #{{ $class->id }}
-                                </span>
-                            </div>
-
-                            <h3 class="font-serif text-2xl font-bold text-white tracking-tight leading-tight group-hover:text-[#E5A9A9] transition-colors duration-300">
-                                {{ $class->title }}
-                            </h3>
-
-                            <p class="mt-3 text-sm text-[#FDEEF1]/80 line-clamp-2 max-w-3xl leading-relaxed">
-                                {{ $class->description }}
-                            </p>
-
-                            <div class="mt-5 inline-flex items-center bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-xs text-[#FDEEF1]/90 max-w-full">
-                                <span class="font-black text-[#6BB1AD] mr-2 shrink-0">Benefit:</span>
-                                <span class="truncate max-w-xs md:max-w-md">
-                                    {{ $class->benefit }}
-                                </span>
-                            </div>
-                        </div>
-
-                        <div class="relative z-10 flex flex-row lg:flex-col items-center lg:items-end justify-between lg:justify-center gap-4 pt-4 lg:pt-0 min-w-[190px]">
-                            <div class="text-left lg:text-right">
-                                <p class="text-xs text-[#7ADDF2] uppercase tracking-wider font-bold">
-                                    Akses Kelas
-                                </p>
-
-                                <p class="text-2xl font-black text-[#E5A9A9] mt-1">
-                                    @if($class->price > 0)
-                                        Rp {{ number_format($class->price, 0, ',', '.') }}
-                                    @else
-                                        Gratis
-                                    @endif
-                                </p>
-                            </div>
-
-                            <div class="w-full lg:w-auto">
-                                <a href="#edukasi"
-                                   class="inline-flex items-center justify-center
-                                          px-6 py-3
-                                          rounded-2xl
-                                          bg-[#FFFEFA]
-                                          hover:bg-[#E6748E]
-                                          hover:text-white
-                                          text-[#E6748E]
-                                          font-black
-                                          text-xs uppercase tracking-wider
-                                          transition-all duration-300
-                                          hover:scale-105
-                                          shadow-lg
-                                          w-full whitespace-nowrap
-                                          no-underline">
-                                    Daftar Sekarang
-                                </a>
-                            </div>
-                        </div>
-
-                    </div>
                 @endforeach
+
             </div>
 
         </div>
@@ -696,9 +509,9 @@
         <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-bold text-[#657674]">
             <div class="flex items-center gap-2 text-[#E6748E] font-extrabold text-base">
                 <span class="w-7 h-7 rounded-lg bg-[#6BB1AD] grid place-items-center text-white text-sm">✦</span>
-                <span>{{ config('app.name', 'Skinova') }}</span>
+                <span>{{ config('app.name', 'Aphrod') }}</span>
             </div>
-            <p>© {{ date('Y') }} Skinova Botanical & Derma Care. Semua hak dilindungi.</p>
+            <p>© {{ date('Y') }} Aphrod Botanical & Derma Care. Semua hak dilindungi.</p>
         </div>
     </footer>
 

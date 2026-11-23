@@ -194,6 +194,29 @@ SPARQL;
 
     public function __construct(private SparqlService $sparql) {}
 
+    /** Landing page products and categories come directly from the ontology. */
+    public function landing()
+    {
+        $products = [];
+        $categories = [];
+        try {
+            $query = strtr(self::PRODUCTS_QUERY, [
+                '{{FILTERS}}' => '',
+                '{{ORDER}}' => self::SORTS[self::DEFAULT_SORT]['order'],
+                '{{LIMIT}}' => '3',
+                '{{OFFSET}}' => '0',
+            ]);
+            $products = array_map([self::class, 'productFromRow'], $this->sparql->select($query));
+            foreach ($this->options()['kategori'] ?? [] as $id => $label) {
+                $categories[] = ['id' => $id, 'name' => $label];
+            }
+        } catch (SparqlException) {
+            // Render the page with a clear empty state when Fuseki is unavailable.
+        }
+
+        return view('user.landing', compact('products', 'categories'));
+    }
+
     public function index(Request $request)
     {
         $products = [];

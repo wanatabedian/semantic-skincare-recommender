@@ -44,7 +44,7 @@ class AboutPageTest extends TestCase
         $this->assertSame(2, substr_count($html, 'href="'.route('tentang').'"'), 'Tautan Tentang harus ada di navbar desktop dan mobile.');
         // Tautan lama tetap ada.
         $this->assertStringContainsString('href="'.route('katalog').'"', $html);
-        $this->assertStringContainsString('href="'.route('bandingkan').'"', $html);
+        $this->assertStringContainsString('href="'.route('bahan').'"', $html);
         $this->assertStringContainsString('href="'.route('kuis', ['new' => 1]).'"', $html);
     }
 
