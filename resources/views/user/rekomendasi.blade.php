@@ -132,7 +132,6 @@
 
   <div class="mt-8 flex flex-wrap gap-3">
     <a href="/kuis?new=1" class="rounded-xl bg-[#E6748E] px-5 py-3 text-sm font-bold text-white">Ulangi kuis</a>
-    <a href="/bandingkan" class="rounded-xl border border-[#6BB1AD]/40 px-5 py-3 text-sm font-bold">Buka perbandingan (<span id="compare-count">0</span>)</a>
   </div>
 </main>
 
@@ -140,17 +139,6 @@
 (() => {
   const read = (key) => { try { return JSON.parse(localStorage.getItem(key) || '[]'); } catch { return []; } };
   const write = (key, value) => { try { localStorage.setItem(key, JSON.stringify(value)); } catch {} };
-
-  // Bandingkan (dipakai halaman /bandingkan milik Orang 2)
-  let ids = read('aphrodite-compare');
-  const count = document.querySelector('#compare-count');
-  count.textContent = ids.length;
-  document.querySelectorAll('.compare').forEach(button => button.onclick = () => {
-    const id = button.dataset.product;
-    if (ids.includes(id)) { button.textContent = 'Sudah ada di perbandingan'; return; }
-    if (ids.length >= 3) { button.textContent = 'Maksimal tiga produk'; return; }
-    ids.push(id); write('aphrodite-compare', ids); count.textContent = ids.length; button.textContent = 'Ditambahkan ✓';
-  });
 
   // Lengkapi rutinitas: simpan ID ke localStorage untuk Routine Builder (Orang 4), lalu buka detail.
   document.querySelectorAll('.routine').forEach(link => link.addEventListener('click', () => {

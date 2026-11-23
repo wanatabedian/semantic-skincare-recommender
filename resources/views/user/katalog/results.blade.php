@@ -44,7 +44,7 @@
             'message' => 'Dataset Aphrodite yang dimuat di Fuseki belum berisi produk. Sambil menunggu, cari tahu produk yang cocok lewat kuis analisis kulit.',
             'actions' => [
                 ['label' => 'Mulai kuis →', 'href' => route('kuis', ['new' => 1]), 'primary' => true],
-                ['label' => 'Bandingkan produk', 'href' => route('bandingkan')],
+                ['label' => 'Jelajahi katalog', 'href' => route('katalog')],
             ],
         ])
     </div>

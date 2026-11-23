@@ -43,23 +43,10 @@ class QuizAndComparisonTest extends TestCase
         $this->postJson('/api/quiz/analyze', ['ingredient' => 'NotInOntology'])->assertUnprocessable();
     }
 
-    public function test_comparison_rejects_fourth_product_and_uses_values_for_valid_ids(): void
-    {
-        $fuseki = $this->mock(FusekiService::class);
-        $fuseki->shouldReceive('query')->once()->withArgs(fn ($query) => str_contains($query, 'VALUES ?product { ex:EMI-0001 }'))->andReturn([]);
-        $fuseki->shouldReceive('query')->once()->withArgs(fn ($query) => str_contains($query, 'VALUES ?product { ex:EMI-0001 ex:WAR-0001 }'))->andReturn([]);
-        $fuseki->shouldReceive('query')->once()->withArgs(fn ($query) => str_contains($query, 'VALUES ?product { ex:EMI-0001 ex:WAR-0001 ex:TAV-0001 }'))->andReturn([]);
-
-        $this->getJson('/api/products/compare?ids[]=EMI-0001')->assertOk();
-        $this->getJson('/api/products/compare?ids[]=EMI-0001&ids[]=WAR-0001')->assertOk()->assertJsonPath('products', []);
-        $this->getJson('/api/products/compare?ids[]=EMI-0001&ids[]=WAR-0001&ids[]=TAV-0001')->assertOk();
-        $this->getJson('/api/products/compare?ids[]=A&ids[]=B&ids[]=C&ids[]=D')->assertUnprocessable();
-    }
-
-    public function test_quiz_and_comparison_pages_render(): void
+    public function test_quiz_page_renders_and_comparison_feature_is_removed(): void
     {
         $this->get('/kuis')->assertOk()->assertSee('Kuis Analisis Kulit');
-        $this->get('/bandingkan')->assertOk()->assertSee('Bandingkan skincare');
+        $this->get('/bandingkan')->assertNotFound();
     }
 
     public function test_recommendation_query_parameters_are_forwarded_as_sparql_filters(): void

@@ -8,7 +8,7 @@
     <style>body{font-family:'DM Sans',sans-serif}.serif{font-family:'Playfair Display',serif}</style>
 </head>
 <body class="min-h-screen bg-[#FFFEFA] text-[#345452]">
-<nav class="bg-[#FDEEF1] px-5 py-4"><div class="mx-auto flex max-w-6xl justify-between"><a href="/" class="text-xl font-extrabold text-[#E6748E]">Aphrodite</a><a href="/bandingkan" class="text-sm font-bold">Bandingkan produk →</a></div></nav>
+<nav class="bg-[#FDEEF1] px-5 py-4"><div class="mx-auto flex max-w-6xl justify-between"><a href="/" class="text-xl font-extrabold text-[#E6748E]">Aphrodite</a><a href="{{ route('katalog') }}" class="text-sm font-bold">Jelajahi katalog →</a></div></nav>
 <main class="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
 @if($error)<section class="rounded-3xl border border-[#E6748E]/20 bg-white p-8 text-center"><p class="text-sm text-[#657674]">{{ $error }}</p><a href="/" class="mt-5 inline-flex rounded-xl bg-[#E6748E] px-5 py-3 text-sm font-bold text-white">Kembali</a></section>
 @else
