@@ -1,6 +1,7 @@
 ﻿<!doctype html>
 <html lang="id">
 <head>
+    <link rel="icon" type="image/png" href="{{ asset('images/logo/logo-aphrodite.png') }}">
     <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
     <title>{{ $product['name'] ?? 'Detail Produk' }} — Aphrodite</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -8,13 +9,14 @@
     <style>body{font-family:'DM Sans',sans-serif}.serif{font-family:'Playfair Display',serif}</style>
 </head>
 <body class="min-h-screen bg-[#FFFEFA] text-[#345452]">
+@include('partials.global-nav')
 <nav class="bg-[#FDEEF1] px-5 py-4"><div class="mx-auto flex max-w-6xl justify-between"><a href="/" class="text-xl font-extrabold text-[#E6748E]">Aphrodite</a><a href="{{ route('katalog') }}" class="text-sm font-bold">Jelajahi katalog →</a></div></nav>
 <main class="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
 @if($error)<section class="rounded-3xl border border-[#E6748E]/20 bg-white p-8 text-center"><p class="text-sm text-[#657674]">{{ $error }}</p><a href="/" class="mt-5 inline-flex rounded-xl bg-[#E6748E] px-5 py-3 text-sm font-bold text-white">Kembali</a></section>
 @else
 <div class="mb-6 text-xs font-extrabold uppercase tracking-[.25em] text-[#6BB1AD]">Detail produk</div>
 <section class="grid gap-6 lg:grid-cols-[.85fr_1.15fr]">
-<div class="grid min-h-64 place-items-center rounded-3xl border border-[#E6748E]/10 bg-gradient-to-br from-[#FDEEF1] to-[#B8E8EE]/50 p-8 text-center sm:min-h-80"><div><div class="mx-auto grid h-20 w-20 place-items-center rounded-3xl bg-white/80 text-4xl text-[#E6748E]">✧</div><p class="mt-4 text-sm font-semibold text-[#657674]">Gambar produk belum tersedia</p></div></div>
+<div class="grid min-h-64 place-items-center overflow-hidden rounded-3xl border border-[#E6748E]/10 bg-gradient-to-br from-[#FDEEF1] to-[#B8E8EE]/50 p-8 text-center sm:min-h-80">@if($product['image'])<img src="{{ $product['image'] }}" alt="Foto {{ $product['name'] }}" class="h-full max-h-[28rem] w-full object-contain">@else<div><div class="mx-auto grid h-20 w-20 place-items-center rounded-3xl bg-white/80 text-4xl text-[#E6748E]">✧</div><p class="mt-4 text-sm font-semibold text-[#657674]">Gambar produk belum tersedia</p></div>@endif</div>
 <div class="rounded-3xl border border-[#E6748E]/10 bg-white p-5 shadow-sm sm:p-8"><p class="text-sm font-bold text-[#6BB1AD]">{{ $product['brand'] ?? 'Brand tidak tersedia' }}@if($product['series']) · {{ $product['series'] }}@endif</p><h1 class="serif mt-2 text-3xl font-bold leading-tight text-[#E6748E] sm:text-4xl">{{ $product['name'] }}</h1><p class="mt-3 text-sm text-[#657674]">{{ $product['category'] ?? 'Kategori tidak tersedia' }}</p><p class="mt-6 text-2xl font-extrabold">{{ $product['price'] !== null ? 'Rp'.number_format($product['price'],0,',','.') : 'Harga belum tersedia' }}</p>
 <div class="mt-6 flex flex-wrap gap-2"><span class="rounded-full bg-[#B8E8EE]/40 px-3 py-1.5 text-xs font-bold">{{ $product['verification_status'] ?? 'Status verifikasi belum tersedia' }}</span></div>
 @if($product['verification_notes'])<div class="mt-4 rounded-2xl bg-[#FDEEF1]/70 p-4 text-sm"><p class="font-bold">Catatan verifikasi</p><ul class="mt-2 list-inside list-disc space-y-1">@foreach($product['verification_notes'] as $note)<li>{{ $note }}</li>@endforeach</ul></div>@endif
