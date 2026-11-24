@@ -107,7 +107,7 @@ class IngredientPageTest extends TestCase
             ->assertSee('>69</dd>', false)  // produk terhubung
             ->assertSee('href="'.route('bahan.detail', ['id' => 'SalicylicAcid']).'"', false)
             ->assertSee('Dipakai di <strong class="tabular-nums">18</strong> produk', false);
-        $this->assertMatchesRegularExpression('/aria-current="page"\s*>Bahan<\/a>/', $html);
+        $this->assertMatchesRegularExpression('/aria-current="page"\s*>Kandungan<\/a>/', $html);
 
         // Urut nama, dikelompokkan per huruf awal; huruf tanpa bahan bukan tautan.
         $response->assertSeeInOrder(['AHA (Glycolic Acid)', 'Niacinamide (Vitamin B3)', 'Retinol', 'Salicylic Acid (BHA)', 'Vitamin C']);

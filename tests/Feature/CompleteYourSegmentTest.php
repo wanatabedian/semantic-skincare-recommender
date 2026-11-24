@@ -103,7 +103,8 @@ class CompleteYourSegmentTest extends TestCase
         $this->assertNotContains('SunscreenCategory', array_column($routine['malam'], 'category'));
         $response->assertSee('id="lengkapi-rutinitas"', false)
             ->assertSee('Alternatif dari seri ini (2 produk)')
-            ->assertSee('data-routine-add="WAR-0002"', false);
+            ->assertSee(route('produk.detail', 'WAR-0002'), false)   // alternatif tetap bisa dibuka
+            ->assertDontSee('data-routine-add="', false);            // tombol rutinitas sengaja dihapus
     }
 
     public function test_complement_from_other_series_must_share_skin_type(): void
@@ -145,7 +146,7 @@ class CompleteYourSegmentTest extends TestCase
         $this->assertNull($this->stepFor($routine, 'SpotTreatmentCategory')['product']);
         $response->assertSee('Produk ber-retinol disembunyikan untuk usia remaja.')
             ->assertSee('Disaring untuk usia: Remaja')
-            ->assertDontSee('data-routine-add="LAB-0054"', false);
+            ->assertDontSee('Produk LAB-0054');                     // produk terkunci Teen Lock tidak tampil
     }
 
     public function test_adult_and_missing_age_do_not_activate_teen_lock(): void

@@ -25,20 +25,25 @@
         .pdp-muted{color:var(--pdp-muted)}
 
         /* Hero */
-        .pdp-hero{display:grid;gap:1.5rem;grid-template-columns:1fr}
-        @media (min-width:900px){.pdp-hero{grid-template-columns:1fr 1.35fr}}
-        .pdp-media{display:grid;place-items:center;min-height:18rem;overflow:hidden;border-radius:32px;padding:2rem;text-align:center;
+        /* Satu kolom di bawah 700px; dua kolom (gambar 240–340px, info sisa) mulai 700px. Kartu sama tinggi lewat align-items:stretch. */
+        .pdp-hero{display:grid;gap:28px;grid-template-columns:minmax(0,1fr);align-items:stretch}
+        @media (min-width:700px){.pdp-hero{grid-template-columns:minmax(240px,340px) minmax(0,1fr)}}
+        .pdp-media{display:flex;align-items:center;justify-content:center;overflow:hidden;border-radius:32px;padding:18px;text-align:center;
             background:linear-gradient(135deg,var(--pdp-pink-soft) 0%,var(--pdp-teal-soft) 100%);border:1px solid var(--pdp-pink-line)}
-        @media (min-width:640px){.pdp-media{min-height:22rem}}
-        .pdp-media img{width:100%;height:100%;max-height:28rem;object-fit:contain}
+        @media (max-width:699.98px){.pdp-media{width:100%;max-width:340px;margin:0 auto}}
+        .pdp-media:not(:has(img)){min-height:18rem}
+        .pdp-media__frame{width:100%;overflow:hidden;border-radius:22px;background:#fff}
+        .pdp-media__frame img{display:block;width:100%;height:auto;transition:transform .6s ease}
+        .pdp-media__frame:hover img{transform:scale(1.04)}
         .pdp-media__icon{display:grid;place-items:center;width:5rem;height:5rem;margin:0 auto;border-radius:24px;background:#fff;color:var(--pdp-pink);font-size:2.25rem;box-shadow:0 8px 20px -12px rgba(232,112,143,.6)}
-        .pdp-info{border-radius:32px;padding:1.5rem}
-        @media (min-width:640px){.pdp-info{padding:2.25rem}}
+        .pdp-info{display:flex;flex-direction:column;justify-content:center;border-radius:32px;padding:28px 24px}
+        @media (min-width:700px){.pdp-info{padding:36px 40px}}
+        .pdp-info .pdp-price + div{margin-top:0}
         .pdp-brand{font-size:.875rem;font-weight:700;color:var(--pdp-teal)}
         .pdp-title{margin-top:.5rem;font-size:1.875rem;font-weight:700;line-height:1.15;color:var(--pdp-pink)}
         @media (min-width:640px){.pdp-title{font-size:2.5rem}}
-        .pdp-price{margin-top:1.5rem;font-size:1.6rem;font-weight:800;color:var(--pdp-text)}
-        .pdp-badge{display:inline-flex;border-radius:999px;background:var(--pdp-teal-soft);color:var(--pdp-text);padding:.4rem .85rem;font-size:.75rem;font-weight:700}
+        .pdp-price{margin:20px 0 16px;font-size:1.6rem;font-weight:800;color:var(--pdp-text)}
+        .pdp-badge{display:inline-flex;width:fit-content;max-width:100%;border-radius:999px;background:var(--pdp-teal-soft);color:var(--pdp-text);padding:.4rem .85rem;font-size:.75rem;font-weight:700}
         .pdp-notes{margin-top:1rem;border-radius:18px;background:var(--pdp-pink-soft);padding:1rem;font-size:.875rem}
 
         /* Empat kartu info kulit */
@@ -137,6 +142,7 @@
         @media (prefers-reduced-motion:reduce){
             .pdp *,.pdp *::before,.pdp *::after{animation:none!important;transition:none!important}
             .pdp-chip:hover,.pdp-step__card:hover,.pdp-similar__card:hover,.pdp-alt__item:hover{transform:none}
+            .pdp-media__frame:hover img{transform:none}
         }
     </style>
 </head>
@@ -152,7 +158,7 @@
 <section class="pdp-hero">
     <div class="pdp-media">
         @if($product['image'])
-            <img src="{{ $product['image'] }}" alt="Foto {{ $product['name'] }}">
+            <div class="pdp-media__frame"><img src="{{ $product['image'] }}" alt="Foto {{ $product['name'] }}"></div>
         @else
             <div><div class="pdp-media__icon" aria-hidden="true">✧</div><p class="mt-4 text-sm font-semibold pdp-muted">Gambar produk belum tersedia</p></div>
         @endif
