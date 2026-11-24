@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth">
 <head>
+    <link rel="icon" type="image/png" href="{{ asset('images/logo/logo-aphrodite.png') }}">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#FDEEF1">
@@ -96,6 +97,7 @@
     </style>
 </head>
 <body class="bg-[#B8E8EE] text-[#E6748E] min-h-screen font-sans antialiased">
+    @include('partials.global-nav')
 
     {{-- NAVBAR --}}
     <nav class="fixed top-0 left-0 w-full z-50 px-6 md:px-16 py-4 flex items-center justify-between bg-[#FDEEF1]/85 backdrop-blur-md border-b border-[#E6748E]/10">
@@ -117,22 +119,6 @@
         <div class="flex items-center gap-3">
             <a href="{{ route('katalog') }}" class="md:hidden text-[10px] font-black uppercase text-[#345452]">Katalog</a>
             <a href="{{ route('kuis', ['new' => 1]) }}" class="md:hidden rounded-xl bg-[#E6748E] px-3 py-2 text-[10px] font-black uppercase text-white">Kuis</a>
-            @if (Route::has('login'))
-                @auth
-                    <a href="{{ route('admin.dashboard') }}" class="smooth-btn bg-[#E6748E] hover:bg-[#E6748E] text-white px-5 py-2.5 rounded-xl text-xs font-black">
-                        Dashboard
-                    </a>
-                @else
-                    <a href="{{ route('login') }}" class="text-xs font-bold px-4 py-2.5 text-[#E6748E] hover:text-[#E6748E] transition">
-                        Masuk
-                    </a>
-                    @if (Route::has('register'))
-                        <a href="{{ route('register') }}" class="smooth-btn bg-[#E6748E] hover:bg-[#E6748E] text-white px-5 py-2.5 rounded-xl text-xs font-black shadow-md">
-                            Daftar
-                        </a>
-                    @endif
-                @endauth
-            @endif
         </div>
     </nav>
 
@@ -288,8 +274,8 @@
     </div>
 
    {{-- RIWAYAT KUIS (LAYOUT 1:3 MENYAMPING) --}}
-    <section id="riwayat-kuis" class="bg-[#FFFEFA] px-6 py-12 relative z-20">
-        <div class="max-w-7xl mx-auto rounded-[28px] border border-[#E6748E]/15 bg-[#FDEEF1] p-6 md:p-8">
+    <section id="riwayat-kuis" class="bg-gradient-to-b from-[#FDEEF1] via-[#FDEEF1] to-[#FFFEFA] px-6 py-28 relative z-20">
+        <div class="max-w-7xl mx-auto rounded-[32px] border border-[#6BB1AD]/20 bg-[#f6fdff] p-8 md:p-12 shadow-sm">
             <div class="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
 
                 {{-- KOLOM KIRI (1 Bagian: Judul & Tombol Kuis) --}}
@@ -305,7 +291,7 @@
 
                     <div>
                         <a href="{{ route('kuis', ['new' => 1]) }}"
-                           class="smooth-btn inline-flex items-center justify-center w-full sm:w-auto lg:w-full rounded-xl bg-[#E6748E] hover:bg-[#6BB1AD] px-5 py-3 text-xs font-black uppercase tracking-wider text-white shadow-sm no-underline">
+                           class="smooth-btn inline-flex items-center justify-center w-full sm:w-auto lg:w-full rounded-xl bg-[#E6748E] hover:bg-[#6BB1AD] px-5 py-3.5 text-xs font-black uppercase tracking-wider text-white shadow-sm no-underline">
                             Mulai kuis →
                         </a>
                     </div>
@@ -313,8 +299,8 @@
 
                 {{-- KOLOM KANAN (3 Bagian: Daftar Kartu Riwayat) --}}
                 <div class="lg:col-span-3">
-                    <div id="quiz-history-list" class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3"></div>
-                    <div id="quiz-history-empty" class="rounded-2xl border border-dashed border-[#E6748E]/25 bg-white/60 p-6 text-center">
+                    <div id="quiz-history-list" class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3"></div>
+                    <div id="quiz-history-empty" class="rounded-2xl border border-dashed border-[#E6748E]/25 bg-white/60 p-8 text-center">
                         <p class="text-sm text-[#657674]">
                             Belum ada riwayat kuis di perangkat ini.
                         </p>
@@ -324,7 +310,7 @@
             </div>
         </div>
     </section>
-
+    
     {{-- PRODUK PILIHAN (EFEK HOVER DUAL-IMAGE ALA KAHF) --}}
 <section id="produk" class="bg-gradient-to-b from-[#FFFEFA] via-[#B8E8EE] to-[#c8eef3] text-white py-24 relative overflow-hidden z-20">
     <div class="max-w-7xl mx-auto px-6">
@@ -368,19 +354,19 @@
                         <img src="{{ $fotoHover }}"
                              alt="{{ $item['name'] }} preview"
                              class="w-full h-full object-cover">
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/55 to-transparent"></div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/20 via-black/10 to-transparent"></div>
                     </div>
 
                     {{-- LAYER 3: KONTEN TEKS MENEMPEL DI BAWAH (Tumbuh ke atas saat hover, anti kepotong) --}}
                     <div class="absolute inset-x-0 bottom-0 z-20 p-7 flex items-end justify-between gap-4">
                         <div class="text-left flex-1 min-w-0">
                             {{-- Badge Brand --}}
-                            <span class="inline-block text-[11px] font-black uppercase tracking-[2px] text-[#6BB1AD] group-hover:text-[#FDEEF1] transition-colors duration-300 mb-1">
+                            <span class="inline-block text-[11px] font-black uppercase tracking-[2px] text-[#6fb0ad] group-hover:text-[#FDEEF1] transition-colors duration-300 mb-1">
                                 {{ $brandName }}
                             </span>
 
                             {{-- Nama Produk --}}
-                            <h3 class="font-serif text-xl font-bold text-[#2D2426] group-hover:text-white leading-snug transition-colors duration-300">
+                            <h3 class="font-serif text-xl font-bold text-[#c9949f] group-hover:text-white leading-snug transition-colors duration-300">
                                 {{ $item['name'] }}
                             </h3>
 
@@ -389,7 +375,7 @@
                                 <p class="text-white/90 text-xs leading-relaxed mt-2">
                                     {{ $item['category'] ?? 'Kategori skincare' }} · Cocok untuk {{ implode(', ', $item['skin_types']) ?: 'berbagai jenis kulit' }}.
                                 </p>
-                                <p class="text-[#7ADDF2] font-bold text-sm mt-2">
+                                <p class="text-[#379db4] font-bold text-sm mt-2">
                                     {{ $item['price'] !== null ? 'Rp '.number_format($item['price'], 0, ',', '.') : 'Harga belum tercatat' }}
                                 </p>
                             </div>
@@ -419,8 +405,8 @@
 
 
     {{-- TREATMENT & KONSULTASI SLIDER (SEPERTI SECTION SERVICES DI INDEX) --}}
-    <section id="konsul" class="bg-gradient-to-b from-[#FFFEFA] via-[#B8E8EE] to-[#FDEEF1] text-white py-24 relative overflow-hidden z-20">
-        <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(107,177,173,0.28),transparent_40%)] pointer-events-none"></div>
+    <section id="konsul" class="bg-gradient-to-b from-[#c8eef3] via-[#FFFEFA] to-[#FDEEF1] text-white py-24 relative overflow-hidden z-20">
+        
 
         <div class="max-w-7xl mx-auto px-6 relative z-10">
 
@@ -455,7 +441,7 @@
                     @php($categoryUrl = route('katalog', ['kategori' => [$category['id']]]))
                     <a href="{{ $categoryUrl }}" class="flex-none w-[300px] md:w-[360px] bg-[#FDEEF1] text-[#E6748E]
                                 p-7 rounded-[32px] border border-[#7ADDF2]/40
-                                shadow-[0_18px_40px_rgba(0,0,0,0.25)]
+                                shadow-[0_10px_30px_rgba(230,116,142,0.08)]
                                 transition-all duration-500
                                 hover:-translate-y-2 hover:bg-[#FFFEFA]
                                 hover:shadow-[0_25px_60px_rgba(107,177,173,0.28)]

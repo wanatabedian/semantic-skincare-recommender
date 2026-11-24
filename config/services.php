@@ -38,7 +38,7 @@ return [
     'fuseki' => [
         'clean_query_url' => env(
             'FUSEKI_CLEAN_QUERY_URL',
-            'http://127.0.0.1:3030/aphrodite-clean/query'
+            'http://127.0.0.1:3030/aphrodite/query'
         ),
 
         'query_url' => env(

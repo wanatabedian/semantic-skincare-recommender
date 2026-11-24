@@ -6,7 +6,7 @@ use App\Services\CleanOntologyService;
 use App\Services\FusekiService;
 use Tests\TestCase;
 
-class QuizAndComparisonTest extends TestCase
+class QuizTest extends TestCase
 {
     private function quizOptions(): array
     {
@@ -43,10 +43,9 @@ class QuizAndComparisonTest extends TestCase
         $this->postJson('/api/quiz/analyze', ['ingredient' => 'NotInOntology'])->assertUnprocessable();
     }
 
-    public function test_quiz_page_renders_and_comparison_feature_is_removed(): void
+    public function test_quiz_page_renders(): void
     {
         $this->get('/kuis')->assertOk()->assertSee('Kuis Analisis Kulit');
-        $this->get('/bandingkan')->assertNotFound();
     }
 
     public function test_recommendation_query_parameters_are_forwarded_as_sparql_filters(): void

@@ -31,7 +31,7 @@ class CatalogController extends Controller
     /** Foto produk: public/images/{slug-brand}/{sourceProductId}.{ext} */
     public const IMAGE_DIR = 'images';
 
-    public const IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp'];
+    public const IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp', 'avif'];
 
     public const SEARCH_MAX_LENGTH = 100;
 
@@ -669,15 +669,29 @@ SPARQL;
     }
 
     /** URL foto lokal bila file {sourceProductId}.{ext} sudah ditaruh di folder brand. */
-    private static function imageFor(?string $brand, string $sourceId): ?string
+    public static function imageFor(?string $brand, string $sourceId): ?string
     {
         $folder = self::brandFolder($brand);
         if ($folder === null || ! SparqlService::isSafeLocalName($sourceId)) {
             return null;
         }
 
+        // Folder gambar yang sudah ada memakai kapitalisasi campuran (mis. Labore).
+        // Cari nama folder tanpa membedakan kapital agar URL juga valid di Linux.
+        $imageRoot = public_path(self::IMAGE_DIR);
+        $folders = is_dir($imageRoot) ? scandir($imageRoot) : false;
+        $folderName = $folder;
+        if ($folders !== false) {
+            foreach ($folders as $candidate) {
+                if (strcasecmp($candidate, $folder) === 0 && is_dir($imageRoot.DIRECTORY_SEPARATOR.$candidate)) {
+                    $folderName = $candidate;
+                    break;
+                }
+            }
+        }
+
         foreach (self::IMAGE_EXTENSIONS as $ext) {
-            $relative = self::IMAGE_DIR."/{$folder}/{$sourceId}.{$ext}";
+            $relative = self::IMAGE_DIR."/{$folderName}/{$sourceId}.{$ext}";
             if (is_file(public_path($relative))) {
                 return asset($relative);
             }

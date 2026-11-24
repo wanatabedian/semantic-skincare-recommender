@@ -2,8 +2,6 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SparqlController;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\AdminController;
 use App\Http\Controllers\QuizController;
 use App\Http\Controllers\RecommendationController;
 use App\Http\Controllers\OntologyController;
@@ -25,24 +23,6 @@ Route::get('/api/recommendation', [SparqlController::class, 'getRecommendation']
 Route::post('/api/recommendation', [SparqlController::class, 'getRecommendation'])
     ->withoutMiddleware(\Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class);
 
-
-// ==========================================
-// AREA AUTENTIKASI ADMIN
-// ==========================================
-Route::get('/admin/login', [AuthController::class, 'showLoginForm'])->name('login');
-Route::post('/admin/login', [AuthController::class, 'login']);
-Route::post('/admin/logout', [AuthController::class, 'logout'])->name('logout');
-
-
-// ==========================================
-// AREA PRIVAT (Tampilan Admin - Wajib Login)
-// ==========================================
-Route::middleware(['auth'])->prefix('admin')->group(function () {
-    
-    // Halaman Dashboard khusus Admin
-    Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
-    
-});
 
 // === Orang 4: Produk & Linked Data ===
 Route::get('/produk/{id}', [\App\Http\Controllers\ProductController::class, 'show'])->name('produk.detail');

@@ -68,7 +68,7 @@ class ProductController extends Controller
 
         $product = [
             'id' => $id, 'name' => '', 'sourceId' => null, 'price' => null,
-            'brand' => null, 'series' => null, 'category' => null,
+            'brand' => null, 'series' => null, 'category' => null, 'image' => null,
             'skin_types' => [], 'age_groups' => [], 'concerns' => [],
             'ingredients' => [], 'verification_status' => null,
             'verification_notes' => [],
@@ -99,6 +99,8 @@ class ProductController extends Controller
         foreach (['skin_types', 'age_groups', 'concerns', 'ingredients', 'verification_notes'] as $field) {
             $product[$field] = array_values(array_unique(array_filter($product[$field], static fn ($value) => $value !== '')));
         }
+
+        $product['image'] = CatalogController::imageFor($product['brand'], $product['sourceId'] ?? $id);
 
         try {
             $routine = $this->completeYourSegment($id, $request->query('age'));
