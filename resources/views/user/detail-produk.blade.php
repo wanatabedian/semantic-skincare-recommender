@@ -23,7 +23,28 @@
 </div></section>
 <section class="mt-6 grid gap-4 sm:grid-cols-2">
 @foreach([['Jenis kulit', $product['skin_types']], ['Kelompok usia', $product['age_groups']], ['Keluhan kulit', $product['concerns']], ['Kandungan', $product['ingredients']]] as [$heading, $values])
-<div class="rounded-3xl border border-[#E6748E]/10 bg-white p-5"><h2 class="serif text-xl font-bold text-[#345452]">{{ $heading }}</h2>@if($values)<ul class="mt-3 flex flex-wrap gap-2">@foreach($values as $value)<li class="rounded-full bg-[#FDEEF1] px-3 py-1.5 text-sm">{{ $value }}</li>@endforeach</ul>@else<p class="mt-3 text-sm text-[#657674]">Belum tercantum.</p>@endif</div>
+<div class="rounded-3xl border border-[#E6748E]/10 bg-white p-5">
+    <h2 class="serif text-xl font-bold text-[#345452]">{{ $heading }}</h2>
+    @if ($values)
+        <ul class="mt-3 flex flex-wrap gap-2">
+            @foreach ($values as $value)
+                <li class="rounded-full bg-[#FDEEF1] px-3 py-1.5 text-sm">
+                    @if (is_array($value))
+                        @if ($heading === 'Kandungan' && ! empty($value['url']))
+                            <a href="{{ $value['url'] }}" class="underline decoration-[#6BB1AD]/60 underline-offset-2 hover:text-[#E6748E]">{{ $value['name'] }}</a>
+                        @else
+                            {{ $value['name'] }}
+                        @endif
+                    @else
+                        {{ $value }}
+                    @endif
+                </li>
+            @endforeach
+        </ul>
+    @else
+        <p class="mt-3 text-sm text-[#657674]">Belum tercantum.</p>
+    @endif
+</div>
 @endforeach
 </section>
 {{-- Complete Your Segment v2 (Orang 4). Tombol "Lengkapi rutinitas" di halaman rekomendasi menuju #lengkapi-rutinitas. --}}
