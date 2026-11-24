@@ -41,7 +41,7 @@ class AboutPageTest extends TestCase
     {
         $html = $this->get(route('tentang'))->getContent();
 
-        $this->assertSame(2, substr_count($html, 'href="'.route('tentang').'"'), 'Tautan Tentang harus ada di navbar desktop dan mobile.');
+        $this->assertSame(1, substr_count($html, 'href="'.route('tentang').'"'), 'Tautan Tentang pada navbar responsif harus tersedia untuk desktop dan mobile.');
         // Tautan lama tetap ada.
         $this->assertStringContainsString('href="'.route('katalog').'"', $html);
         $this->assertStringContainsString('href="'.route('bahan').'"', $html);
