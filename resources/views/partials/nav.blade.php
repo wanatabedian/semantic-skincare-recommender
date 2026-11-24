@@ -1,3 +1,5 @@
+@include('partials.global-nav')
+@if (false)
 <!-- Partial navigation reused from katalog navbar, adapted for global use -->
 <nav class="fixed top-0 left-0 z-50 flex w-full items-center justify-between border-b border-rose/10 bg-cream/85 px-4 py-4 backdrop-blur-md sm:px-6 md:px-16" aria-label="Navigasi utama">
     <a href="{{ url('/') }}" class="flex items-center gap-3 text-xl font-extrabold tracking-tight text-rose no-underline">
@@ -19,3 +21,4 @@
         <a href="{{ route('kuis', ['new' => 1]) }}" class="rounded-xl bg-rose px-3 py-2 text-[10px] font-black uppercase text-white">Kuis</a>
     </div>
 </nav>
+@endif
