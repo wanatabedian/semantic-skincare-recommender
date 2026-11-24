@@ -52,7 +52,6 @@
 <div class="flex flex-wrap items-end justify-between gap-3">
 <div><h2 id="judul-rutinitas" class="serif text-2xl font-bold text-[#345452]">Lengkapi rutinitasmu</h2>
 <p class="mt-1 text-sm text-[#657674]">Satu produk untuk setiap langkah, diutamakan dari seri {{ $product['series'] ?? 'yang sama' }}. Langkah yang tidak ada di seri ini dilengkapi dari seri lain dengan jenis kulit dan keluhan yang sama.</p></div>
-@if($routine)<button type="button" data-routine-save-all="{{ implode(',', array_values(array_unique(array_filter(array_map(fn ($s) => $s['product']['id'] ?? null, $routine['steps']))))) }}" class="rounded-xl bg-[#E6748E] px-4 py-2.5 text-xs font-bold text-white">Simpan semua ke rutinitas</button>@endif
 </div>
 @if($routineError ?? null)
 <div class="mt-4 rounded-3xl border border-[#E6748E]/10 bg-white p-6 text-center text-sm text-[#657674]">{{ $routineError }}</div>
@@ -90,7 +89,6 @@
 <span class="rounded-full bg-[#FDEEF1] px-2.5 py-1 text-[11px] font-bold">{{ $sourceText[$item['source']] }}</span>
 @if($item['has_retinol'] && $step['times'] === ['malam'])<span class="rounded-full bg-[#345452]/10 px-2.5 py-1 text-[11px] font-bold">Mengandung Retinol · dipakai malam</span>@endif
 @if(in_array($item['id'], $involvedIds, true))<span class="rounded-full bg-[#FFF4D6] px-2.5 py-1 text-[11px] font-bold text-[#8A5A00]">Perhatikan kombinasi bahan</span>@endif
-<button type="button" data-routine-add="{{ $item['id'] }}" class="ml-auto rounded-lg border border-[#6BB1AD]/40 px-2.5 py-1 text-[11px] font-bold text-[#345452]">+ Rutinitas</button>
 </div>
 @else
 <p class="mt-1 text-sm text-[#657674]">Belum ada produk yang cocok untuk langkah ini.</p>
@@ -145,7 +143,7 @@
 <div class="mt-4"><p class="text-xs font-bold uppercase tracking-wide text-[#6BB1AD]">{{ $step['label'] }}</p>
 <ul class="mt-2 grid gap-2 sm:grid-cols-2">
 @foreach($step['alternatives'] as $alt)
-<li class="flex items-center gap-2 rounded-2xl bg-[#FFFEFA] p-3 ring-1 ring-[#E6748E]/10"><a href="{{ route('produk.detail', ['id' => $alt['id']] + $ageQuery) }}" class="min-w-0 flex-1 text-sm font-semibold hover:text-[#E6748E]">{{ $alt['name'] }}<span class="block text-xs font-normal text-[#657674]">{{ $alt['price'] !== null ? 'Rp'.number_format($alt['price'],0,',','.') : 'Harga belum tersedia' }}</span></a><button type="button" data-routine-add="{{ $alt['id'] }}" class="shrink-0 rounded-lg border border-[#6BB1AD]/40 px-2.5 py-1 text-[11px] font-bold">+ Rutinitas</button></li>
+<li class="flex items-center gap-2 rounded-2xl bg-[#FFFEFA] p-3 ring-1 ring-[#E6748E]/10"><a href="{{ route('produk.detail', ['id' => $alt['id']] + $ageQuery) }}" class="min-w-0 flex-1 text-sm font-semibold hover:text-[#E6748E]">{{ $alt['name'] }}<span class="block text-xs font-normal text-[#657674]">{{ $alt['price'] !== null ? 'Rp'.number_format($alt['price'],0,',','.') : 'Harga belum tersedia' }}</span></a></li>
 @endforeach
 </ul></div>
 @endforeach
