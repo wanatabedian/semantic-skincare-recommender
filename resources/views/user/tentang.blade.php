@@ -11,7 +11,7 @@
     $steps = [
         ['title' => 'Pemodelan ontologi', 'body' => 'Domain skincare dimodelkan dalam OWL dan ditulis dalam format Turtle (RDF). Ontologi CLEAN memiliki 8 kelas utama: Product, Brand, Category, ProductSeries, AgeGroup, SkinType, SkinConcern, dan Ingredient, yang dihubungkan oleh 7 object property (mis. hasBrand, hasIngredient, treatsConcern) dan 4 datatype property (mis. productName, estimatedPrice).'],
         ['title' => 'Pembersihan & audit data', 'body' => 'Data produk diaudit dengan skrip Python (rdflib) untuk sepuluh jenis masalah kualitas data (A1–A10), seperti kolom tergeser, bahan yang tercampur klaim, dan label kosong. Perbaikan dicatat di changelog, dan aturan bentuk data didefinisikan dengan SHACL.'],
-        ['title' => 'Penyimpanan di triple store', 'body' => 'Ontologi dimuat ke Apache Jena Fuseki, yang menyediakan endpoint SPARQL. Dataset aphrodite (ontologi v2) dipakai untuk rekomendasi, katalog, kuis, dan perbandingan; dataset aphrodite-clean dipakai untuk Ontology Explorer dan detail produk.'],
+        ['title' => 'Penyimpanan di triple store', 'body' => 'Ontologi dimuat ke Apache Jena Fuseki, yang menyediakan endpoint SPARQL. Dataset aphrodite (ontologi v2) dipakai untuk rekomendasi, katalog, dan kuis; dataset aphrodite-clean dipakai untuk Ontology Explorer dan detail produk.'],
         ['title' => 'Query SPARQL dari aplikasi', 'body' => 'Aplikasi Laravel mengirim query SPARQL ke Fuseki melalui HTTP. Mesin rekomendasi memberi skor per kriteria (keluhan, jenis kulit, kategori, bahan, harga) dengan filter keras kelompok usia dan Teen Lock, yaitu aturan proyek yang menyembunyikan produk ber-retinoid untuk usia remaja.'],
     ];
 

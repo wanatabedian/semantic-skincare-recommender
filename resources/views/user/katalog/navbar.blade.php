@@ -1,3 +1,5 @@
+@include('partials.global-nav')
+@if (false)
 {{--
     Navbar halaman Orang 5 (katalog & bahan): mengikuti gaya navbar landing (belum ada navbar global bersama).
     Parameter: $active = 'katalog' | 'bahan' (menu yang sedang aktif).
@@ -33,3 +35,4 @@
         <a href="{{ route('kuis', ['new' => 1]) }}" class="rounded-xl bg-rose px-3 py-2 text-[10px] font-black uppercase text-white">Kuis</a>
     </div>
 </nav>
+@endif

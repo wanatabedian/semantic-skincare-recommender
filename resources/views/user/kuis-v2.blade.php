@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="id">
 <head>
+    <link rel="icon" type="image/png" href="{{ asset('images/logo/logo-aphrodite.png') }}">
     <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}"><title>Kuis Analisis Kulit — Aphrodite</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -8,6 +9,7 @@
     <style>body{font-family:'DM Sans',sans-serif}.serif{font-family:'Playfair Display',serif}</style>
 </head>
 <body class="min-h-screen bg-[#FFFEFA] text-[#345452]">
+@include('partials.global-nav')
 <nav class="border-b border-[#E6748E]/10 bg-[#FDEEF1] px-5 py-4"><div class="mx-auto flex max-w-5xl items-center justify-between"><a href="/" class="text-xl font-extrabold text-[#E6748E]">Aphrodite</a><a href="/" class="text-sm font-bold text-[#657674] hover:text-[#E6748E]">← Beranda</a></div></nav>
 <main class="mx-auto max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
     <p class="mb-3 text-center text-xs font-extrabold uppercase tracking-[.25em] text-[#6BB1AD]">Analisis personal</p>
@@ -21,7 +23,10 @@
         <div id="feedback" class="mt-4 min-h-5 text-sm font-semibold text-[#E6748E]" role="status"></div>
         <div class="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-[#E6748E]/10 pt-5">
             <button id="back" class="rounded-xl border border-[#6BB1AD]/30 px-5 py-3 text-sm font-bold text-[#345452] disabled:opacity-40">Kembali</button>
-            <div class="flex flex-wrap gap-2"><button id="skip" class="rounded-xl px-4 py-3 text-sm font-bold text-[#657674] hover:bg-[#FDEEF1]">Lewati</button><button id="next" class="rounded-xl bg-[#E6748E] px-5 py-3 text-sm font-bold text-white hover:bg-[#d95f7b]">Selanjutnya</button><button id="analyze" class="hidden rounded-xl bg-[#345452] px-5 py-3 text-sm font-bold text-white hover:bg-[#263f3e]">Analisis Sekarang →</button></div>
+            <div class="flex flex-wrap gap-2">
+                <button id="skip" class="rounded-xl px-4 py-3 text-sm font-bold text-[#657674] hover:bg-[#FDEEF1]">Lewati</button>
+                <button id="next" class="rounded-xl bg-[#E6748E] px-5 py-3 text-sm font-bold text-white hover:bg-[#d95f7b]">Selanjutnya</button>
+                <button id="analyze" class="hidden rounded-xl bg-[#345452] px-5 py-3 text-sm font-bold text-white hover:bg-[#263f3e]">Analisis Sekarang →</button></div>
         </div>
     </section>
     <p class="mt-5 text-center text-xs text-[#657674]">Pilihan kuis dimuat dari ontologi Aphrodite. Rentang harga menggunakan Rupiah.</p>

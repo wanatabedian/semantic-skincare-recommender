@@ -80,6 +80,7 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+    <link rel="icon" type="image/png" href="{{ asset('images/logo/logo-aphrodite.png') }}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -105,6 +106,8 @@
 </head>
  
 <body class="min-h-screen w-full overflow-x-hidden bg-[#E3D6BF] font-['Montserrat'] text-[#4A5140] antialiased">
+
+    @include('partials.global-nav')
  
     <h1 class="sr-only">Kuis Analisis Kulit Aphrodite</h1>
  
@@ -121,7 +124,7 @@
         </div>
  
         <a href="{{ url('/') }}" class="flex items-center justify-center gap-2" aria-label="Aphrodite, kembali ke beranda">
-    <img src="{{ asset('images/logo-aphrodite.png') }}"
+    <img src="{{ asset('images/logo/logo-aphrodite.png') }}"
          alt="Logo Aphrodite"
          class="h-20 w-auto object-contain mt-4">
 

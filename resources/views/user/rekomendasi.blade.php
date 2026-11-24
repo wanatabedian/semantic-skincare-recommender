@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="id">
 <head>
+<link rel="icon" type="image/png" href="{{ asset('images/logo/logo-aphrodite.png') }}">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Hasil Analisis — Aphrodite</title>
@@ -9,6 +10,7 @@
 <style>body{font-family:'DM Sans',sans-serif}.serif{font-family:'Playfair Display',serif}</style>
 </head>
 <body class="min-h-screen bg-[#FFFEFA] text-[#345452]">
+@include('partials.global-nav')
 <nav class="bg-[#FDEEF1] px-5 py-4">
   <div class="mx-auto flex max-w-6xl justify-between">
     <a href="/" class="text-xl font-extrabold text-[#E6748E]">Aphrodite</a>
@@ -118,10 +120,9 @@
 
             <div class="mt-auto grid gap-2 pt-5">
               <a href="{{ route('produk.detail', ['id' => $product['id']]) }}" class="inline-flex justify-center rounded-xl bg-[#E6748E] px-4 py-3 text-sm font-bold text-white">Lihat detail</a>
-              <div class="grid grid-cols-2 gap-2">
+              <div>
                 <a href="{{ route('produk.detail', ['id' => $product['id']]) }}{{ $result['criteria']['age'] ?? null ? '?age='.urlencode($result['criteria']['age']) : '' }}#lengkapi-rutinitas"
-                   data-routine="{{ $product['id'] }}" class="routine inline-flex justify-center rounded-xl border border-[#6BB1AD]/40 px-3 py-3 text-xs font-bold">Lengkapi rutinitas</a>
-                <button type="button" data-product="{{ $product['id'] }}" class="compare rounded-xl border border-[#6BB1AD]/40 px-3 py-3 text-xs font-bold hover:bg-[#B8E8EE]/30">+ Bandingkan</button>
+                   data-routine="{{ $product['id'] }}" class="routine inline-flex w-full justify-center rounded-xl border border-[#6BB1AD]/40 px-3 py-3 text-xs font-bold">Lengkapi rutinitas</a>
               </div>
             </div>
           </article>
@@ -165,7 +166,7 @@
     chips.forEach(c => c.classList.remove('border-[#6BB1AD]', 'bg-[#B8E8EE]/40'));
     chip.classList.add('border-[#6BB1AD]', 'bg-[#B8E8EE]/40');
     let visible = 0;
-    cards.forEach(c => { const show = !chip.dataset.brand || c.dataset.brand === chip.dataset.brand; c.hidden = !show; visible += show; });
+    cards.forEach(c => { const show = !chip.dataset.brand || c.dataset.brand === chip.dataset.brand; c.style.display = show ? '' : 'none'; visible += show; });
     document.querySelector('#visible-count').textContent = visible;
   });
 })();
