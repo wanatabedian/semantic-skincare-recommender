@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Services\CleanOntologyService;
 use App\Services\IngredientConflictDetector;
 use App\Services\Recommendation\RecommendationEngine;
+use App\Services\SparqlService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use RuntimeException;
@@ -85,7 +86,19 @@ class ProductController extends Controller
             }
             foreach (['skin' => 'skin_types', 'age' => 'age_groups', 'concern' => 'concerns', 'ingredient' => 'ingredients'] as $key => $field) {
                 if (isset($row[$key]['value'])) {
-                    $product[$field][] = $this->displayTerm($row[$key], $row[$key.'Label'] ?? null);
+                    if ($key === 'ingredient') {
+                        $iri = $row[$key]['value'];
+                        $ingredientId = $this->fuseki->local($iri);
+                        $namespace = app(SparqlService::class)->namespace();
+                        $product[$field][] = [
+                            'name' => $this->displayTerm($row[$key], $row[$key.'Label'] ?? null),
+                            'url' => str_starts_with($iri, $namespace) && $iri === $namespace.$ingredientId && SparqlService::isSafeLocalName($ingredientId)
+                                ? route('bahan.detail', ['id' => $ingredientId])
+                                : null,
+                        ];
+                    } else {
+                        $product[$field][] = $this->displayTerm($row[$key], $row[$key.'Label'] ?? null);
+                    }
                 }
             }
             if (isset($row['note']['value'])) {
@@ -96,9 +109,10 @@ class ProductController extends Controller
                 : $product['verification_status'];
         }
 
-        foreach (['skin_types', 'age_groups', 'concerns', 'ingredients', 'verification_notes'] as $field) {
+        foreach (['skin_types', 'age_groups', 'concerns', 'verification_notes'] as $field) {
             $product[$field] = array_values(array_unique(array_filter($product[$field], static fn ($value) => $value !== '')));
         }
+        $product['ingredients'] = array_values(array_unique($product['ingredients'], SORT_REGULAR));
 
         $product['image'] = CatalogController::imageFor($product['brand'], $product['sourceId'] ?? $id);
 
