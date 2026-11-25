@@ -70,6 +70,19 @@ class RecommendationEngine
 
         $hidden = $teenLock ? $this->countHiddenByTeenLock($criteria) : 0;
 
+        // Alternatif: produk yang cocok sebagian (0 < skor < maks) dan belum tampil di daftar utama.
+        // Filter keras (umur & Teen Lock) tetap berlaku karena sudah ada di query skor.
+        $shown = array_column($products, 'uri');
+        $partial = array_values(array_filter(
+            $scored,
+            fn ($p) => $p['score'] > 0 && $p['score'] < $maxScore && ! in_array($p['uri'], $shown, true)
+        ));
+        $partialTotal = count($partial);
+        $partial = $this->attachDetails(
+            array_slice($partial, 0, (int) config('recommendation.partial_limit', 12)),
+            $criteria
+        );
+
         $products = $this->attachDetails($products, $criteria);
 
         return [
@@ -88,6 +101,8 @@ class RecommendationEngine
             'notices' => $notices,
             'total' => count($products),
             'products' => $products,
+            'partial_total' => $partialTotal,
+            'partial' => $partial,
         ];
     }
 
@@ -344,9 +359,12 @@ SPARQL);
         $reasons = [];
         $missed = [];
         $missedKeys = [];
-        $miss = function (string $key, string $label) use (&$missed, &$missedKeys) {
+        $missedDetail = [];
+        // $label = ringkas (untuk banner "dilonggarkan"), $detail = kalimat spesifik untuk kartu produk.
+        $miss = function (string $key, string $label, string $detail) use (&$missed, &$missedKeys, &$missedDetail) {
             $missedKeys[] = $key;
             $missed[] = $label;
+            $missedDetail[] = $detail;
         };
 
         if ($criteria->skin !== null) {
@@ -356,7 +374,7 @@ SPARQL);
             } elseif ($v('skinVia') === 'all') {
                 $reasons[] = "Cocok untuk semua jenis kulit (termasuk {$skin})";
             } else {
-                $miss('skin', 'jenis kulit');
+                $miss('skin', 'jenis kulit', "Tidak tercatat untuk kulit {$skin}");
             }
         }
 
@@ -368,7 +386,7 @@ SPARQL);
             } elseif ($v("c{$n}Via") === 'ingredient') {
                 $reasons[] = "Mengandung bahan yang menargetkan {$label}";
             } else {
-                $miss("concern:{$concern}", "keluhan {$label}");
+                $miss("concern:{$concern}", "keluhan {$label}", "Tidak menargetkan keluhan {$label}");
             }
         }
 
@@ -376,7 +394,7 @@ SPARQL);
             if ($num('sCat') > 0) {
                 $reasons[] = 'Termasuk kategori '.$voc->label('category', $criteria->category);
             } else {
-                $miss('category', 'kategori');
+                $miss('category', 'kategori', 'Bukan kategori '.$voc->label('category', $criteria->category));
             }
         }
 
@@ -384,7 +402,7 @@ SPARQL);
             if ($num('sIng') > 0) {
                 $reasons[] = 'Mengandung '.$voc->label('ingredient', $criteria->ingredient);
             } else {
-                $miss('ingredient', 'bahan');
+                $miss('ingredient', 'bahan', 'Tidak mengandung '.$voc->label('ingredient', $criteria->ingredient));
             }
         }
 
@@ -393,7 +411,9 @@ SPARQL);
             if ($num('sPrice') > 0) {
                 $reasons[] = 'Harga '.self::rupiah($price).' sesuai rentang '.self::priceRange($criteria);
             } else {
-                $miss('price', 'harga');
+                $miss('price', 'harga', $price === null
+                    ? 'Harga belum tersedia'
+                    : 'Harga '.self::rupiah($price).' di luar rentang '.self::priceRange($criteria));
             }
         }
 
@@ -411,6 +431,7 @@ SPARQL);
             'reasons' => $reasons,
             'missed' => $missed,
             'missed_keys' => $missedKeys,
+            'missed_detail' => $missedDetail,
         ];
     }
 

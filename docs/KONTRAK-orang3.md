@@ -65,10 +65,13 @@ Alias lama tetap diterima: `age_group`, `skin_type`, `concerns`.
     "score": 3, "max_score": 5, "match_percent": 60,
     "reasons": ["Mengatasi Jerawat"],
     "missed": ["jenis kulit"], "missed_keys": ["skin"],
+    "missed_detail": ["Tidak tercatat untuk kulit Kering"],
     "brand": "Emina", "brand_id": "EminaBrand", "series": "Bright Stuff Acne Prone", "series_id": "...",
     "category": "Cleanser", "image": null, "verification": "...",
     "skin_types": ["Berminyak"], "concerns": ["Jerawat"], "ingredients": ["Salicylic Acid"]
-  }]
+  }],
+  "partial_total": 20,                 // jumlah produk cocok sebagian (0 < skor < maks) di luar "products"
+  "partial": [ /* bentuk sama dengan products[], maks. 12 (config partial_limit), urut skor tertinggi */ ]
 }
 ```
 
@@ -86,6 +89,7 @@ Error: `422 { "status": "error", "message": "...", "errors": { "concern": ["Kelu
 
 - **Filter keras (tidak pernah dilonggarkan):** kelompok umur dan Teen Lock.
 - **Plan A** = semua produk dengan skor = skor maksimal. **Plan B** = 12 produk skor tertinggi.
+- **Cocok sebagian (`partial`)** = produk lain dengan 0 < skor < maks (filter keras tetap berlaku), ditampilkan di akhir halaman hasil sebagai alternatif beserta alasan masuk (`reasons`) dan kriteria yang belum terpenuhi (`missed_detail`).
 - Bobot, batas Plan B, dan daftar cadangan Teen Lock ada di `config/recommendation.php`.
 
 ## 6. Teen Lock
