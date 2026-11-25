@@ -7,7 +7,21 @@
 <title>Hasil Analisis — Aphrodite</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
-<style>body{font-family:'DM Sans',sans-serif}.serif{font-family:'Playfair Display',serif}</style>
+<style>
+body{font-family:'DM Sans',sans-serif}.serif{font-family:'Playfair Display',serif}
+.product-card{transition:transform .28s ease,box-shadow .28s ease}
+.product-card:hover{transform:translateY(-4px);box-shadow:0 18px 40px rgba(230,116,142,.12)}
+/* Latar foto polos, ritme warnanya sama dengan kartu katalog (public/css/katalog.css) */
+.product-photo-stage{position:relative;isolation:isolate;background:#FDEEF1}
+.product-card:nth-child(3n+2) .product-photo-stage{background:#EAF7F8}
+.product-card:nth-child(3n) .product-photo-stage{background:#FBF3EF}
+/* Latar putih/abu muda bawaan foto dibuat putih bersih (brightness+contrast), lalu dilebur ke gradien lewat multiply,
+   sehingga tidak ada "petak" di belakang produk. Tanpa drop-shadow karena bayangannya ikut berbentuk kotak. */
+.product-photo-image{animation:photo-float 5s ease-in-out infinite;transition:transform .45s cubic-bezier(.2,.75,.25,1);filter:brightness(1.06) contrast(1.08);mix-blend-mode:multiply}
+.product-photo-stage:hover .product-photo-image{transform:translateY(-5px) scale(1.045)}
+@keyframes photo-float{0%,100%{translate:0 0}50%{translate:0 -5px}}
+@media(prefers-reduced-motion:reduce){.product-card,.product-photo-image{transition:none;animation:none}.product-card:hover{transform:none}.product-photo-stage:hover .product-photo-image{transform:none}}
+</style>
 </head>
 <body class="min-h-screen bg-[#FFFEFA] text-[#345452]">
 @include('partials.global-nav')
@@ -95,8 +109,19 @@
 
       <div id="grid" class="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         @foreach($result['products'] as $i => $product)
-          <article class="card flex flex-col rounded-3xl border border-[#E6748E]/10 bg-white p-5 shadow-sm"
+          @php($productImage = \App\Http\Controllers\CatalogController::imageFor($product['brand'] ?? null, $product['id'] ?? ''))
+          <article class="card product-card flex flex-col rounded-3xl border border-[#E6748E]/10 bg-white p-5 shadow-sm"
                    data-order="{{ $i }}" data-price="{{ $product['price'] ?? '' }}" data-brand="{{ $product['brand'] ?? '' }}">
+            <div class="product-photo-stage mb-4 flex h-48 items-center justify-center overflow-hidden rounded-2xl sm:h-52">
+              @if($productImage)
+                <img src="{{ $productImage }}" alt="Foto {{ $product['name'] ?? 'produk skincare' }}" loading="lazy" class="product-photo-image h-40 w-40 max-w-full object-contain p-0 motion-reduce:animate-none">
+              @else
+                <div class="px-6 text-center" role="img" aria-label="Foto {{ $product['name'] ?? 'produk skincare' }} belum tersedia">
+                  <span class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-white/80 text-2xl text-[#E6748E] shadow-sm" aria-hidden="true">✿</span>
+                  <p class="mt-3 text-xs font-semibold tracking-wide text-[#657674]">Foto produk belum tersedia</p>
+                </div>
+              @endif
+            </div>
             <div class="flex items-start justify-between gap-3">
               <p class="text-xs font-bold text-[#6BB1AD]">{{ $product['brand'] ?? 'Brand tidak tersedia' }} · {{ $product['series'] ?? 'Tanpa seri' }}</p>
               @if($result['max_score'] > 0)
