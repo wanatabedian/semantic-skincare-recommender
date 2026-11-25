@@ -46,6 +46,13 @@ class CatalogController extends Controller
         'brand' => ['property' => 'hasBrand', 'title' => 'Brand'],
     ];
 
+    /**
+     * Kelompok yang ditampilkan sebagai filter di sidebar (hanya Brand).
+     * Kelompok lain tetap diterima dari URL (mis. kartu kategori di landing page)
+     * dan tampil sebagai chip filter aktif, tetapi tidak punya panel sendiri.
+     */
+    public const SIDEBAR_GROUPS = ['brand'];
+
     public const PRICE_GROUP = 'harga';
 
     public const PRICE_TITLE = 'Rentang harga';
@@ -557,12 +564,15 @@ SPARQL;
         return $options;
     }
 
-    /** Facet semua kelompok: [kelompok => ['title', 'options' => [[value, label, count, selected]]]]. */
+    /** Facet kelompok sidebar: [kelompok => ['title', 'options' => [[value, label, count, selected]]]]. */
     private function facets(array $state, array $options): array
     {
         $facets = [];
 
         foreach (self::GROUPS as $key => $group) {
+            if (! in_array($key, self::SIDEBAR_GROUPS, true)) {
+                continue;
+            }
             $query = strtr(self::FACET_QUERY, [
                 '{{GROUP}}' => $key,
                 '{{PROPERTY}}' => 'ex:'.$group['property'],
@@ -581,20 +591,22 @@ SPARQL;
             }
         }
 
-        $query = strtr(self::PRICE_FACET_QUERY, [
-            '{{FILTERS}}' => $this->filterBlock($state, self::PRICE_GROUP),
-            '{{BUCKET}}' => self::priceBucketExpression('?price'),
-        ]);
-        $counts = $this->counts($query);
+        if (in_array(self::PRICE_GROUP, self::SIDEBAR_GROUPS, true)) {
+            $query = strtr(self::PRICE_FACET_QUERY, [
+                '{{FILTERS}}' => $this->filterBlock($state, self::PRICE_GROUP),
+                '{{BUCKET}}' => self::priceBucketExpression('?price'),
+            ]);
+            $counts = $this->counts($query);
 
-        $facets[self::PRICE_GROUP] = ['title' => self::PRICE_TITLE, 'options' => []];
-        foreach (self::PRICE_RANGES as $value => $range) {
-            $facets[self::PRICE_GROUP]['options'][] = [
-                'value' => $value,
-                'label' => $range['label'],
-                'count' => $counts[$value] ?? 0,
-                'selected' => in_array($value, $state[self::PRICE_GROUP], true),
-            ];
+            $facets[self::PRICE_GROUP] = ['title' => self::PRICE_TITLE, 'options' => []];
+            foreach (self::PRICE_RANGES as $value => $range) {
+                $facets[self::PRICE_GROUP]['options'][] = [
+                    'value' => $value,
+                    'label' => $range['label'],
+                    'count' => $counts[$value] ?? 0,
+                    'selected' => in_array($value, $state[self::PRICE_GROUP], true),
+                ];
+            }
         }
 
         return $facets;

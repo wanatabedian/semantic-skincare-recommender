@@ -22,7 +22,20 @@ class QuizSubmissionRequest extends FormRequest
             'concern' => ['sometimes', 'array', 'max:2'],
             'concern.*' => ['string', 'distinct', Rule::in(array_column($options['concerns'], 'value'))],
             'price_min' => ['nullable', 'integer', 'min:0'],
-            'price_max' => ['nullable', 'integer', 'gte:price_min'],
+            // 'gte:price_min' menolak input saat price_min kosong (mis. "Di bawah Rp50.000"),
+            // jadi perbandingan min/max dilakukan di after() hanya bila keduanya diisi.
+            'price_max' => ['nullable', 'integer', 'min:0'],
         ];
+    }
+
+    public function after(): array
+    {
+        return [function ($validator) {
+            $min = $this->input('price_min');
+            $max = $this->input('price_max');
+            if (is_numeric($min) && is_numeric($max) && (int) $max < (int) $min) {
+                $validator->errors()->add('price_max', 'Harga maksimum harus lebih besar atau sama dengan harga minimum.');
+            }
+        }];
     }
 }

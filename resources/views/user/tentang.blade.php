@@ -77,8 +77,7 @@
             </p>
             <p class="leading-relaxed tone-muted">
                 Pengetahuan tentang produk, bahan aktif, dan keterkaitannya disimpan sebagai ontologi, sehingga setiap rekomendasi dapat
-                ditelusuri kembali ke data dan relasi yang mendasarinya, misalnya lewat
-                <a href="{{ route('ontology.dashboard') }}" class="link">Ontology Explorer</a>.
+                ditelusuri kembali ke data dan relasi yang mendasarinya.
             </p>
         </section>
 
@@ -118,8 +117,7 @@
                     <ul class="list-disc pl-5 space-y-2 text-sm leading-relaxed">
                         <li>
                             File ontologi <span class="font-mono text-xs">skincare_ontology_clean.ttl</span>
-                            (<a href="{{ route('ontology.download') }}" class="link">unduh</a>), juga dapat dijelajahi lewat
-                            <a href="{{ route('ontology.dashboard') }}" class="link">Ontology Explorer</a>.
+                            tersimpan di folder <span class="font-mono text-xs">ontology/</span> pada repository proyek.
                         </li>
                         <li>
                             Setiap produk menyimpan status verifikasi (<span class="font-mono text-xs">ex:verificationStatus</span>):

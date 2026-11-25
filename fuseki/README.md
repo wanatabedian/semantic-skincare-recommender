@@ -1,6 +1,8 @@
 # Fuseki untuk Aphrodite
 
-Panduan ini menjelaskan cara menyiapkan Apache Jena Fuseki agar semua anggota tim memakai data ontologi yang sama, yaitu `ontology/aphrodite-v2.ttl` yang dimuat ke dataset **`aphrodite`**.
+Panduan ini menjelaskan cara menyiapkan Apache Jena Fuseki agar semua anggota tim memakai data ontologi yang sama, yaitu `ontology/skincare_ontology_clean.ttl` yang dimuat ke dataset **`aphrodite`**.
+
+> **Catatan (25 November 2026):** aplikasi (kuis, katalog, rekomendasi, detail produk) ditulis untuk IRI di `skincare_ontology_clean.ttl` (misalnya `ex:Oily`, `ex:Teen`). File `aphrodite-v2.ttl` memakai IRI lain (misalnya `ex:OilySkinType`), jadi **jangan dimuat ke dataset `aphrodite`** kecuali aplikasinya ikut disesuaikan. Dataset `aphrodite` di laptop pengembang sudah disinkronkan dengan file clean secara tertarget (1 triple dihapus, 39 ditambah) setelah backup ke `~/aphrodite-fuseki-backups/`; patch `*.sync.ru` dan `*.rollback.ru` disimpan di folder yang sama.
 
 | Komponen | Versi / nilai |
 |---|---|
@@ -41,7 +43,7 @@ Skrip pemuatan ada di `scripts/load.sh`.
 | Reasoner | Tidak ada | `OWLFBRuleReasoner` |
 | Lokasi database | Relatif: `run/databases/aphrodite` | Absolut |
 | Jumlah triple yang terlihat lewat query | Sama persis dengan file ontologi | Dapat berbeda dari file ontologi karena triple hasil inferensi dan versi data runtime yang lebih lama |
-| Isi data | Dimuat dari `ontology/aphrodite-v2.ttl` melalui `load.sh` | Masih data v2 sebelum commit `398429e` |
+| Isi data | Dimuat dari `ontology/skincare_ontology_clean.ttl` melalui `load.sh` | Sama dengan `skincare_ontology_clean.ttl` (disinkronkan 25 November 2026) |
 | Restart Fuseki | Belum diuji | Berhasil diuji (21 November 2026) |
 
 `load.sh` hanya memakai konfigurasi generik **jika dataset belum ada**. Jika dataset sudah ada, konfigurasinya tidak diubah. Artinya, menjalankan `load.sh` terhadap dataset runtime tidak menghapus reasoner-nya.
@@ -153,7 +155,7 @@ Variabel opsional:
 | `FUSEKI_URL` | `http://127.0.0.1:3030` |
 | `DATASET` | `aphrodite` |
 | `FUSEKI_CONFIG` | `fuseki/aphrodite-config.ttl` |
-| `TTL_FILE` | `ontology/aphrodite-v2.ttl` |
+| `TTL_FILE` | `ontology/skincare_ontology_clean.ttl` |
 | `BACKUP_DIR` | `~/aphrodite-fuseki-backups` (wajib di luar repo) |
 | `EXPECTED_PRODUCTS` | `88` |
 | `PYTHON` | `.venv/bin/python`, lalu `python3` |

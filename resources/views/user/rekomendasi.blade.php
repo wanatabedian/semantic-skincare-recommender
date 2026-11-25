@@ -154,6 +154,72 @@ body{font-family:'DM Sans',sans-serif}.serif{font-family:'Playfair Display',seri
         @endforeach
       </div>
     @endif
+
+    {{-- Alternatif: produk yang cocok sebagian, ditampilkan di akhir sebagai baris geser ke samping. --}}
+    @if(! empty($result['partial']))
+      {{-- Tingkat kecocokan: >= 75% hampir cocok, 50–74% cukup cocok, < 50% sebagian cocok. --}}
+      @php($tiers = [
+        'high' => ['label' => 'Hampir cocok', 'badge' => 'bg-[#B8E8EE]/60 text-[#2B5E5B]', 'bar' => 'bg-[#6BB1AD]', 'ring' => 'border-[#6BB1AD]/40'],
+        'mid' => ['label' => 'Cukup cocok', 'badge' => 'bg-amber-100 text-amber-900', 'bar' => 'bg-amber-400', 'ring' => 'border-amber-200'],
+        'low' => ['label' => 'Sebagian cocok', 'badge' => 'bg-[#FDEEF1] text-[#B04A63]', 'bar' => 'bg-[#E6748E]', 'ring' => 'border-[#E6748E]/25'],
+      ])
+      <section class="mt-14 border-t border-[#E6748E]/10 pt-10" aria-labelledby="partial-title">
+        <div class="flex flex-wrap items-end justify-between gap-4">
+          <div class="max-w-2xl">
+            <p class="text-xs font-extrabold uppercase tracking-[.25em] text-[#6BB1AD]">Alternatif lain</p>
+            <h2 id="partial-title" class="serif mt-1 text-2xl font-bold text-[#345452] sm:text-3xl">Cocok sebagian dengan pilihanmu</h2>
+            <p class="mt-2 text-sm text-[#657674]">
+              {{ $result['partial_total'] }} produk lain memenuhi <b>sebagian</b> kriteriamu{{ $result['partial_total'] > count($result['partial']) ? ', berikut '.count($result['partial']).' yang paling mendekati' : '' }}.
+              Setiap kartu menjelaskan kenapa produk masuk dan kriteria mana yang belum terpenuhi.
+              Kelompok umur{{ $result['teen_lock']['active'] ? ' dan Teen Lock' : '' }} tetap diterapkan.
+            </p>
+          </div>
+          <div class="hidden gap-2 sm:flex">
+            <button type="button" data-scroll="-1" aria-label="Geser ke kiri" class="grid h-10 w-10 place-items-center rounded-full border border-[#E6748E]/20 bg-white text-lg font-bold hover:border-[#6BB1AD]">←</button>
+            <button type="button" data-scroll="1" aria-label="Geser ke kanan" class="grid h-10 w-10 place-items-center rounded-full border border-[#E6748E]/20 bg-white text-lg font-bold hover:border-[#6BB1AD]">→</button>
+          </div>
+        </div>
+
+        <ul class="mt-4 flex flex-wrap gap-2 text-[11px] font-bold" aria-label="Keterangan tingkat kecocokan">
+          <li class="rounded-full bg-[#B8E8EE]/60 px-3 py-1 text-[#2B5E5B]">≥ 75% · Hampir cocok</li>
+          <li class="rounded-full bg-amber-100 px-3 py-1 text-amber-900">50–74% · Cukup cocok</li>
+          <li class="rounded-full bg-[#FDEEF1] px-3 py-1 text-[#B04A63]">&lt; 50% · Sebagian cocok</li>
+        </ul>
+
+        <div id="partial-track" tabindex="0" aria-label="Daftar produk cocok sebagian, geser ke samping"
+             class="-mx-4 mt-5 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth px-4 pb-5 sm:-mx-6 sm:px-6 focus-visible:outline-2 focus-visible:outline-[#6BB1AD]">
+          @foreach($result['partial'] as $product)
+            @php($t = $tiers[$product['match_percent'] >= 75 ? 'high' : ($product['match_percent'] >= 50 ? 'mid' : 'low')])
+            <article class="partial-card flex w-[80vw] max-w-[310px] shrink-0 snap-start flex-col rounded-3xl border {{ $t['ring'] }} bg-white p-5 shadow-sm sm:w-[300px]">
+              <div class="flex items-start justify-between gap-3">
+                <p class="text-xs font-bold text-[#6BB1AD]">{{ $product['brand'] ?? 'Brand tidak tersedia' }}</p>
+                <span class="shrink-0 rounded-full px-3 py-1 text-xs font-extrabold {{ $t['badge'] }}"
+                      title="Skor {{ $product['score'] }} dari {{ $product['max_score'] }}">{{ $product['match_percent'] }}% · {{ $t['label'] }}</span>
+              </div>
+              <div class="mt-3 h-1.5 overflow-hidden rounded-full bg-[#345452]/10" role="img" aria-label="Kecocokan {{ $product['match_percent'] }} persen">
+                <div class="h-full rounded-full {{ $t['bar'] }}" style="width: {{ $product['match_percent'] }}%"></div>
+              </div>
+              <h3 class="serif mt-3 text-lg font-bold leading-snug">{{ $product['name'] }}</h3>
+              <p class="mt-1 text-xs text-[#657674]">{{ $product['category'] ?? 'Kategori tidak tersedia' }}</p>
+              <p class="mt-2 font-extrabold text-[#E6748E]">{{ $product['price'] ? 'Rp'.number_format($product['price'], 0, ',', '.') : 'Harga tidak tersedia' }}</p>
+
+              <div class="mt-3 rounded-2xl bg-[#B8E8EE]/20 p-3 text-xs">
+                <p class="font-bold">Masuk karena:</p>
+                <ul class="mt-1 space-y-1">@foreach($product['reasons'] as $reason)<li>✓ {{ $reason }}</li>@endforeach</ul>
+              </div>
+              @if($product['missed_detail'])
+                <div class="mt-2 rounded-2xl bg-[#FDEEF1]/70 p-3 text-xs">
+                  <p class="font-bold text-[#B04A63]">Belum memenuhi:</p>
+                  <ul class="mt-1 space-y-1 text-[#7A3B4B]">@foreach($product['missed_detail'] as $miss)<li>✗ {{ $miss }}</li>@endforeach</ul>
+                </div>
+              @endif
+
+              <a href="{{ route('produk.detail', ['id' => $product['id']]) }}" class="mt-auto inline-flex justify-center rounded-xl border border-[#E6748E]/40 px-4 py-3 text-sm font-bold text-[#E6748E] hover:bg-[#FDEEF1]">Lihat detail</a>
+            </article>
+          @endforeach
+        </div>
+      </section>
+    @endif
   @endif
 
   <div class="mt-8 flex flex-wrap gap-3">
@@ -170,6 +236,15 @@ body{font-family:'DM Sans',sans-serif}.serif{font-family:'Playfair Display',seri
   document.querySelectorAll('.routine').forEach(link => link.addEventListener('click', () => {
     const routine = read('aphrodite-routine');
     if (!routine.includes(link.dataset.routine)) { routine.push(link.dataset.routine); write('aphrodite-routine', routine); }
+  }));
+
+  // Tombol geser untuk baris "cocok sebagian".
+  const track = document.querySelector('#partial-track');
+  document.querySelectorAll('[data-scroll]').forEach(btn => btn.addEventListener('click', () => {
+    if (!track) return;
+    const card = track.querySelector('.partial-card');
+    const step = card ? card.getBoundingClientRect().width + 16 : track.clientWidth * 0.8;
+    track.scrollBy({ left: Number(btn.dataset.scroll) * step, behavior: 'smooth' });
   }));
 
   // Urutkan & filter brand di sisi browser (kriteria kuis tetap di URL).

@@ -17,6 +17,15 @@ ex:SkinType a owl:Class .
 ex:SkinConcern a owl:Class .
 ex:Ingredient a owl:Class .
 
+# ===== Aturan Teen Lock =====
+# Golongan bahan yang tidak direkomendasikan untuk kelompok usia tertentu.
+# Dibaca mesin rekomendasi lewat ?bahan a/rdfs:subClassOf* ex:Retinoid dan ex:contraindicatedFor.
+ex:Retinoid a owl:Class ; rdfs:subClassOf ex:Ingredient ; rdfs:label "Retinoid"@id ;
+    ex:contraindicatedFor ex:Teen ;
+    rdfs:comment "Aturan Teen Lock: produk yang mengandung bahan golongan Retinoid tidak direkomendasikan untuk remaja. Ini aturan pemodelan sesuai spesifikasi tugas, bukan klaim medis universal."@id .
+ex:contraindicatedFor a owl:ObjectProperty ; rdfs:range ex:AgeGroup ;
+    rdfs:comment "Golongan bahan (kelas) yang tidak disarankan untuk kelompok usia tertentu."@id .
+
 # ===== Properties =====
 ex:belongsToSeries a owl:ObjectProperty ; rdfs:domain ex:Product ; rdfs:range ex:ProductSeries .
 ex:estimatedPrice a owl:DatatypeProperty ; rdfs:domain ex:Product ; rdfs:range xsd:integer .
@@ -86,7 +95,7 @@ ex:Panthenol a ex:Ingredient ; rdfs:label "Panthenol (Vitamin B5)"@id .
 ex:Peptide a ex:Ingredient ; rdfs:label "Peptide"@id .
 ex:PlantOil a ex:Ingredient ; rdfs:label "Minyak Tanaman"@id .
 ex:Probiotic a ex:Ingredient ; rdfs:label "Probiotik / Prebiotik / Ferment"@id .
-ex:Retinol a ex:Ingredient ; rdfs:label "Retinol"@id .
+ex:Retinol a ex:Ingredient, ex:Retinoid ; rdfs:label "Retinol"@id .
 ex:SalicylicAcid a ex:Ingredient ; rdfs:label "Salicylic Acid (BHA)"@id .
 ex:Squalane a ex:Ingredient ; rdfs:label "Squalane"@id .
 ex:TranexamicAcid a ex:Ingredient ; rdfs:label "Tranexamic Acid"@id .

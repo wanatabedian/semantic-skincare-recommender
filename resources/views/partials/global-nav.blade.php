@@ -3,7 +3,6 @@
         ['label' => 'Beranda', 'route' => 'home', 'pattern' => 'home'],
         ['label' => 'Katalog', 'route' => 'katalog', 'pattern' => 'katalog'],
         ['label' => 'Kandungan', 'route' => 'bahan', 'pattern' => 'bahan*'],
-        ['label' => 'Eksplorasi Ontologi', 'route' => 'ontology.dashboard', 'pattern' => 'ontology.*'],
         ['label' => 'Tentang', 'route' => 'tentang', 'pattern' => 'tentang'],
     ];
 @endphp

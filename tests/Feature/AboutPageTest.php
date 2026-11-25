@@ -65,6 +65,5 @@ class AboutPageTest extends TestCase
         $response->assertSee("{$official} produk</strong> dicatat terverifikasi dari situs resmi", false);
         $response->assertSee("{$retailer} produk</strong> dari retailer", false);
         $response->assertSee("{$needsCheck} produk masih memiliki catatan");
-        $response->assertSee(route('ontology.download'), false);
     }
 }

@@ -19,7 +19,6 @@
 
     <div class="hidden items-center gap-7 text-xs font-bold uppercase tracking-wider text-muted lg:flex">
         <a href="{{ route('bahan') }}" class="transition hover:text-rose">Kandungan</a>
-        <a href="{{ route('ontology.dashboard') }}" class="transition hover:text-rose">Eksplorasi Ontologi</a>
         @foreach ($menu as $key => $item)
             <a href="{{ $item['href'] }}" @class(['k-navlink transition', 'is-active text-rose' => $active === $key, 'hover:text-rose' => $active !== $key]) @if ($active === $key) aria-current="page" @endif>{{ $item['label'] }}</a>
         @endforeach

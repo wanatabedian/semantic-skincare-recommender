@@ -177,7 +177,7 @@ class SparqlService
             $status = $e->getResponse()?->getStatusCode();
             // Fuseki membalas 404/405 kalau dataset di URL belum dibuat.
             $message = in_array($status, [404, 405], true)
-                ? 'Dataset Fuseki tidak ditemukan. Buat dataset "aphrodite" dan muat file ontology/aphrodite-v2.ttl, atau periksa FUSEKI_QUERY_URL di file .env.'
+                ? 'Dataset Fuseki tidak ditemukan. Buat dataset "aphrodite" dan muat file ontology/skincare_ontology_clean.ttl, atau periksa FUSEKI_QUERY_URL di file .env.'
                 : 'Query SPARQL ditolak oleh Fuseki'.($status ? " (HTTP {$status})" : '').'.';
             throw new SparqlException($message, 0, $e);
         } catch (GuzzleException $e) {

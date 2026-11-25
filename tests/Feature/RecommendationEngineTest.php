@@ -328,6 +328,49 @@ class RecommendationEngineTest extends TestCase
             ->assertSee('60% cocok'); // skor 3 dari 5 (kulit 2 + keluhan 3)
     }
 
+    public function test_plan_a_juga_mengembalikan_produk_cocok_sebagian_beserta_alasannya(): void
+    {
+        // Kriteria: kulit (2) + keluhan (3) = maks 5.
+        $this->scoreRows = [
+            $this->row('FULL-1', 5, ['skinVia' => 'exact', 'sSkin' => 2, 'c1Via' => 'direct', 'sC1' => 3]),
+            $this->row('PART-1', 3, ['skinVia' => '', 'sSkin' => 0, 'c1Via' => 'direct', 'sC1' => 3]),
+            $this->row('PART-2', 2, ['skinVia' => 'exact', 'sSkin' => 2, 'c1Via' => '', 'sC1' => 0]),
+            $this->row('ZERO-1', 0, ['skinVia' => '', 'sSkin' => 0, 'c1Via' => '', 'sC1' => 0]),
+        ];
+
+        $result = $this->engine()->recommend($this->criteria(['skin' => 'DrySkinType', 'concern' => ['Acne']]));
+
+        $this->assertSame('A', $result['plan']);
+        $this->assertSame(['FULL-1'], array_column($result['products'], 'id'));
+        // Skor 0 tidak ikut; urutan skor tertinggi dulu.
+        $this->assertSame(2, $result['partial_total']);
+        $this->assertSame(['PART-1', 'PART-2'], array_column($result['partial'], 'id'));
+        $this->assertSame(60, $result['partial'][0]['match_percent']);
+        $this->assertSame(['Mengatasi Jerawat'], $result['partial'][0]['reasons']);
+        $this->assertSame(['Tidak tercatat untuk kulit Kering'], $result['partial'][0]['missed_detail']);
+        $this->assertSame(['Tidak menargetkan keluhan Jerawat'], $result['partial'][1]['missed_detail']);
+    }
+
+    public function test_halaman_hasil_menampilkan_baris_geser_cocok_sebagian_di_akhir(): void
+    {
+        $this->scoreRows = [
+            $this->row('FULL-1', 5, ['skinVia' => 'exact', 'sSkin' => 2, 'c1Via' => 'direct', 'sC1' => 3]),
+            $this->row('PART-1', 3, ['skinVia' => '', 'sSkin' => 0, 'c1Via' => 'direct', 'sC1' => 3]),
+        ];
+
+        $html = $this->get('/rekomendasi?skin=DrySkinType&concern[]=Acne')->assertOk()
+            ->assertSee('Cocok sebagian dengan pilihanmu')
+            ->assertSee('60% · Cukup cocok')
+            ->assertSee('Masuk karena:')
+            ->assertSee('Belum memenuhi:')
+            ->getContent();
+
+        $this->assertStringContainsString('id="partial-track"', $html);
+        $this->assertStringContainsString('overflow-x-auto', $html);
+        // Bagian alternatif ada setelah daftar utama.
+        $this->assertGreaterThan(strpos($html, 'id="grid"'), strpos($html, 'id="partial-track"'));
+    }
+
     // 19
     public function test_halaman_hasil_menolak_input_tidak_valid_dengan_pesan(): void
     {

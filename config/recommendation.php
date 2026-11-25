@@ -24,6 +24,9 @@ return [
     // Plan B: jumlah produk skor tertinggi yang ditampilkan kalau Plan A kosong.
     'plan_b_limit' => 12,
 
+    // Jumlah maksimal produk "cocok sebagian" (alternatif) di bagian akhir halaman hasil.
+    'partial_limit' => 12,
+
     // Maksimal keluhan yang boleh dipilih user.
     'max_concerns' => 2,
 
