@@ -299,10 +299,8 @@ class CatalogPageTest extends TestCase
 
         $expected = 'FILTER(CONTAINS(LCASE(STR(?nm)), LCASE("Gel\\") } ; DROP ALL ; #")))';
         $this->assertStringContainsString($expected, $this->queries['produk']);
-        // Search juga diterapkan pada setiap facet.
-        foreach (['facet:brand', 'facet:kategori', 'facet:kulit', 'facet:concern', 'facet:harga'] as $marker) {
-            $this->assertStringContainsString($expected, $this->queries[$marker]);
-        }
+        // Search juga diterapkan pada facet sidebar (hanya Brand).
+        $this->assertStringContainsString($expected, $this->queries['facet:brand']);
     }
 
     public function test_filter_values_outside_ontology_whitelist_are_dropped(): void
@@ -333,28 +331,40 @@ class CatalogPageTest extends TestCase
         $this->assertSame(2, substr_count($query, 'FILTER EXISTS'));
     }
 
-    public function test_each_facet_ignores_its_own_group_but_applies_the_others(): void
+    public function test_sidebar_only_has_brand_facet_that_applies_other_url_filters(): void
     {
         $this->fakeSparql([]);
 
-        $this->get('/katalog?brand[]=WardahBrand&concern[]=Acne&harga[]=50-100')->assertOk();
+        $html = $this->get('/katalog?brand[]=WardahBrand&concern[]=Acne&harga[]=50-100')->assertOk()->getContent();
 
+        // Hanya facet Brand yang dihitung dan ditampilkan.
+        $facets = array_values(array_filter(array_keys($this->queries), fn ($m) => str_starts_with($m, 'facet:')));
+        $this->assertSame(['facet:brand'], $facets);
+        $this->assertStringContainsString('COUNT(DISTINCT ?p)', $this->queries['facet:brand']);
+        $this->assertStringContainsString('data-group="brand"', $html);
+        foreach (['kategori', 'kulit', 'concern', 'harga'] as $group) {
+            $this->assertStringNotContainsString('data-group="'.$group.'"', $html);
+        }
+
+        // Facet Brand mengabaikan pilihan brand sendiri, tetapi tetap memakai filter lain dari URL.
         $this->assertStringNotContainsString('?f_brand', $this->queries['facet:brand']);
         $this->assertStringContainsString('?f_concern', $this->queries['facet:brand']);
         $this->assertStringContainsString('?f_harga', $this->queries['facet:brand']);
 
-        $this->assertStringNotContainsString('?f_concern', $this->queries['facet:concern']);
-        $this->assertStringContainsString('?f_brand', $this->queries['facet:concern']);
+        // Filter dari URL tanpa panel ikut terkirim lagi lewat input hidden.
+        $this->assertStringContainsString('<input type="hidden" name="concern[]" value="Acne">', $html);
+        $this->assertStringContainsString('<input type="hidden" name="harga[]" value="50-100">', $html);
+        $this->assertStringNotContainsString('type="hidden" name="brand[]"', $html);
+    }
 
-        $this->assertStringNotContainsString('?f_harga', $this->queries['facet:harga']);
-        $this->assertStringContainsString('?f_brand', $this->queries['facet:harga']);
-        $this->assertStringContainsString('?f_concern', $this->queries['facet:kategori']);
+    public function test_category_link_from_landing_still_filters_catalog(): void
+    {
+        $this->fakeSparql([]);
 
-        foreach ($this->queries as $marker => $query) {
-            if (str_starts_with($marker, 'facet:')) {
-                $this->assertStringContainsString('COUNT(DISTINCT ?p)', $query);
-            }
-        }
+        $this->get('/katalog?kategori[]=SerumCategory')->assertOk()
+            ->assertSee('<input type="hidden" name="kategori[]" value="SerumCategory">', false);
+
+        $this->assertStringContainsString('FILTER(?f_kategori IN (<'.self::NS.'SerumCategory>))', $this->queries['produk']);
     }
 
     public function test_price_filter_is_numeric_half_open_and_ignores_missing_price(): void
@@ -368,8 +378,6 @@ class CatalogPageTest extends TestCase
             'FILTER EXISTS { ?p ex:estimatedPrice ?f_harga . FILTER(isNumeric(?f_harga) && ((?f_harga >= 50000 && ?f_harga < 100000) || (?f_harga >= 150000))) }',
             $query
         );
-        $this->assertStringContainsString('FILTER(isNumeric(?price))', $this->queries['facet:harga']);
-        $this->assertStringContainsString('IF((?price < 50000), "lt50", IF((?price >= 50000 && ?price < 100000), "50-100"', $this->queries['facet:harga']);
     }
 
     public function test_facet_counts_chips_and_reset_are_rendered(): void
@@ -392,7 +400,8 @@ class CatalogPageTest extends TestCase
             ->assertSee('Wardah')
             ->assertSee('Di bawah Rp50.000')
             ->assertSee('<span class="sr-only">, </span>28<span class="sr-only"> produk</span>', false)
-            ->assertSee('<span class="sr-only">, </span>7<span class="sr-only"> produk</span>', false);
+            // Kategori tidak lagi punya panel di sidebar.
+            ->assertDontSee('<span class="sr-only">, </span>7<span class="sr-only"> produk</span>', false);
 
         // Opsi berjumlah 0 yang tidak dipilih dinonaktifkan; opsi terpilih tercentang.
         $this->assertMatchesRegularExpression('/value="EminaBrand"\s+disabled/', $html);

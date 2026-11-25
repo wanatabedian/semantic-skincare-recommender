@@ -134,6 +134,14 @@
             });
         }
 
+        // Filter tanpa panel sidebar (mis. kategori dari landing) disimpan sebagai input hidden:
+        // samakan dengan dokumen baru supaya chip yang dihapus tidak terkirim lagi.
+        form.querySelectorAll(':scope > input[type="hidden"]').forEach((el) => el.remove());
+        const firstChild = form.firstChild;
+        freshForm.querySelectorAll(':scope > input[type="hidden"]').forEach((el) => {
+            form.insertBefore(el.cloneNode(), firstChild);
+        });
+
         if (syncSearch && search) {
             const freshSearch = doc.getElementById('katalog-q');
             search.value = freshSearch ? freshSearch.value : '';

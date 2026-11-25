@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # =====================================================================
-# load.sh — memuat ontology/aphrodite-v2.ttl ke Apache Jena Fuseki
+# load.sh — memuat ontology/skincare_ontology_clean.ttl ke Apache Jena Fuseki
 #
 # Pemakaian (dari folder mana saja):
 #   scripts/load.sh                              # dataset baru / kosong
@@ -17,7 +17,8 @@
 #   DATASET           default aphrodite (hanya huruf, angka, _ dan -)
 #   FUSEKI_CONFIG     default <repo>/fuseki/aphrodite-config.ttl
 #                     (hanya dipakai jika dataset BELUM ada)
-#   TTL_FILE          default <repo>/ontology/aphrodite-v2.ttl
+#   TTL_FILE          default <repo>/ontology/skincare_ontology_clean.ttl
+#                     (ontologi yang dipakai aplikasi; aphrodite-v2.ttl tetap bisa dipilih)
 #   BACKUP_DIR        default ~/aphrodite-fuseki-backups (harus di luar repo)
 #   EXPECTED_PRODUCTS default 88
 #   PYTHON            default <repo>/.venv/bin/python, lalu python3
@@ -34,7 +35,8 @@
 #      GRAPH; named graph tidak disentuh. Dijalankan berulang tidak
 #      menggandakan triple.
 #   6. Verifikasi: jumlah triple = jumlah triple file (parser RDF),
-#      jumlah produk, dan penanda penting ontologi v2.
+#      jumlah produk, dan penanda penting ontologi (Teen Lock untuk file clean,
+#      penanda v2 bila TTL_FILE = aphrodite-v2.ttl).
 #
 # Skrip ini TIDAK PERNAH menghapus dataset dan tidak mengubah keamanan.
 # Kompatibel dengan Bash 3.2 (bawaan macOS).
@@ -49,7 +51,7 @@ FUSEKI_URL="${FUSEKI_URL:-http://127.0.0.1:3030}"
 FUSEKI_URL="${FUSEKI_URL%/}"
 DATASET="${DATASET:-aphrodite}"
 FUSEKI_CONFIG="${FUSEKI_CONFIG:-$REPO_DIR/fuseki/aphrodite-config.ttl}"
-TTL_FILE="${TTL_FILE:-$REPO_DIR/ontology/aphrodite-v2.ttl}"
+TTL_FILE="${TTL_FILE:-$REPO_DIR/ontology/skincare_ontology_clean.ttl}"
 BACKUP_DIR="${BACKUP_DIR:-$HOME/aphrodite-fuseki-backups}"
 EXPECTED_PRODUCTS="${EXPECTED_PRODUCTS:-88}"
 CONFIRM_OVERWRITE="${CONFIRM_OVERWRITE:-}"
@@ -286,14 +288,22 @@ fi
 PRODUCTS="$(sparql_count "SELECT (COUNT(DISTINCT ?p) AS ?n) WHERE { ?p a <${EX}Product> }")"
 check "Jumlah produk: $PRODUCTS (harus $EXPECTED_PRODUCTS)" [ "$PRODUCTS" = "$EXPECTED_PRODUCTS" ]
 
-check "ex:ActiveIngredient ada sebagai owl:Class" \
-    sparql_ask "ASK { <${EX}ActiveIngredient> a <http://www.w3.org/2002/07/owl#Class> }"
-check "ex:routineStep terisi pada kategori" \
-    sparql_ask "ASK { ?c <${EX}routineStep> ?n }"
-check "ex:NiacinamideIngredient ex:targetsConcern ex:DullnessBrightening" \
-    sparql_ask "ASK { <${EX}NiacinamideIngredient> <${EX}targetsConcern> <${EX}DullnessBrightening> }"
-check_not "Tidak ada relasi ex:LAB-0069 ex:suitableForAgeGroup ex:Teen" \
-    sparql_ask "ASK { <${EX}LAB-0069> <${EX}suitableForAgeGroup> <${EX}Teen> }"
+if [[ "$(basename "$TTL_FILE")" == "aphrodite-v2.ttl" ]]; then
+    check "ex:ActiveIngredient ada sebagai owl:Class" \
+        sparql_ask "ASK { <${EX}ActiveIngredient> a <http://www.w3.org/2002/07/owl#Class> }"
+    check "ex:routineStep terisi pada kategori" \
+        sparql_ask "ASK { ?c <${EX}routineStep> ?n }"
+    check "ex:NiacinamideIngredient ex:targetsConcern ex:DullnessBrightening" \
+        sparql_ask "ASK { <${EX}NiacinamideIngredient> <${EX}targetsConcern> <${EX}DullnessBrightening> }"
+    check_not "Tidak ada relasi ex:LAB-0069 ex:suitableForAgeGroup ex:Teen" \
+        sparql_ask "ASK { <${EX}LAB-0069> <${EX}suitableForAgeGroup> <${EX}Teen> }"
+else
+    # Ontologi clean (dipakai aplikasi): aturan Teen Lock harus ada dan tidak dilanggar data.
+    check "Aturan Teen Lock: ex:Retinoid ex:contraindicatedFor ex:Teen" \
+        sparql_ask "ASK { <${EX}Retinoid> <${EX}contraindicatedFor> <${EX}Teen> }"
+    check_not "Tidak ada produk ber-retinoid yang ditandai cocok untuk ex:Teen" \
+        sparql_ask "ASK { ?p <${EX}suitableForAgeGroup> <${EX}Teen> ; <${EX}hasIngredient> ?i . ?i a/<http://www.w3.org/2000/01/rdf-schema#subClassOf>* <${EX}Retinoid> }"
+fi
 
 if [[ "$FAIL" != "0" ]]; then
     if [[ -n "$BACKUP_FILE" ]]; then

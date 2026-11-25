@@ -4,6 +4,14 @@
     Parameter: $facets, $error, $resetUrl.
 --}}
 <form id="katalog-form" action="{{ route('katalog') }}" method="GET" class="mt-6" data-katalog-form>
+    {{-- Filter dari URL yang tidak punya panel di sidebar (mis. kategori dari landing page) tetap ikut terkirim. --}}
+    @foreach ([...array_keys(\App\Http\Controllers\CatalogController::GROUPS), \App\Http\Controllers\CatalogController::PRICE_GROUP] as $hiddenKey)
+        @continue(in_array($hiddenKey, \App\Http\Controllers\CatalogController::SIDEBAR_GROUPS, true))
+        @foreach ($state[$hiddenKey] ?? [] as $hiddenValue)
+            <input type="hidden" name="{{ $hiddenKey }}[]" value="{{ $hiddenValue }}">
+        @endforeach
+    @endforeach
+
     @if ($error)
         <p class="k-filter__note">Opsi filter belum dapat dimuat karena data ontologi sedang tidak tersedia.</p>
     @else
