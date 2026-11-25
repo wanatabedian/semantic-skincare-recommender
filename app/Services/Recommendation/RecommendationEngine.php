@@ -243,6 +243,97 @@ class RecommendationEngine
         return (int) (SparqlService::value($rows[0] ?? [], 'n') ?? 0);
     }
 
+    /**
+     * Matriks ketersediaan untuk validasi real-time di kuis (cross-filtering).
+     *
+     * Setiap produk diringkas menjadi nilai-nilai yang bisa "dipenuhi"-nya dengan
+     * aturan yang SAMA seperti buildScoreQuery():
+     *  - kategori termasuk induknya (skos:broader*),
+     *  - keluhan langsung (treatsConcern) atau lewat bahan (targetsConcern),
+     *  - bahan berupa individu atau golongannya (rdf:type/rdfs:subClassOf*),
+     *  - teen_locked = produk mengandung bahan retinoid / kontraindikasi remaja.
+     * Browser lalu cukup mencari "adakah produk yang memenuhi semua pilihan",
+     * sehingga kombinasi yang dipilih user selalu punya hasil Plan A.
+     *
+     * @return array{products: list<array<string, mixed>>, teen_age: string, all_skin_types: list<string>, teen_locked_ingredients: list<string>}
+     */
+    public function availability(): array
+    {
+        $teenAge = (string) config('recommendation.teen_lock.age_group', 'Teen');
+
+        $rows = $this->sparql->select(<<<SPARQL
+SELECT DISTINCT ?p ?kind ?val
+WHERE {
+  ?p a ex:Product ;
+     ex:productName ?nm .
+  {
+    ?p ex:suitableForAgeGroup ?val . BIND("age" AS ?kind)
+  } UNION {
+    ?p ex:suitableForSkinType ?val . BIND("skin" AS ?kind)
+  } UNION {
+    ?p ex:hasCategory/skos:broader* ?val . BIND("category" AS ?kind)
+  } UNION {
+    ?p ex:treatsConcern ?val . BIND("concern" AS ?kind)
+  } UNION {
+    ?p ex:hasIngredient/ex:targetsConcern ?val . BIND("concern" AS ?kind)
+  } UNION {
+    ?p ex:hasIngredient ?val . BIND("ingredient" AS ?kind)
+  } UNION {
+    ?p ex:hasIngredient/rdf:type/rdfs:subClassOf* ?val . BIND("ingredient" AS ?kind)
+  } UNION {
+    ?p ex:estimatedPrice ?val . BIND("price" AS ?kind)
+  } UNION {
+    ?p ex:hasIngredient ?ri .
+    {$this->retinoidPattern('?ri', $teenAge)}
+    BIND("teen_lock" AS ?kind) BIND(true AS ?val)
+  }
+}
+SPARQL);
+
+        $ns = $this->sparql->namespace();
+        $products = [];
+        foreach ($rows as $row) {
+            $uri = (string) SparqlService::value($row, 'p');
+            $kind = (string) SparqlService::value($row, 'kind');
+            $val = (string) SparqlService::value($row, 'val');
+
+            $products[$uri] ??= [
+                'age' => [], 'skin' => [], 'category' => [], 'concern' => [], 'ingredient' => [],
+                'price' => null, 'teen_locked' => false,
+            ];
+
+            if ($kind === 'teen_lock') {
+                $products[$uri]['teen_locked'] = true;
+            } elseif ($kind === 'price') {
+                $products[$uri]['price'] = is_numeric($val) ? (int) $val : null;
+            } elseif (isset($products[$uri][$kind]) && str_starts_with($val, $ns)) {
+                $local = substr($val, strlen($ns));
+                if (SparqlService::isSafeLocalName($local) && ! in_array($local, $products[$uri][$kind], true)) {
+                    $products[$uri][$kind][] = $local;
+                }
+            }
+        }
+
+        // Bahan yang tidak boleh dipilih remaja (untuk keterangan "Teen Lock" di kuis).
+        $locked = $this->sparql->select(
+            "SELECT DISTINCT ?ri WHERE {\n  ?ri a/rdfs:subClassOf* ex:Ingredient .\n  ".$this->retinoidPattern('?ri', $teenAge)."\n}"
+        );
+        $lockedIngredients = [];
+        foreach ($locked as $row) {
+            $iri = (string) SparqlService::value($row, 'ri');
+            if (str_starts_with($iri, $ns)) {
+                $lockedIngredients[] = substr($iri, strlen($ns));
+            }
+        }
+
+        return [
+            'products' => array_values($products),
+            'teen_age' => $teenAge,
+            'all_skin_types' => $this->allSkinTypes(),
+            'teen_locked_ingredients' => array_values(array_unique($lockedIngredients)),
+        ];
+    }
+
     /** Ubah satu baris hasil query menjadi produk ber-skor + alasan. */
     private function scoreRow(array $row, Criteria $criteria, bool $useIngredient, int $maxScore): array
     {

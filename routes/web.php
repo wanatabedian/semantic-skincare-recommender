@@ -4,7 +4,6 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SparqlController;
 use App\Http\Controllers\QuizController;
 use App\Http\Controllers\RecommendationController;
-use App\Http\Controllers\OntologyController;
 
 // ==========================================
 // AREA PUBLIK (Tampilan User - Tanpa Login)
@@ -31,14 +30,3 @@ Route::get('/produk/{id}', [\App\Http\Controllers\ProductController::class, 'sho
 Route::get('/katalog', [\App\Http\Controllers\CatalogController::class, 'index'])->name('katalog');
 Route::get('/bahan', [\App\Http\Controllers\IngredientController::class, 'index'])->name('bahan');
 Route::get('/bahan/{id}', [\App\Http\Controllers\IngredientController::class, 'show'])->where('id', '[A-Za-z0-9_-]+')->name('bahan.detail');
-
-// === Ontology Explorer (Stage 5)
-Route::get('/ontologi', [OntologyController::class, 'index'])->name('ontology.dashboard');
-Route::get('/ontologi/download', [OntologyController::class, 'download'])->name('ontology.download');
-Route::post('/ontologi/sparql', [OntologyController::class, 'sparql'])->name('ontology.sparql');
-// Class explorer
-Route::get('/ontologi/kelas/{class}', [OntologyController::class, 'classExplorer'])->name('ontology.class');
-// Individual detail (IRI will be URL‑encoded)
-Route::get('/ontologi/individu/{iri}', [OntologyController::class, 'individualDetail'])->name('ontology.individual')->where('iri', '.*');
-// Graph data endpoint
-Route::get('/ontologi/graph', [OntologyController::class, 'graphData'])->name('ontology.graph');

@@ -43,6 +43,27 @@ class QuizTest extends TestCase
         $this->postJson('/api/quiz/analyze', ['ingredient' => 'NotInOntology'])->assertUnprocessable();
     }
 
+    public function test_quiz_accepts_price_with_only_one_bound_but_rejects_max_below_min(): void
+    {
+        $fuseki = $this->mock(FusekiService::class);
+        $fuseki->shouldReceive('options')->andReturn($this->quizOptions());
+
+        $this->postJson('/api/quiz/analyze', ['price_min' => '', 'price_max' => '49999'])->assertOk();
+        $this->postJson('/api/quiz/analyze', ['price_min' => '150000', 'price_max' => ''])->assertOk();
+        $this->postJson('/api/quiz/analyze', ['price_min' => '100000', 'price_max' => '50000'])
+            ->assertUnprocessable()->assertJsonValidationErrors('price_max');
+    }
+
+    public function test_quiz_price_presets_do_not_overlap_at_boundaries(): void
+    {
+        $html = $this->get('/kuis')->assertOk()->getContent();
+
+        $this->assertStringContainsString("['','49999','Di bawah Rp50.000']", $html);
+        $this->assertStringContainsString("['50000','99999',", $html);
+        $this->assertStringContainsString("['100000','149999',", $html);
+        $this->assertStringContainsString("['150000','',", $html);
+    }
+
     public function test_quiz_page_renders(): void
     {
         $this->get('/kuis')->assertOk()->assertSee('Kuis Analisis Kulit');
@@ -103,6 +124,49 @@ class QuizTest extends TestCase
             ->assertDontSee('Klaim')
             ->assertDontSee('https://example.org/skincare-ontology#');
         $this->assertSame(1, substr_count($response->getContent(), '>Dry</li>'));
+    }
+
+    public function test_quiz_options_include_availability_matrix_for_cross_filtering(): void
+    {
+        $ex = 'https://example.org/skincare-ontology#';
+        config(['services.fuseki.namespace' => $ex, 'recommendation.cache_ttl' => 0]);
+        $fuseki = $this->mock(FusekiService::class);
+        $fuseki->shouldReceive('options')->andReturn($this->quizOptions());
+
+        $row = fn ($p, $kind, $val, $type = 'uri') => ['p' => ['type' => 'uri', 'value' => $ex.$p], 'kind' => ['value' => $kind], 'val' => ['type' => $type, 'value' => $type === 'uri' ? $ex.$val : $val]];
+        $this->partialMock(\App\Services\SparqlService::class, function ($sparql) use ($ex, $row) {
+            $sparql->shouldReceive('select')->withArgs(fn ($q) => str_contains($q, '?p ?kind ?val'))->andReturn([
+                $row('EYE-1', 'age', 'Teen'),
+                $row('EYE-1', 'category', 'EyeCareCategory'),
+                $row('EYE-1', 'concern', 'EyeAreaCare'),
+                $row('EYE-1', 'price', '85000', 'literal'),
+                $row('RET-1', 'age', 'Adult'),
+                $row('RET-1', 'ingredient', 'Retinol'),
+                $row('RET-1', 'teen_lock', 'true', 'literal'),
+            ]);
+            $sparql->shouldReceive('select')->withArgs(fn ($q) => str_contains($q, 'SELECT DISTINCT ?ri'))->andReturn([
+                ['ri' => ['type' => 'uri', 'value' => $ex.'Retinol']],
+            ]);
+        });
+
+        $json = $this->getJson('/api/quiz-options')->assertOk()->json('availability');
+
+        $this->assertSame('Teen', $json['teen_age']);
+        $this->assertSame(['Retinol'], $json['teen_locked_ingredients']);
+        $this->assertCount(2, $json['products']);
+        $this->assertSame(['EyeCareCategory'], $json['products'][0]['category']);
+        $this->assertSame(['EyeAreaCare'], $json['products'][0]['concern']);
+        $this->assertSame(85000, $json['products'][0]['price']);
+        $this->assertFalse($json['products'][0]['teen_locked']);
+        $this->assertTrue($json['products'][1]['teen_locked']);
+    }
+
+    public function test_quiz_page_uses_round_indicator_for_single_and_square_for_multi_select(): void
+    {
+        $html = $this->get('/kuis')->assertOk()->getContent();
+
+        $this->assertStringContainsString("multi ? 'rounded-md' : 'rounded-full'", $html);
+        $this->assertStringContainsString('cursor-not-allowed', $html);
     }
 
     public function test_quiz_options_use_clean_ontology_resources_and_rdfs_labels(): void

@@ -109,7 +109,6 @@
         <div class="hidden md:flex items-center gap-8 text-xs font-bold uppercase tracking-wider text-[#657674]">
             <a href="{{ route('katalog') }}" class="hover:text-[#E6748E] transition">Katalog</a>
             <a href="{{ route('bahan') }}" class="hover:text-[#E6748E] transition">Kandungan</a>
-            <a href="{{ route('ontology.dashboard') }}" class="hover:text-[#E6748E] transition">Eksplorasi Ontologi</a>
             <a href="{{ route('kuis', ['new' => 1]) }}"
                class="smooth-btn rounded-xl bg-[#E6748E] px-5 py-2.5 text-xs font-black text-white shadow-md transition hover:bg-[#6BB1AD]">
                 Mulai Kuis →
@@ -201,15 +200,10 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
+                <div class="grid grid-cols-1 gap-4 mt-6">
                     <a href="{{ url('/katalog') }}"
                        class="smooth-btn bg-[#E6748E] hover:bg-[#E6748E] text-white px-6 py-4 rounded-2xl font-black shadow-xl animate-pulse-glow text-center no-underline text-xs uppercase tracking-wider">
                         Lihat Semua Produk
-                    </a>
-
-                    <a href="{{ route('ontology.dashboard') }}"
-                       class="smooth-btn bg-[#FFFEFA] text-[#E6748E] px-6 py-4 rounded-2xl font-black shadow-xl text-center border border-[#7ADDF2]/40 no-underline text-xs uppercase tracking-wider hover:bg-[#7ADDF2]/20">
-                        Lihat Statistika Produk
                     </a>
                 </div>
             </div>

@@ -9,7 +9,6 @@
 
     <div class="hidden items-center gap-7 text-xs font-bold uppercase tracking-wider text-muted lg:flex">
         <a href="{{ route('bahan') }}" class="transition hover:text-rose">Kandungan</a>
-        <a href="{{ route('ontology.dashboard') }}" class="transition hover:text-rose">Eksplorasi Ontologi</a>
         <a href="{{ route('katalog') }}" class="text-rose" aria-current="page">Katalog</a>
         <a href="{{ route('tentang') }}" class="transition hover:text-rose">Tentang</a>
         <a href="{{ route('kuis', ['new' => 1]) }}" class="k-btn rounded-xl bg-rose px-5 py-2.5 text-xs font-black text-white shadow-md hover:bg-teal">Mulai Kuis →</a>
