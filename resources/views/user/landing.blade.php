@@ -487,10 +487,11 @@
     {{-- FOOTER --}}
     <footer class="bg-[#FDEEF1] text-[#E6748E] py-12 px-6 border-t border-[#E6748E]/10 relative z-20">
         <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-bold text-[#657674]">
-            <div class="flex items-center gap-2 text-[#E6748E] font-extrabold text-base">
-                <span class="w-7 h-7 rounded-lg bg-[#6BB1AD] grid place-items-center text-white text-sm">✦</span>
-                <span>{{ config('app.name', 'Aphrodite') }}</span>
-            </div>
+            {{-- Brand footer disamakan dengan navbar: logo Aphrodite + nama. --}}
+            <a href="{{ route('home') }}" class="flex items-center gap-2.5 text-[#345452] font-extrabold text-xl">
+                <img src="{{ asset('images/logo/logo-aphrodite.png') }}" alt="" class="w-[42px] h-[42px] object-contain">
+                <span>Aphrodite</span>
+            </a>
             <p>© {{ date('Y') }} Aphrodite Botanical & Derma Care. Semua hak dilindungi.</p>
         </div>
     </footer>

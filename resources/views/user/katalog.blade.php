@@ -145,15 +145,21 @@
 
                     <div class="flex items-center gap-3">
                         {{-- Sorting ikut #katalog-form; perubahan sort selalu kembali ke halaman 1 (page tidak ada di form). --}}
-                        <label class="k-sort">
-                            <span class="k-sort__label text-[11px] font-black uppercase tracking-wider text-muted">Urutkan</span>
-                            <select id="katalog-sort" name="sort" form="katalog-form" class="k-sort__select bg-transparent text-sm font-bold text-ink focus:outline-none">
+                        {{-- Tampilan dropdown putih kustom; nilai tetap di <select id="katalog-sort"> asli (dibaca katalog.js & form). --}}
+                        <div class="k-sort" id="katalog-sort-menu">
+                            <span class="k-sort__label text-[11px] font-black uppercase tracking-wider text-muted" id="katalog-sort-label">Urutkan</span>
+                            <select id="katalog-sort" name="sort" form="katalog-form" class="k-sort__native" tabindex="-1" aria-hidden="true">
                                 @foreach ($sorts as $value => $label)
                                     <option value="{{ $value === \App\Http\Controllers\CatalogController::DEFAULT_SORT ? '' : $value }}" @selected($state['sort'] === $value)>{{ $label }}</option>
                                 @endforeach
                             </select>
+                            <button type="button" class="k-sort__btn text-sm font-bold text-ink" id="katalog-sort-button"
+                                    aria-haspopup="listbox" aria-expanded="false" aria-labelledby="katalog-sort-label katalog-sort-button">
+                                <span id="katalog-sort-current">{{ $sorts[$state['sort']] ?? reset($sorts) }}</span>
+                            </button>
                             <svg class="k-sort__chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="m3 4.5 3 3 3-3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                        </label>
+                            <ul class="k-sort__list" id="katalog-sort-list" role="listbox" aria-labelledby="katalog-sort-label" hidden></ul>
+                        </div>
                     </div>
                 </div>
 
@@ -169,5 +175,84 @@
     @include('user.katalog.footer')
 
     <script src="{{ asset('js/katalog.js') }}" defer></script>
+    <script>
+    // Dropdown "Urutkan" putih: hanya mengganti nilai <select id="katalog-sort"> lalu memicu event change
+    // yang sudah ditangani katalog.js (fetch tanpa muat ulang). Logika sorting tidak berubah.
+    (() => {
+        const menu = document.getElementById('katalog-sort-menu');
+        const select = document.getElementById('katalog-sort');
+        const btn = document.getElementById('katalog-sort-button');
+        const list = document.getElementById('katalog-sort-list');
+        const current = document.getElementById('katalog-sort-current');
+        if (!menu || !select || !btn || !list) return;
+
+        const items = [...select.options].map((opt) => {
+            const li = document.createElement('li');
+            li.className = 'k-sort__option';
+            li.setAttribute('role', 'option');
+            li.tabIndex = -1;
+            li.dataset.value = opt.value;
+            li.textContent = opt.textContent;
+            list.appendChild(li);
+            return li;
+        });
+
+        const sync = () => {
+            items.forEach((li) => {
+                const on = li.dataset.value === select.value;
+                li.setAttribute('aria-selected', on);
+                li.classList.toggle('is-selected', on);
+                if (on) current.textContent = li.textContent;
+            });
+            btn.disabled = select.disabled;
+        };
+        const open = () => {
+            if (select.disabled) return;
+            sync();
+            list.hidden = false;
+            menu.classList.add('is-open');
+            btn.setAttribute('aria-expanded', 'true');
+            (items.find((li) => li.dataset.value === select.value) || items[0]).focus();
+        };
+        const close = (focusBtn = false) => {
+            list.hidden = true;
+            menu.classList.remove('is-open');
+            btn.setAttribute('aria-expanded', 'false');
+            if (focusBtn) btn.focus();
+        };
+        const choose = (li) => {
+            if (select.value !== li.dataset.value) {
+                select.value = li.dataset.value;
+                select.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+            sync();
+            close(true);
+        };
+
+        btn.addEventListener('click', () => (list.hidden ? open() : close()));
+        // Klik di area kotak (label/panah) juga membuka menu, seperti <label> sebelumnya.
+        menu.addEventListener('click', (e) => {
+            if (!btn.contains(e.target) && !list.contains(e.target)) btn.click();
+        });
+        btn.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); open(); }
+        });
+        items.forEach((li) => li.addEventListener('click', () => choose(li)));
+        list.addEventListener('keydown', (e) => {
+            const i = items.indexOf(document.activeElement);
+            if (e.key === 'ArrowDown') { e.preventDefault(); items[Math.min(i + 1, items.length - 1)].focus(); }
+            else if (e.key === 'ArrowUp') { e.preventDefault(); items[Math.max(i - 1, 0)].focus(); }
+            else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if (i >= 0) choose(items[i]); }
+            else if (e.key === 'Escape' || e.key === 'Tab') close(e.key === 'Escape');
+        });
+        document.addEventListener('click', (e) => { if (!list.hidden && !menu.contains(e.target)) close(); });
+
+        // katalog.js bisa mengubah nilai select (riwayat/back, hasil fetch); samakan label setelahnya.
+        const results = document.getElementById('katalog-results');
+        if (results && window.MutationObserver) new MutationObserver(sync).observe(results, { childList: true });
+        window.addEventListener('popstate', () => setTimeout(sync, 0));
+        sync();
+    })();
+    </script>
 </body>
 </html>
