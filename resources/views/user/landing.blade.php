@@ -269,7 +269,7 @@
 
    {{-- RIWAYAT KUIS (LAYOUT 1:3 MENYAMPING) --}}
     <section id="riwayat-kuis" class="bg-gradient-to-b from-[#FDEEF1] via-[#FDEEF1] to-[#FFFEFA] px-6 py-28 relative z-20">
-        <div class="max-w-7xl mx-auto rounded-[32px] border border-[#6BB1AD]/20 bg-[#f6fdff] p-8 md:p-12 shadow-sm">
+        <div class="max-w-7xl mx-auto rounded-[32px] border border-[#6BB1AD]/20 bg-[#e0fbff] p-8 md:p-12 shadow-sm">
             <div class="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
 
                 {{-- KOLOM KIRI (1 Bagian: Judul & Tombol Kuis) --}}

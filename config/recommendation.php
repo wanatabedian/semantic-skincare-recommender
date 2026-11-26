@@ -18,6 +18,7 @@ return [
         'skin' => 2,
         'category' => 2,
         'ingredient' => 2,
+        'brand' => 1,       // cukup salah satu brand pilihan yang cocok
         'price' => 1,
     ],
 

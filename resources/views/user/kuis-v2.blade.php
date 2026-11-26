@@ -16,7 +16,7 @@
     <h1 class="serif mb-2 text-center text-4xl font-bold text-[#E6748E] sm:text-5xl">Kenali kebutuhan kulitmu</h1>
     <p class="mb-9 text-center text-sm text-[#657674]">Jawab yang kamu tahu. Semua pertanyaan boleh dilewati.</p>
     <section class="rounded-[28px] border border-[#E6748E]/10 bg-white p-5 shadow-[0_18px_50px_rgba(52,84,82,.08)] sm:p-9" id="quiz" data-options="{{ route('api.quiz-options') }}" data-submit="{{ route('api.quiz.analyze') }}">
-        <div class="mb-8"><div class="mb-2 flex justify-between text-xs font-bold"><span id="step-label">Tahap 1 dari 6</span><span id="progress-label">17%</span></div><div class="h-2 overflow-hidden rounded-full bg-[#FDEEF1]"><div id="progress" class="h-full rounded-full bg-[#6BB1AD] transition-all" style="width:16.67%"></div></div></div>
+        <div class="mb-8"><div class="mb-2 flex justify-between text-xs font-bold"><span id="step-label">Tahap 1 dari 8</span><span id="progress-label">13%</span></div><div class="h-2 overflow-hidden rounded-full bg-[#FDEEF1]"><div id="progress" class="h-full rounded-full bg-[#6BB1AD] transition-all" style="width:12.5%"></div></div></div>
         <div id="loading" class="py-12 text-center text-sm text-[#657674]">Memuat pilihan dari katalog ontologi…</div>
         <div id="error" class="hidden rounded-2xl bg-red-50 p-4 text-sm text-red-700"></div>
         <div id="stage" class="hidden min-h-64"></div>
@@ -45,20 +45,23 @@
     {key:'category',   title:'Kategori produk', hint:'Kategori dimuat dari ontologi.',                    opt:'categories',  type:'single'},
     {key:'concern',    title:'Keluhan kulit',  hint:'Pilih hingga dua keluhan.',                          opt:'concerns',    type:'multi', max:2},
     {key:'ingredient', title:'Bahan aktif',    hint:'Kamu dapat memilih satu preferensi kandungan.',      opt:'ingredients', type:'single'},
+    {key:'avoid',      title:'Bahan yang ingin dihindari', hint:'Produk yang mengandung bahan ini tidak akan direkomendasikan. Boleh lebih dari satu.', opt:'ingredients', type:'multi'},
+    {key:'brand',      title:'Brand favorit',  hint:'Boleh lebih dari satu. Lewati kalau brand apa pun tidak masalah.', opt:'brands', type:'multi'},
     {key:'price',      title:'Rentang harga',  hint:'Pilih rentang atau lewati untuk semua harga.',       type:'price'},
   ];
   const LAST = STEPS.length - 1;
+  const MULTI = ['concern', 'avoid', 'brand'];
   // Rentang tidak saling tumpang tindih (sama dengan Katalog): harga tepat di batas hanya masuk satu rentang.
   // Mesin rekomendasi memakai min/max inklusif, jadi batas atas ditulis 49.999 / 99.999 / 149.999.
   const PRICE_PRESETS = [['','49999','Di bawah Rp50.000'],['50000','99999','Rp50.000 – Rp99.999'],['100000','149999','Rp100.000 – Rp149.999'],['150000','','Rp150.000 ke atas']];
-  const defaults = () => ({age:'',skin:'',concern:[],category:'',ingredient:'',price_min:'',price_max:''});
+  const defaults = () => ({age:'',skin:'',concern:[],category:'',ingredient:'',avoid:[],brand:[],price_min:'',price_max:''});
   const DRAFT = 'aphrodite-quiz-draft';
 
   let current = 0, busy = false, options = null, avail = null, reviewed = false;
   if (new URLSearchParams(location.search).get('new') === '1') localStorage.removeItem(DRAFT);
   let answers = defaults();
   try { answers = {...answers, ...JSON.parse(localStorage.getItem(DRAFT) || '{}')}; } catch {}
-  if (!Array.isArray(answers.concern)) answers.concern = [];
+  for (const k of MULTI) if (!Array.isArray(answers[k])) answers[k] = [];
   const save = () => { try { localStorage.setItem(DRAFT, JSON.stringify(answers)); } catch {} };
 
   // ---------- Cross-filtering (logika sama dengan mesin rekomendasi) ----------
@@ -72,6 +75,8 @@
     if (a.category && !p.category.includes(a.category)) return false;
     for (const c of a.concern) if (!p.concern.includes(c)) return false;
     if (a.ingredient && !p.ingredient.includes(a.ingredient)) return false;
+    if (a.avoid.some(x => p.ingredient.includes(x))) return false;              // bahan dihindari (individu/golongan)
+    if (a.brand.length && !a.brand.some(b => (p.brand || []).includes(b))) return false; // cukup salah satu brand
     const min = toInt(a.price_min), max = toInt(a.price_max);
     if (min !== null || max !== null) {
       if (p.price === null) return false;
@@ -80,14 +85,16 @@
     }
     return true;
   }
-  const clone = a => ({...a, concern: [...a.concern]});
+  const clone = a => ({...a, concern: [...a.concern], avoid: [...a.avoid], brand: [...a.brand]});
   const anyFit = a => avail.products.some(p => fits(p, a));
   const countFit = a => avail.products.filter(p => fits(p, a)).length;
 
   // Opsi dianggap tersedia bila masih ada produk yang memenuhi pilihan lain + opsi ini.
+  // Keluhan & bahan dihindari = DAN (ditambahkan); brand = ATAU, jadi tiap brand dicek sendiri.
   function trialWith(key, value) {
     const t = clone(answers);
-    if (key === 'concern') { if (!t.concern.includes(value)) t.concern.push(value); }
+    if (key === 'brand') t.brand = [value];
+    else if (MULTI.includes(key)) { if (!t[key].includes(value)) t[key].push(value); }
     else t[key] = value;
     return t;
   }
@@ -96,6 +103,9 @@
   function disabledReason(key, value) {
     if (key === 'ingredient' && answers.age === avail.teen_age && avail.teen_locked_ingredients.includes(value))
       return 'Tidak disarankan untuk usia remaja (Teen Lock)';
+    if (key === 'ingredient' && answers.avoid.includes(value)) return 'Sudah kamu pilih sebagai bahan yang dihindari';
+    if (key === 'avoid' && answers.ingredient === value) return 'Sudah kamu pilih sebagai bahan yang dicari';
+    if (key === 'avoid') return 'Semua produk yang cocok mengandung bahan ini';
     return 'Tidak ada produk untuk kombinasi pilihanmu';
   }
   const labelOf = (key, value) => {
@@ -110,10 +120,11 @@
     if (changedKey) order.splice(order.indexOf(changedKey), 1), order.unshift(changedKey);
     const kept = defaults(), removed = [];
     for (const key of order) {
-      if (key === 'concern') {
-        for (const c of answers.concern) {
-          const t = clone(kept); t.concern.push(c);
-          if (anyFit(t)) kept.concern.push(c); else removed.push(labelOf('concern', c));
+      if (MULTI.includes(key)) {
+        for (const c of answers[key]) {
+          const t = clone(kept);
+          if (key === 'brand') t.brand = [c]; else t[key].push(c);
+          if (anyFit(t)) kept[key].push(c); else removed.push(labelOf(key, c));
         }
       } else if (key === 'price') {
         if (answers.price_min === '' && answers.price_max === '') continue;
@@ -131,8 +142,11 @@
   function validateAgainstOptions() {
     const valid = key => new Set(options[STEPS.find(s => s.key === key).opt].map(o => o.value));
     for (const key of ['age','skin','category','ingredient']) if (answers[key] && !valid(key).has(answers[key])) answers[key] = '';
-    const concerns = valid('concern');
-    answers.concern = [...new Set(answers.concern)].filter(c => concerns.has(c)).slice(0, 2);
+    for (const key of MULTI) {
+      const ok = valid(key);
+      answers[key] = [...new Set(answers[key])].filter(c => ok.has(c));
+    }
+    answers.concern = answers.concern.slice(0, 2);
     for (const key of ['price_min','price_max']) answers[key] = toInt(answers[key]) === null ? '' : String(Math.max(0, toInt(answers[key])));
   }
   const resetNotice = removed => removed.length ? `Pilihan direset karena tidak lagi memiliki produk yang cocok: ${removed.join(', ')}.` : '';
@@ -156,7 +170,7 @@
   function choose(step) {
     const multi = step.type === 'multi';
     return `<div class="grid gap-3 sm:grid-cols-2" role="${multi ? 'group' : 'radiogroup'}" aria-label="${encode(step.title)}">${options[step.opt].map(o => {
-      const sel = multi ? answers.concern.includes(o.value) : answers[step.key] === o.value;
+      const sel = multi ? answers[step.key].includes(o.value) : answers[step.key] === o.value;
       const ok = sel || optionAvailable(step.key, o.value);
       const reason = ok ? '' : disabledReason(step.key, o.value);
       const card = !ok ? 'cursor-not-allowed border-[#345452]/10 bg-[#345452]/[.03] opacity-50'
@@ -196,7 +210,8 @@
 
   function render() {
     const step = STEPS[current];
-    const counter = step.key === 'concern' ? ` <b>${answers.concern.length}/${step.max} dipilih</b>` : '';
+    const counter = step.max ? ` <b>${answers[step.key].length}/${step.max} dipilih</b>`
+      : step.type === 'multi' && answers[step.key].length ? ` <b>${answers[step.key].length} dipilih</b>` : '';
     const focused = document.activeElement && stage.contains(document.activeElement) ? document.activeElement : null;
     const focusSel = focused && focused.dataset.key ? `input[data-key="${focused.dataset.key}"][value="${CSS.escape(focused.value)}"]` : (focused && focused.id ? '#' + focused.id : null);
     stage.innerHTML = `<h2 class="serif mb-2 text-2xl font-bold">${step.title}</h2><p class="mb-5 text-sm text-[#657674]">${step.hint}${counter}</p>`
@@ -222,6 +237,9 @@
       else if (answers.concern.length >= 2) { feedback.textContent = 'Maksimal dua keluhan dapat dipilih.'; render(); return; }
       else answers.concern = [...answers.concern, value];
       feedback.textContent = answers.concern.length === 2 ? 'Batas dua keluhan tercapai.' : '';
+    } else if (MULTI.includes(key)) {
+      answers[key] = answers[key].includes(value) ? answers[key].filter(v => v !== value) : [...answers[key], value];
+      feedback.textContent = '';
     } else {
       // Pilihan tunggal: klik opsi yang sama sekali lagi untuk membatalkan.
       answers[key] = answers[key] === value ? '' : value;
@@ -233,7 +251,9 @@
   }
 
   function summary() {
-    const rows = [['Umur',answers.age],['Jenis kulit',answers.skin],['Kategori',answers.category],['Keluhan',answers.concern.join(', ')],['Bahan aktif',answers.ingredient],['Harga',answers.price_min||answers.price_max?`Rp${answers.price_min||'0'} – Rp${answers.price_max||'tanpa batas'}`:'Semua harga']];
+    const one = key => answers[key] ? labelOf(key, answers[key]) : '';
+    const many = key => answers[key].map(v => labelOf(key, v)).join(', ');
+    const rows = [['Umur',one('age')],['Jenis kulit',one('skin')],['Kategori',one('category')],['Keluhan',many('concern')],['Bahan aktif',one('ingredient')],['Hindari bahan',many('avoid')],['Brand',many('brand')],['Harga',answers.price_min||answers.price_max?`Rp${answers.price_min||'0'} – Rp${answers.price_max||'tanpa batas'}`:'Semua harga']];
     return `<h2 class="serif mb-4 text-2xl font-bold">Ringkasan pilihan</h2><div class="divide-y divide-[#E6748E]/10">${rows.map(([k,v])=>`<div class="flex justify-between gap-4 py-3 text-sm"><span class="font-bold">${k}</span><span class="text-right text-[#657674]">${encode(v||'Dilewati')}</span></div>`).join('')}<button id="edit-answers" type="button" class="mt-5 rounded-xl border border-[#6BB1AD]/40 px-4 py-3 text-sm font-bold">Ubah jawaban</button></div>`;
   }
   function showSummary() {
@@ -249,7 +269,7 @@
   $('next').onclick = () => { if (current < LAST) { current++; feedback.textContent = ''; update(); } };
   $('skip').onclick = () => {
     const key = STEPS[current].key;
-    if (key === 'concern') answers.concern = [];
+    if (MULTI.includes(key)) answers[key] = [];
     else if (key === 'price') { answers.price_min = ''; answers.price_max = ''; }
     else answers[key] = '';
     save(); feedback.textContent = '';
@@ -271,7 +291,7 @@
       localStorage.removeItem(DRAFT);
       const params = new URLSearchParams();
       for (const k of ['age','skin','category','ingredient','price_min','price_max']) if (answers[k]) params.set(k, answers[k]);
-      answers.concern.forEach(x => params.append('concern[]', x));
+      for (const k of MULTI) answers[k].forEach(x => params.append(k + '[]', x));
       location.href = '/rekomendasi?' + params.toString();
     } catch (e) {
       feedback.textContent = e.message; busy = false; $('analyze').disabled = false; $('analyze').textContent = 'Analisis Sekarang →';
@@ -282,6 +302,7 @@
     const data = await r.json();
     if (!r.ok) throw new Error(data.message || 'Gagal memuat pilihan.');
     options = data; avail = data.availability;
+    options.brands ??= [];
     for (const k of ['age_groups','skin_types','categories','concerns','ingredients']) if (!options[k]?.length) throw new Error('Data pilihan ontologi belum tersedia.');
     if (!avail?.products?.length) throw new Error('Data produk ontologi belum tersedia.');
     validateAgainstOptions();

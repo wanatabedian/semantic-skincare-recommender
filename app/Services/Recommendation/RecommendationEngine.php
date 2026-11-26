@@ -2,6 +2,7 @@
 
 namespace App\Services\Recommendation;
 
+use App\Http\Controllers\CatalogController;
 use App\Services\SparqlService;
 
 /**
@@ -10,8 +11,9 @@ use App\Services\SparqlService;
  * Alur:
  *  1. Satu query SPARQL menghitung skor setiap produk (Plan A dan Plan B memakai
  *     query yang sama). Setiap kriteria yang diisi user menyumbang poin:
- *     keluhan 3 (per keluhan), jenis kulit 2, kategori 2, bahan 2, harga 1.
- *  2. Filter keras yang TIDAK PERNAH dilonggarkan: kelompok umur dan Teen Lock.
+ *     keluhan 3 (per keluhan), jenis kulit 2, kategori 2, bahan 2, brand 1, harga 1.
+ *  2. Filter keras yang TIDAK PERNAH dilonggarkan: kelompok umur, Teen Lock,
+ *     dan bahan yang ingin dihindari user (avoid[]).
  *  3. Plan A = produk dengan skor maksimal (semua kriteria terpenuhi).
  *     Plan B = kalau Plan A kosong, 12 produk skor tertinggi + daftar kriteria
  *     yang dilonggarkan.
@@ -20,6 +22,8 @@ use App\Services\SparqlService;
  */
 class RecommendationEngine
 {
+    private const BRAND_REASON = 'Dari brand pilihanmu';
+
     public function __construct(
         private SparqlService $sparql,
         private Vocabulary $vocabulary,
@@ -119,6 +123,7 @@ class RecommendationEngine
         $max += $criteria->skin !== null ? $w['skin'] : 0;
         $max += $criteria->category !== null ? $w['category'] : 0;
         $max += ($useIngredient && $criteria->ingredient !== null) ? $w['ingredient'] : 0;
+        $max += $criteria->brands !== [] ? ($w['brand'] ?? 1) : 0;
         $max += $criteria->hasPrice() ? $w['price'] : 0;
 
         return $max;
@@ -151,6 +156,15 @@ class RecommendationEngine
             $where[] = 'FILTER NOT EXISTS {';
             $where[] = '  ?p ex:hasIngredient ?ri .';
             $where[] = '  '.$this->retinoidPattern('?ri', $criteria->age);
+            $where[] = '}';
+        }
+
+        // ---- Filter keras: bahan yang ingin dihindari (individu atau golongannya) ----
+        if ($criteria->avoid !== []) {
+            $avoid = implode(' ', array_map($iri, $criteria->avoid));
+            $where[] = 'FILTER NOT EXISTS {';
+            $where[] = '  VALUES ?avoid { '.$avoid.' }';
+            $where[] = '  { ?p ex:hasIngredient ?avoid } UNION { ?p ex:hasIngredient/rdf:type/rdfs:subClassOf* ?avoid }';
             $where[] = '}';
         }
 
@@ -188,6 +202,14 @@ class RecommendationEngine
             $where[] = "BIND(IF(EXISTS { { ?p ex:hasIngredient {$ing} } UNION { ?p ex:hasIngredient/rdf:type/rdfs:subClassOf* {$ing} } }, {$w['ingredient']}, 0) AS ?sIng)";
             $select[] = '?sIng';
             $scoreVars[] = '?sIng';
+        }
+
+        // ---- Skor brand: cukup salah satu brand pilihan ----
+        if ($criteria->brands !== []) {
+            $brands = implode(' ', array_map($iri, $criteria->brands));
+            $where[] = 'BIND(IF(EXISTS { ?p ex:hasBrand ?brandPick . VALUES ?brandPick { '.$brands.' } }, '.($w['brand'] ?? 1).', 0) AS ?sBrand)';
+            $select[] = '?sBrand';
+            $scoreVars[] = '?sBrand';
         }
 
         // ---- Skor harga (produk tanpa harga = 0 poin) ----
@@ -296,6 +318,8 @@ WHERE {
   } UNION {
     ?p ex:hasIngredient/rdf:type/rdfs:subClassOf* ?val . BIND("ingredient" AS ?kind)
   } UNION {
+    ?p ex:hasBrand ?val . BIND("brand" AS ?kind)
+  } UNION {
     ?p ex:estimatedPrice ?val . BIND("price" AS ?kind)
   } UNION {
     ?p ex:hasIngredient ?ri .
@@ -313,7 +337,7 @@ SPARQL);
             $val = (string) SparqlService::value($row, 'val');
 
             $products[$uri] ??= [
-                'age' => [], 'skin' => [], 'category' => [], 'concern' => [], 'ingredient' => [],
+                'age' => [], 'skin' => [], 'category' => [], 'concern' => [], 'ingredient' => [], 'brand' => [],
                 'price' => null, 'teen_locked' => false,
             ];
 
@@ -406,6 +430,19 @@ SPARQL);
             }
         }
 
+        if ($criteria->brands !== []) {
+            $brands = implode(', ', array_map(fn ($b) => $voc->label('brand', $b), $criteria->brands));
+            if ($num('sBrand') > 0) {
+                $reasons[] = self::BRAND_REASON;
+            } else {
+                $miss('brand', 'brand', "Bukan dari brand pilihanmu ({$brands})");
+            }
+        }
+
+        if ($criteria->avoid !== []) {
+            $reasons[] = 'Bebas '.implode(', ', array_map(fn ($a) => $voc->label('ingredient', $a), $criteria->avoid));
+        }
+
         $price = $v('price') !== null ? (int) $v('price') : null;
         if ($criteria->hasPrice()) {
             if ($num('sPrice') > 0) {
@@ -476,7 +513,7 @@ SPARQL);
 SELECT ?p
   (SAMPLE(?brand) AS ?brandIri) (SAMPLE(?brandL) AS ?brandLabel)
   (SAMPLE(?series) AS ?seriesIri) (SAMPLE(?seriesL) AS ?seriesLabel)
-  (SAMPLE(?catL) AS ?categoryLabel) (SAMPLE(?img) AS ?image) (SAMPLE(?vs) AS ?verification)
+  (SAMPLE(?catL) AS ?categoryLabel) (SAMPLE(?img) AS ?image) (SAMPLE(?vs) AS ?verification) (SAMPLE(?sid) AS ?sourceId)
   (GROUP_CONCAT(DISTINCT ?skinL; separator="|") AS ?skins)
   (GROUP_CONCAT(DISTINCT ?concernL; separator="|") AS ?concerns)
   (GROUP_CONCAT(DISTINCT ?ingL; separator="|") AS ?ingredients)
@@ -491,6 +528,7 @@ WHERE {
   OPTIONAL { ?p ex:hasIngredient ?ing . {$label('?ing', '?ingL')} }
   OPTIONAL { ?p schema:image ?img }
   OPTIONAL { ?p ex:verificationStatus ?vs }
+  OPTIONAL { ?p ex:sourceProductId ?sid }
   {$viaIngredient}
 }
 GROUP BY ?p
@@ -500,13 +538,14 @@ SPARQL);
         $details = [];
         foreach ($rows as $row) {
             $v = fn (string $var) => SparqlService::value($row, $var);
+            $brand = $v('brandLabel') ?? ($v('brandIri') ? Vocabulary::humanize(SparqlService::local($v('brandIri'))) : null);
             $details[(string) $v('p')] = [
-                'brand' => $v('brandLabel') ?? ($v('brandIri') ? Vocabulary::humanize(SparqlService::local($v('brandIri'))) : null),
+                'brand' => $brand,
                 'brand_id' => $v('brandIri') ? SparqlService::local($v('brandIri')) : null,
                 'series' => $v('seriesLabel') ?? ($v('seriesIri') ? Vocabulary::humanize(SparqlService::local($v('seriesIri'))) : null),
                 'series_id' => $v('seriesIri') ? SparqlService::local($v('seriesIri')) : null,
                 'category' => $v('categoryLabel'),
-                'image' => $v('image'),
+                'image' => self::imageUrl($brand, $v('sourceId') ?? SparqlService::local((string) $v('p')), $v('image')),
                 'verification' => $v('verification'),
                 'skin_types' => $split($v('skins')),
                 'concerns' => $split($v('concerns')),
@@ -531,8 +570,24 @@ SPARQL);
             }
             unset($detail['targeting_ingredients']);
 
+            // Sebut nama brand-nya pada alasan brand.
+            $product['reasons'] = array_map(
+                fn ($r) => $r === self::BRAND_REASON && $detail['brand'] ? 'Dari brand '.$detail['brand'] : $r,
+                $product['reasons']
+            );
+
             return $product + $detail;
         }, $products);
+    }
+
+    /**
+     * Foto produk, aturannya sama dengan katalog: file lokal
+     * public/images/{brand}/{sourceProductId}.{ext}, cadangan schema:image http(s).
+     */
+    private static function imageUrl(?string $brand, string $sourceId, ?string $ontologyImage): ?string
+    {
+        return CatalogController::imageFor($brand, $sourceId)
+            ?? ($ontologyImage !== null && preg_match('#^https?://#i', $ontologyImage) === 1 ? $ontologyImage : null);
     }
 
     private function allSkinTypes(): array

@@ -20,6 +20,7 @@ class Vocabulary
         'category' => 'Category',
         'concern' => 'SkinConcern',
         'ingredient' => 'Ingredient',
+        'brand' => 'Brand',
     ];
 
     /** @var array<string, array<string, string>>|null kriteria => [namaLokal => label] */

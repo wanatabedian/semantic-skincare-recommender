@@ -59,6 +59,7 @@ class RecommendationEngineTest extends TestCase
                     'category' => ['SerumCategory' => 'Serum', 'SunscreenCategory' => 'Sunscreen'],
                     'concern' => ['Acne' => 'Jerawat', 'ExcessOil' => 'Minyak Berlebih', 'DullnessBrightening' => 'Kusam'],
                     'ingredient' => ['NiacinamideIngredient' => 'Niacinamide', 'RetinolIngredient' => 'Retinol'],
+                    'brand' => ['WardahBrand' => 'Wardah', 'EminaBrand' => 'Emina'],
                 ];
             }
         };
@@ -224,6 +225,53 @@ class RecommendationEngineTest extends TestCase
         $this->assertStringContainsString('ex:treatsConcern <'.self::EX.'Acne>', $query);
         $this->assertStringContainsString('ex:treatsConcern <'.self::EX.'ExcessOil>', $query);
         $this->assertStringContainsString('((?sSkin + ?sC1 + ?sC2 + ?sPrice) AS ?score)', $query);
+    }
+
+    public function test_brand_pilihan_menambah_skor_dan_cukup_salah_satu_cocok(): void
+    {
+        $criteria = $this->criteria(['brand' => ['WardahBrand', 'EminaBrand'], 'skin' => 'OilySkinType']);
+        $this->assertSame(2 + 1, $this->engine()->maxScore($criteria));
+
+        $query = $this->engine()->buildScoreQuery($criteria, false);
+        $this->assertStringContainsString('VALUES ?brandPick { <'.self::EX.'WardahBrand> <'.self::EX.'EminaBrand> }', $query);
+        $this->assertStringContainsString('((?sSkin + ?sBrand) AS ?score)', $query);
+    }
+
+    public function test_produk_beda_brand_tercatat_sebagai_kriteria_brand_yang_dilonggarkan(): void
+    {
+        $this->scoreRows = [$this->row('B-1', 2, ['skinVia' => 'exact', 'sSkin' => 2, 'sBrand' => 0])];
+        $result = $this->engine()->recommend($this->criteria(['brand' => ['WardahBrand'], 'skin' => 'OilySkinType']));
+
+        $this->assertSame('B', $result['plan']);
+        $this->assertSame(['brand'], $result['relaxed_keys']);
+        $this->assertContains('Bukan dari brand pilihanmu (Wardah)', $result['products'][0]['missed_detail']);
+    }
+
+    public function test_bahan_yang_dihindari_jadi_filter_keras_termasuk_golongannya(): void
+    {
+        $criteria = $this->criteria(['avoid' => ['RetinolIngredient']]);
+        $this->assertSame(0, $this->engine()->maxScore($criteria));
+
+        $query = $this->engine()->buildScoreQuery($criteria, false);
+        $this->assertStringContainsString('VALUES ?avoid { <'.self::EX.'RetinolIngredient> }', $query);
+        $this->assertStringContainsString('?p ex:hasIngredient/rdf:type/rdfs:subClassOf* ?avoid', $query);
+
+        $this->scoreRows = [$this->row('A-1', 0)];
+        $result = $this->engine()->recommend($criteria);
+        $this->assertSame('A', $result['plan']);
+        $this->assertContains('Bebas Retinol', $result['products'][0]['reasons']);
+    }
+
+    public function test_bahan_yang_dicari_tidak_boleh_sekaligus_dihindari(): void
+    {
+        $this->expectException(ValidationException::class);
+        $this->criteria(['ingredient' => 'NiacinamideIngredient', 'avoid' => ['NiacinamideIngredient']]);
+    }
+
+    public function test_brand_tidak_dikenal_ditolak(): void
+    {
+        $this->expectException(ValidationException::class);
+        $this->criteria(['brand' => ['WardahBrand> } ?s ?p ?o { <x']]);
     }
 
     // 9

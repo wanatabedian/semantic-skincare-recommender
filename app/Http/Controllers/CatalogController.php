@@ -712,6 +712,25 @@ SPARQL;
         return null;
     }
 
+    /** Logo brand: public/images/logo/{nama brand}.{ext}, nama file tanpa membedakan kapital (mis. "Emina" -> emina.jpg). */
+    public static function brandLogo(?string $brand): ?string
+    {
+        $slug = self::brandFolder($brand);
+        $dir = public_path(self::IMAGE_DIR.'/logo');
+        if ($slug === null || ! is_dir($dir)) {
+            return null;
+        }
+
+        foreach (scandir($dir) ?: [] as $file) {
+            $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+            if (in_array($ext, self::IMAGE_EXTENSIONS, true) && Str::slug(pathinfo($file, PATHINFO_FILENAME)) === $slug) {
+                return asset(self::IMAGE_DIR.'/logo/'.$file);
+            }
+        }
+
+        return null;
+    }
+
     /** Cadangan: schema:image dari ontologi, hanya bila berupa URL http(s). */
     private static function ontologyImage(?string $url): ?string
     {

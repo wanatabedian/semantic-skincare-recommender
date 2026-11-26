@@ -20,9 +20,9 @@
     $team = [
         ['name' => 'Indah Ayu Gemilang', 'role' => 'Recommendation Engine'],
         ['name' => 'Quinsha Ilmi Azzahra', 'role' => 'Knowledge Engineer'],
-        ['name' => 'Keizya Azalea Azka', 'role' => 'Experience & Kuis'],
+        ['name' => 'Dian Indriani', 'role' => 'Experience & Kuis'],
         ['name' => 'Jihan Fadhillah', 'role' => 'Produk & Rutinitas'],
-        ['name' => 'Dian Indriani', 'role' => 'Eksplorasi Katalog'],
+        ['name' => 'Keizya Azalea Azka', 'role' => 'Eksplorasi Katalog'],
     ];
 
     $initials = fn (string $name) => collect(explode(' ', $name))->take(2)->map(fn ($w) => mb_substr($w, 0, 1))->implode('');

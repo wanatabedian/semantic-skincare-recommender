@@ -97,6 +97,7 @@
         @foreach($result['products'] as $i => $product)
           <article class="card flex flex-col rounded-3xl border border-[#E6748E]/10 bg-white p-5 shadow-sm"
                    data-order="{{ $i }}" data-price="{{ $product['price'] ?? '' }}" data-brand="{{ $product['brand'] ?? '' }}">
+            @include('user.partials.rekomendasi-photo', ['product' => $product])
             <div class="flex items-start justify-between gap-3">
               <p class="text-xs font-bold text-[#6BB1AD]">{{ $product['brand'] ?? 'Brand tidak tersedia' }} · {{ $product['series'] ?? 'Tanpa seri' }}</p>
               @if($result['max_score'] > 0)
@@ -143,11 +144,7 @@
           <div class="max-w-2xl">
             <p class="text-xs font-extrabold uppercase tracking-[.25em] text-[#6BB1AD]">Alternatif lain</p>
             <h2 id="partial-title" class="serif mt-1 text-2xl font-bold text-[#345452] sm:text-3xl">Cocok sebagian dengan pilihanmu</h2>
-            <p class="mt-2 text-sm text-[#657674]">
-              {{ $result['partial_total'] }} produk lain memenuhi <b>sebagian</b> kriteriamu{{ $result['partial_total'] > count($result['partial']) ? ', berikut '.count($result['partial']).' yang paling mendekati' : '' }}.
-              Setiap kartu menjelaskan kenapa produk masuk dan kriteria mana yang belum terpenuhi.
-              Kelompok umur{{ $result['teen_lock']['active'] ? ' dan Teen Lock' : '' }} tetap diterapkan.
-            </p>
+            
           </div>
           <div class="hidden gap-2 sm:flex">
             <button type="button" data-scroll="-1" aria-label="Geser ke kiri" class="grid h-10 w-10 place-items-center rounded-full border border-[#E6748E]/20 bg-white text-lg font-bold hover:border-[#6BB1AD]">←</button>
@@ -155,17 +152,13 @@
           </div>
         </div>
 
-        <ul class="mt-4 flex flex-wrap gap-2 text-[11px] font-bold" aria-label="Keterangan tingkat kecocokan">
-          <li class="rounded-full bg-[#B8E8EE]/60 px-3 py-1 text-[#2B5E5B]">≥ 75% · Hampir cocok</li>
-          <li class="rounded-full bg-amber-100 px-3 py-1 text-amber-900">50–74% · Cukup cocok</li>
-          <li class="rounded-full bg-[#FDEEF1] px-3 py-1 text-[#B04A63]">&lt; 50% · Sebagian cocok</li>
-        </ul>
-
+        
         <div id="partial-track" tabindex="0" aria-label="Daftar produk cocok sebagian, geser ke samping"
              class="-mx-4 mt-5 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth px-4 pb-5 sm:-mx-6 sm:px-6 focus-visible:outline-2 focus-visible:outline-[#6BB1AD]">
           @foreach($result['partial'] as $product)
             @php($t = $tiers[$product['match_percent'] >= 75 ? 'high' : ($product['match_percent'] >= 50 ? 'mid' : 'low')])
             <article class="partial-card flex w-[80vw] max-w-[310px] shrink-0 snap-start flex-col rounded-3xl border {{ $t['ring'] }} bg-white p-5 shadow-sm sm:w-[300px]">
+              @include('user.partials.rekomendasi-photo', ['product' => $product])
               <div class="flex items-start justify-between gap-3">
                 <p class="text-xs font-bold text-[#6BB1AD]">{{ $product['brand'] ?? 'Brand tidak tersedia' }}</p>
                 <span class="shrink-0 rounded-full px-3 py-1 text-xs font-extrabold {{ $t['badge'] }}"

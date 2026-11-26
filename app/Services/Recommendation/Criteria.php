@@ -11,13 +11,18 @@ use Illuminate\Validation\ValidationException;
  * dijamin ada di ontologi (lihat Vocabulary), jadi aman diubah menjadi IRI.
  *
  * Nama parameter mengikuti kontrak: age, skin, category, ingredient,
- * concern[], price_min, price_max. Nama lama dari SparqlController versi
+ * concern[], brand[], avoid[], price_min, price_max. Nama lama dari SparqlController versi
  * pertama (age_group, skin_type, concerns) tetap diterima sebagai alias.
+ *
+ *  - brand[] : brand pilihan (cukup salah satu cocok) -> menambah skor.
+ *  - avoid[] : bahan yang ingin dihindari -> filter keras, tidak pernah dilonggarkan.
  */
 final class Criteria
 {
     /**
      * @param  string[]  $concerns
+     * @param  string[]  $brands
+     * @param  string[]  $avoid
      */
     public function __construct(
         public readonly ?string $age = null,
@@ -27,6 +32,8 @@ final class Criteria
         public readonly array $concerns = [],
         public readonly ?int $priceMin = null,
         public readonly ?int $priceMax = null,
+        public readonly array $brands = [],
+        public readonly array $avoid = [],
     ) {}
 
     private const ALIASES = [
@@ -54,12 +61,14 @@ final class Criteria
                 $input[$key] = null;
             }
         }
-        // concern=Acne (tanpa []) tetap diterima.
-        if (isset($input['concern']) && is_string($input['concern'])) {
-            $input['concern'] = $input['concern'] === '' ? [] : [$input['concern']];
-        }
-        if (isset($input['concern']) && is_array($input['concern'])) {
-            $input['concern'] = array_values(array_filter($input['concern'], fn ($c) => $c !== '' && $c !== null));
+        // concern=Acne (tanpa []) tetap diterima; berlaku juga untuk brand dan avoid.
+        foreach (['concern', 'brand', 'avoid'] as $key) {
+            if (isset($input[$key]) && is_string($input[$key])) {
+                $input[$key] = $input[$key] === '' ? [] : [$input[$key]];
+            }
+            if (isset($input[$key]) && is_array($input[$key])) {
+                $input[$key] = array_values(array_filter($input[$key], fn ($c) => $c !== '' && $c !== null));
+            }
         }
 
         $in = fn (string $group) => Rule::in(array_keys($vocabulary->group($group)));
@@ -72,6 +81,10 @@ final class Criteria
             'ingredient' => ['nullable', 'string', $in('ingredient')],
             'concern' => ['nullable', 'array', 'max:'.$maxConcerns],
             'concern.*' => ['string', 'distinct', $in('concern')],
+            'brand' => ['nullable', 'array'],
+            'brand.*' => ['string', 'distinct', $in('brand')],
+            'avoid' => ['nullable', 'array'],
+            'avoid.*' => ['string', 'distinct', $in('ingredient')],
             'price_min' => ['nullable', 'integer', 'min:0'],
             'price_max' => ['nullable', 'integer', 'min:0'],
         ], [
@@ -79,6 +92,10 @@ final class Criteria
             'concern.max' => 'Keluhan maksimal :max.',
             'concern.*.in' => 'Keluhan tidak dikenal di ontologi.',
             'concern.*.distinct' => 'Keluhan tidak boleh sama.',
+            'brand.*.in' => 'Brand tidak dikenal di ontologi.',
+            'brand.*.distinct' => 'Brand tidak boleh sama.',
+            'avoid.*.in' => 'Bahan yang dihindari tidak dikenal di ontologi.',
+            'avoid.*.distinct' => 'Bahan yang dihindari tidak boleh sama.',
             'integer' => ':attribute harus berupa angka bulat.',
             'min' => ':attribute tidak boleh negatif.',
         ], [
@@ -87,6 +104,8 @@ final class Criteria
             'category' => 'Kategori',
             'ingredient' => 'Bahan aktif',
             'concern' => 'Keluhan',
+            'brand' => 'Brand',
+            'avoid' => 'Bahan yang dihindari',
             'price_min' => 'Harga minimum',
             'price_max' => 'Harga maksimum',
         ]);
@@ -96,6 +115,10 @@ final class Criteria
             $max = $input['price_max'] ?? null;
             if (is_numeric($min) && is_numeric($max) && (int) $max < (int) $min) {
                 $v->errors()->add('price_max', 'Harga maksimum harus lebih besar atau sama dengan harga minimum.');
+            }
+            $ingredient = $input['ingredient'] ?? null;
+            if (is_string($ingredient) && is_array($input['avoid'] ?? null) && in_array($ingredient, $input['avoid'], true)) {
+                $v->errors()->add('avoid', 'Bahan yang dicari tidak boleh sekaligus dihindari.');
             }
         });
 
@@ -109,6 +132,8 @@ final class Criteria
             concerns: array_values($data['concern'] ?? []),
             priceMin: isset($data['price_min']) ? (int) $data['price_min'] : null,
             priceMax: isset($data['price_max']) ? (int) $data['price_max'] : null,
+            brands: array_values($data['brand'] ?? []),
+            avoid: array_values($data['avoid'] ?? []),
         );
     }
 
@@ -120,7 +145,8 @@ final class Criteria
     public function isEmpty(): bool
     {
         return $this->age === null && $this->skin === null && $this->category === null
-            && $this->ingredient === null && $this->concerns === [] && ! $this->hasPrice();
+            && $this->ingredient === null && $this->concerns === [] && ! $this->hasPrice()
+            && $this->brands === [] && $this->avoid === [];
     }
 
     /** Bentuk array untuk JSON / view / query string. */
@@ -132,6 +158,8 @@ final class Criteria
             'category' => $this->category,
             'ingredient' => $this->ingredient,
             'concern' => $this->concerns,
+            'brand' => $this->brands,
+            'avoid' => $this->avoid,
             'price_min' => $this->priceMin,
             'price_max' => $this->priceMax,
         ], fn ($v) => $v !== null && $v !== []);
