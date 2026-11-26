@@ -489,9 +489,9 @@
         <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-bold text-[#657674]">
             <div class="flex items-center gap-2 text-[#E6748E] font-extrabold text-base">
                 <span class="w-7 h-7 rounded-lg bg-[#6BB1AD] grid place-items-center text-white text-sm">✦</span>
-                <span>{{ config('app.name', 'Aphrod') }}</span>
+                <span>{{ config('app.name', 'Aphrodite') }}</span>
             </div>
-            <p>© {{ date('Y') }} Aphrod Botanical & Derma Care. Semua hak dilindungi.</p>
+            <p>© {{ date('Y') }} Aphrodite Botanical & Derma Care. Semua hak dilindungi.</p>
         </div>
     </footer>
 
@@ -506,6 +506,8 @@
                 const params = new URLSearchParams();
                 ['age','skin','category','ingredient','price_min','price_max'].forEach(key => { if (a[key]) params.set(key, a[key]); });
                 (a.concern || []).slice(0, 2).forEach(value => params.append('concern[]', value));
+                // Brand pilihan dan bahan yang dihindari juga bagian dari kriteria kuis.
+                ['brand', 'avoid'].forEach(key => (a[key] || []).forEach(value => params.append(key + '[]', value)));
                 const card = document.createElement('a');
                 card.href = '/rekomendasi?' + params.toString();
                 card.className = 'rounded-2xl border border-[#E6748E]/10 bg-white p-4 no-underline transition hover:border-[#6BB1AD]';
