@@ -9,9 +9,10 @@
   @if($product['image'])
     <img src="{{ $product['image'] }}" alt="Foto {{ $product['name'] }}" loading="lazy" decoding="async"
          class="h-full w-full object-contain p-3 transition duration-300 hover:scale-105"
-         onerror="this.nextElementSibling.hidden = false; this.remove();">
+         onerror="const fallback = this.nextElementSibling; fallback.hidden = false; fallback.style.display = ''; this.remove();">
   @endif
-  <div class="absolute inset-0 flex flex-col items-center justify-center gap-1 text-[#E6748E]/70" @if($product['image']) hidden @endif>
+  {{-- Kelas `flex` mengalahkan atribut `hidden` di Tailwind, jadi fallback disembunyikan lewat style inline saat foto ada. --}}
+  <div class="absolute inset-0 flex flex-col items-center justify-center gap-1 text-[#E6748E]/70" @if($product['image']) hidden style="display:none" @endif>
     <span class="serif text-4xl font-bold">{{ $initial }}</span>
     <span class="text-[11px] font-bold uppercase tracking-widest text-[#657674]">Foto belum tersedia</span>
   </div>

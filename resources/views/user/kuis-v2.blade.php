@@ -6,31 +6,57 @@
     <meta name="csrf-token" content="{{ csrf_token() }}"><title>Kuis Analisis Kulit — Aphrodite</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
-    <style>body{font-family:'DM Sans',sans-serif}.serif{font-family:'Playfair Display',serif}</style>
+    <style>
+      body{font-family:'DM Sans',sans-serif}.serif{font-family:'Playfair Display',serif}
+      /* Gradasi vertikal krem → mint → biru muda, tanpa ornamen. */
+      .quiz-bg{background:linear-gradient(180deg,#FFFEFA 0%,#EEF8F3 55%,#E4F4F8 100%)}
+      /* Ringkasan memakai lebar penuh (panel Tahapan disembunyikan). */
+      #layout[data-view="summary"]{grid-template-columns:minmax(0,1fr)}
+      @keyframes q-in{from{opacity:0;transform:translateX(var(--dx,18px))}to{opacity:1;transform:none}}
+      .q-enter{animation:q-in .35s cubic-bezier(.2,.7,.3,1) both}
+      @media (prefers-reduced-motion: reduce){
+        *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+      }
+    </style>
 </head>
-<body class="min-h-screen bg-[#FFFEFA] text-[#345452]">
+<body class="quiz-bg min-h-screen bg-[#FFFEFA] text-[#345452]">
 @include('partials.global-nav')
 <nav class="border-b border-[#E6748E]/10 bg-[#FDEEF1] px-5 py-4"><div class="mx-auto flex max-w-5xl items-center justify-between"><a href="/" class="text-xl font-extrabold text-[#E6748E]">Aphrodite</a><a href="/" class="text-sm font-bold text-[#657674] hover:text-[#E6748E]">← Beranda</a></div></nav>
-<main class="mx-auto max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
-    <p class="mb-3 text-center text-xs font-extrabold uppercase tracking-[.25em] text-[#6BB1AD]">Analisis personal</p>
-    <h1 class="serif mb-2 text-center text-4xl font-bold text-[#E6748E] sm:text-5xl">Kenali kebutuhan kulitmu</h1>
-    <p class="mb-9 text-center text-sm text-[#657674]">Jawab yang kamu tahu. Semua pertanyaan boleh dilewati.</p>
-    <section class="rounded-[28px] border border-[#E6748E]/10 bg-white p-5 shadow-[0_18px_50px_rgba(52,84,82,.08)] sm:p-9" id="quiz" data-options="{{ route('api.quiz-options') }}" data-submit="{{ route('api.quiz.analyze') }}">
-        <div class="mb-8"><div class="mb-2 flex justify-between text-xs font-bold"><span id="step-label">Tahap 1 dari 8</span><span id="progress-label">13%</span></div><div class="h-2 overflow-hidden rounded-full bg-[#FDEEF1]"><div id="progress" class="h-full rounded-full bg-[#6BB1AD] transition-all" style="width:12.5%"></div></div></div>
-        <div id="loading" class="py-12 text-center text-sm text-[#657674]">Memuat pilihan dari katalog ontologi…</div>
-        <div id="error" class="hidden rounded-2xl bg-red-50 p-4 text-sm text-red-700"></div>
-        <div id="stage" class="hidden min-h-64"></div>
-        <p id="match-count" class="mt-5 hidden text-xs font-bold text-[#6BB1AD]" aria-live="polite"></p>
-        <div id="feedback" class="mt-2 min-h-5 text-sm font-semibold text-[#E6748E]" role="status"></div>
-        <div class="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-[#E6748E]/10 pt-5">
-            <button id="back" class="rounded-xl border border-[#6BB1AD]/30 px-5 py-3 text-sm font-bold text-[#345452] disabled:opacity-40">Kembali</button>
-            <div class="flex flex-wrap gap-2">
-                <button id="skip" class="rounded-xl px-4 py-3 text-sm font-bold text-[#657674] hover:bg-[#FDEEF1]">Lewati</button>
-                <button id="next" class="rounded-xl bg-[#E6748E] px-5 py-3 text-sm font-bold text-white hover:bg-[#d95f7b]">Selanjutnya</button>
-                <button id="analyze" class="hidden rounded-xl bg-[#345452] px-5 py-3 text-sm font-bold text-white hover:bg-[#263f3e] disabled:cursor-not-allowed disabled:opacity-40">Analisis Sekarang →</button></div>
-        </div>
-    </section>
-    <p class="mt-5 text-center text-xs text-[#657674]">Pilihan kuis dimuat dari ontologi Aphrodite. Opsi yang tidak memiliki produk untuk kombinasi pilihanmu otomatis dinonaktifkan.</p>
+<main class="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:py-14">
+    <header class="mb-8 text-center lg:mb-10">
+        <p class="mb-3 text-xs font-extrabold uppercase tracking-[.25em] text-[#6BB1AD]">Analisis personal</p>
+        <h1 class="serif mb-2 text-4xl font-bold text-[#E6748E] sm:text-5xl">Kenali kebutuhan kulitmu</h1>
+        <p class="text-sm text-[#657674]">Jawab yang kamu tahu. Semua pertanyaan boleh dilewati.</p>
+    </header>
+
+    <div id="layout" class="grid gap-5 lg:grid-cols-[270px_minmax(0,1fr)] lg:items-start lg:gap-7">
+        {{-- Panel Tahapan: daftar di desktop, baris nomor di mobile. --}}
+        <aside id="steps-panel" class="hidden lg:sticky lg:top-6" aria-label="Tahapan kuis">
+            <div class="hidden rounded-[24px] border border-[#E6748E]/10 bg-white/85 p-5 shadow-[0_14px_40px_rgba(52,84,82,.07)] backdrop-blur lg:block">
+                <p class="text-xs font-extrabold uppercase tracking-[.2em] text-[#6BB1AD]">Tahapan</p>
+                <p class="serif mt-1 text-xl font-bold"><span id="steps-count">0 dari 8</span> <span class="font-sans text-xs font-semibold text-[#657674]">terjawab</span></p>
+                <ol id="steps" class="mt-4 space-y-1"></ol>
+            </div>
+            <ol id="steps-mobile" class="flex gap-2 overflow-x-auto pb-1 lg:hidden"></ol>
+        </aside>
+
+        <section class="rounded-[28px] border border-[#E6748E]/10 bg-white p-5 shadow-[0_18px_50px_rgba(52,84,82,.08)] sm:p-9" id="quiz" data-options="{{ route('api.quiz-options') }}" data-submit="{{ route('api.quiz.analyze') }}">
+            <div id="progress-wrap" class="mb-8"><div class="mb-2 flex justify-between text-xs font-bold"><span id="step-label">Tahap 1 dari 8</span><span id="progress-label" class="text-[#6BB1AD]">13%</span></div><div class="h-2 overflow-hidden rounded-full bg-[#FDEEF1]"><div id="progress" class="h-full rounded-full bg-gradient-to-r from-[#6BB1AD] to-[#8FCFCB] transition-[width] duration-500 ease-out" style="width:12.5%"></div></div></div>
+            <div id="loading" class="py-12 text-center text-sm text-[#657674]">Memuat pilihan dari katalog ontologi…</div>
+            <div id="error" class="hidden rounded-2xl bg-red-50 p-4 text-sm text-red-700"></div>
+            <div id="stage" class="hidden"></div>
+            <p id="match-count" class="mt-6 hidden text-sm font-bold text-[#6BB1AD]" aria-live="polite"></p>
+            <div id="feedback" class="mt-2 min-h-5 text-sm font-semibold text-[#E6748E]" role="status"></div>
+            <div class="mt-6 flex flex-col-reverse gap-2 border-t border-[#E6748E]/10 pt-5 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+                <button id="back" class="w-full rounded-xl border border-[#6BB1AD]/30 bg-white px-5 py-3 text-sm font-bold text-[#345452] transition hover:border-[#6BB1AD] disabled:opacity-40 sm:w-auto">Kembali</button>
+                <div class="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
+                    <button id="skip" class="rounded-xl px-4 py-3 text-sm font-bold text-[#657674] transition hover:bg-[#FDEEF1]">Lewati</button>
+                    <button id="next" class="rounded-xl bg-[#E6748E] px-5 py-3 text-sm font-bold text-white transition hover:-translate-y-px hover:bg-[#d95f7b]">Selanjutnya</button>
+                    <button id="analyze" class="col-span-2 hidden rounded-xl bg-[#345452] px-5 py-3 text-sm font-bold text-white transition hover:-translate-y-px hover:bg-[#263f3e] disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-40">Analisis Sekarang →</button></div>
+            </div>
+        </section>
+    </div>
+    <p class="mt-6 text-center text-xs text-[#657674]">Pilihan kuis dimuat dari ontologi Aphrodite. Opsi yang tidak memiliki produk untuk kombinasi pilihanmu otomatis dinonaktifkan.</p>
 </main>
 <script>
 (() => {
@@ -152,8 +178,56 @@
   const resetNotice = removed => removed.length ? `Pilihan direset karena tidak lagi memiliki produk yang cocok: ${removed.join(', ')}.` : '';
 
   // ---------- Tampilan ----------
+  // Tampilan saja: jawaban terisi / tidak, untuk panel Tahapan & ringkasan.
+  const isAnswered = s => s.type === 'price' ? !!(answers.price_min || answers.price_max)
+    : MULTI.includes(s.key) ? answers[s.key].length > 0 : !!answers[s.key];
+  const CHECK_SOFT = '<svg class="h-3.5 w-3.5" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M2.5 6.5 5 9l4.5-5"/></svg>';
+
+  function renderSteps() {
+    $('steps-count').textContent = `${STEPS.filter(isAnswered).length} dari ${STEPS.length}`;
+    const state = (s, i) => i === current ? 'active' : isAnswered(s) ? (i < current ? 'done' : 'answered') : (i < current ? 'skipped' : 'todo');
+    $('steps').innerHTML = STEPS.map((s, i) => {
+      const st = state(s, i);
+      const badge = st === 'active' ? 'bg-[#E6748E] text-white'
+        : st === 'done' ? 'bg-[#6BB1AD]/15 text-[#6BB1AD]'
+        : 'border border-[#345452]/15 bg-white text-[#657674]';
+      const note = st === 'skipped' ? '<span class="block text-[11px] font-medium text-[#657674]/80">Dilewati</span>' : '';
+      return `<li><button type="button" data-goto="${i}" ${st === 'active' ? 'aria-current="step"' : ''}`
+        + ` class="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm transition ${st === 'active' ? 'bg-[#FDEEF1] font-bold text-[#345452]' : 'font-semibold text-[#345452]/80 hover:bg-[#FDEEF1]/50'}">`
+        + `<span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold ${badge}">${st === 'done' ? CHECK_SOFT : i + 1}</span>`
+        + `<span class="min-w-0 flex-1">${encode(s.title)}${note}</span>`
+        + (st === 'answered' ? '<span class="h-2 w-2 shrink-0 rounded-full bg-[#6BB1AD]" aria-label="Sudah dijawab"></span>' : '')
+        + `</button></li>`;
+    }).join('');
+    $('steps-mobile').innerHTML = STEPS.map((s, i) => {
+      const st = state(s, i);
+      const cls = st === 'active' ? 'bg-[#E6748E] text-white shadow-sm'
+        : st === 'done' ? 'bg-[#6BB1AD]/15 text-[#6BB1AD]'
+        : st === 'answered' ? 'border-2 border-[#6BB1AD]/60 bg-white text-[#345452]'
+        : 'border border-[#345452]/15 bg-white text-[#657674]';
+      return `<li><button type="button" data-goto="${i}" aria-label="Tahap ${i + 1}: ${encode(s.title)}" ${st === 'active' ? 'aria-current="step"' : ''} class="flex h-9 w-9 items-center justify-center rounded-full text-xs font-bold transition ${cls}">${st === 'done' ? CHECK_SOFT : i + 1}</button></li>`;
+    }).join('');
+    document.querySelectorAll('[data-goto]').forEach(b => b.onclick = () => { current = Number(b.dataset.goto); feedback.textContent = ''; update(); });
+  }
+
+  // Animasi slide + fade hanya saat tahap/tampilan berganti, bukan setiap klik opsi.
+  let shown = null, shownIdx = 0;
+  function animateStage(view) {
+    if (shown === view) return;
+    stage.style.setProperty('--dx', current < shownIdx ? '-18px' : '18px');
+    stage.classList.remove('q-enter'); void stage.offsetWidth; stage.classList.add('q-enter');
+    shown = view; shownIdx = current;
+  }
+
+  function setView(summaryView) {
+    $('layout').dataset.view = summaryView ? 'summary' : 'quiz';
+    $('steps-panel').classList.toggle('hidden', summaryView);
+    $('progress-wrap').classList.toggle('hidden', summaryView);
+  }
+
   function update() {
     reviewed = false;
+    setView(false);
     $('step-label').textContent = `Tahap ${current+1} dari ${STEPS.length} · ${STEPS[current].title}`;
     const p = Math.round((current+1) / STEPS.length * 100);
     $('progress').style.width = p + '%'; $('progress-label').textContent = p + '%';
@@ -173,8 +247,8 @@
       const sel = multi ? answers[step.key].includes(o.value) : answers[step.key] === o.value;
       const ok = sel || optionAvailable(step.key, o.value);
       const reason = ok ? '' : disabledReason(step.key, o.value);
-      const card = !ok ? 'cursor-not-allowed border-[#345452]/10 bg-[#345452]/[.03] opacity-50'
-        : sel ? 'cursor-pointer border-[#6BB1AD] bg-[#B8E8EE]/30' : 'cursor-pointer border-[#E6748E]/15 bg-[#FFFEFA] hover:border-[#6BB1AD]';
+      const card = !ok ? 'cursor-not-allowed border-dashed border-[#345452]/25 bg-transparent opacity-60'
+        : sel ? 'cursor-pointer border-[#6BB1AD] bg-[#B8E8EE]/30 shadow-[0_6px_18px_rgba(107,177,173,.18)]' : 'cursor-pointer border-[#E6748E]/15 bg-[#FFFEFA] hover:-translate-y-0.5 hover:border-[#6BB1AD] hover:shadow-[0_8px_20px_rgba(52,84,82,.08)]';
       const box = sel ? 'border-[#6BB1AD] bg-[#6BB1AD]' : 'border-[#345452]/30 bg-white';
       return `<label class="flex items-center gap-3 rounded-2xl border p-4 transition ${card}"${reason ? ` title="${encode(reason)}"` : ''}>`
         + `<input class="peer sr-only" type="${multi ? 'checkbox' : 'radio'}" name="${step.key}" value="${encode(o.value)}" data-key="${step.key}" ${sel ? 'checked' : ''} ${ok ? '' : 'disabled aria-disabled="true"'}>`
@@ -188,9 +262,9 @@
     const presets = PRICE_PRESETS.map(([min, max, label]) => {
       const sel = answers.price_min === min && answers.price_max === max;
       const ok = sel || presetAvailable(min, max);
-      const card = !ok ? 'cursor-not-allowed border-[#345452]/10 bg-[#345452]/[.03] opacity-50'
-        : sel ? 'border-[#6BB1AD] bg-[#B8E8EE]/30' : 'border-[#E6748E]/15 hover:border-[#6BB1AD]';
-      return `<button type="button" role="radio" aria-checked="${sel}" data-min="${min}" data-max="${max}" ${ok ? '' : 'disabled'} class="price flex items-center gap-3 rounded-2xl border ${card} p-4 text-left text-sm font-semibold">`
+      const card = !ok ? 'cursor-not-allowed border-dashed border-[#345452]/25 bg-transparent opacity-60'
+        : sel ? 'border-[#6BB1AD] bg-[#B8E8EE]/30 shadow-[0_6px_18px_rgba(107,177,173,.18)]' : 'border-[#E6748E]/15 bg-[#FFFEFA] hover:-translate-y-0.5 hover:border-[#6BB1AD] hover:shadow-[0_8px_20px_rgba(52,84,82,.08)]';
+      return `<button type="button" role="radio" aria-checked="${sel}" data-min="${min}" data-max="${max}" ${ok ? '' : 'disabled'} class="price flex items-center gap-3 rounded-2xl border ${card} p-4 text-left text-sm font-semibold transition">`
         + `<span aria-hidden="true" class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 ${sel ? 'border-[#6BB1AD] bg-[#6BB1AD]' : 'border-[#345452]/30 bg-white'}">${sel ? DOT : ''}</span>`
         + `<span><span class="block">${label}</span>${ok ? '' : '<span class="mt-0.5 block text-xs font-medium text-[#657674]">Tidak ada produk untuk kombinasi pilihanmu</span>'}</span></button>`;
     }).join('');
@@ -203,7 +277,7 @@
     const n = countFit(answers), el = $('match-count');
     el.classList.remove('hidden');
     el.classList.toggle('text-[#6BB1AD]', n > 0); el.classList.toggle('text-red-600', n === 0);
-    el.textContent = n > 0 ? `${n} produk cocok dengan semua pilihanmu saat ini.` : 'Tidak ada produk untuk kombinasi ini. Ubah rentang harga atau pilihan lain.';
+    el.textContent = n > 0 ? `${n} produk cocok dengan pilihanmu saat ini.` :'Tidak ada produk untuk kombinasi ini. Ubah rentang harga atau pilihan lain.';
     $('analyze').disabled = n === 0 || busy;
     return n;
   }
@@ -228,6 +302,8 @@
       if (el) el.oninput = () => { answers[key] = el.value; save(); refreshCount(); };
     }
     if (focusSel) { const el = stage.querySelector(focusSel); if (el) el.focus(); }
+    renderSteps();
+    animateStage('step' + current);
     refreshCount();
   }
 
@@ -250,22 +326,49 @@
     save(); render();
   }
 
+  // Ringkasan: dibangun dari `answers` & `countFit` asli, tanpa data tambahan.
   function summary() {
-    const one = key => answers[key] ? labelOf(key, answers[key]) : '';
-    const many = key => answers[key].map(v => labelOf(key, v)).join(', ');
-    const rows = [['Umur',one('age')],['Jenis kulit',one('skin')],['Kategori',one('category')],['Keluhan',many('concern')],['Bahan aktif',one('ingredient')],['Hindari bahan',many('avoid')],['Brand',many('brand')],['Harga',answers.price_min||answers.price_max?`Rp${answers.price_min||'0'} – Rp${answers.price_max||'tanpa batas'}`:'Semua harga']];
-    return `<h2 class="serif mb-4 text-2xl font-bold">Ringkasan pilihan</h2><div class="divide-y divide-[#E6748E]/10">${rows.map(([k,v])=>`<div class="flex justify-between gap-4 py-3 text-sm"><span class="font-bold">${k}</span><span class="text-right text-[#657674]">${encode(v||'Dilewati')}</span></div>`).join('')}<button id="edit-answers" type="button" class="mt-5 rounded-xl border border-[#6BB1AD]/40 px-4 py-3 text-sm font-bold">Ubah jawaban</button></div>`;
+    const values = s => s.type === 'price'
+      ? (isAnswered(s) ? [`Rp${answers.price_min||'0'} – Rp${answers.price_max||'tanpa batas'}`] : [])
+      : MULTI.includes(s.key) ? answers[s.key].map(v => labelOf(s.key, v))
+      : answers[s.key] ? [labelOf(s.key, answers[s.key])] : [];
+    const done = STEPS.filter(isAnswered).length, pct = Math.round(done / STEPS.length * 100), n = countFit(answers);
+    // Profil kulitmu: teks langsung tanpa kotak pembungkus, ring, atau progress bar.
+    const top = `<div class="mb-6">`
+      + `<p class="text-[11px] font-extrabold uppercase tracking-[.2em] text-[#6BB1AD]">Ringkasan</p>`
+      + `<h2 class="serif mt-1 text-2xl font-bold sm:text-3xl">Profil kulitmu</h2>`
+      + `<p class="mt-2 text-lg font-bold text-[#E6748E]">${n} produk cocok dengan pilihanmu</p>`
+      + `<p class="mt-0.5 text-xs font-medium text-[#657674]">${done} dari ${STEPS.length} pertanyaan terjawab · ${pct}%</p></div>`;
+    const cards = STEPS.map((s, i) => {
+      const vals = values(s);
+      const chipCls = s.key === 'avoid' ? 'border-[#E6748E]/30 bg-[#FDEEF1] text-[#E6748E]' : 'border-[#6BB1AD]/25 bg-[#B8E8EE]/30 text-[#345452]';
+      const chips = vals.length
+        ? vals.map(v => `<span class="rounded-full border px-3 py-1 text-xs font-bold ${chipCls}">${encode(v)}</span>`).join('')
+        : `<span class="rounded-full border border-dashed border-[#345452]/25 px-3 py-1 text-xs font-semibold text-[#657674] opacity-70">Dilewati${s.type === 'price' ? ' · semua harga' : ''}</span>`;
+      return `<div class="rounded-2xl border border-[#E6748E]/10 bg-[#FFFEFA] p-4 transition hover:border-[#6BB1AD]/40">`
+        + `<div class="mb-3 flex items-center justify-between gap-3"><h3 class="text-sm font-bold">${encode(s.title)}</h3>`
+        + `<button type="button" data-edit="${i}" class="rounded-lg px-2.5 py-1 text-xs font-bold text-[#6BB1AD] transition hover:bg-[#B8E8EE]/30">Ubah</button></div>`
+        + `<div class="flex flex-wrap gap-2">${chips}</div></div>`;
+    }).join('');
+    return top + `<div class="grid gap-3 sm:grid-cols-2">${cards}</div>`;
   }
   function showSummary() {
     stage.innerHTML = summary(); reviewed = true;
+    setView(true); animateStage('summary');
     $('next').classList.add('hidden'); $('skip').classList.add('hidden');
+    $('back').disabled = false;
     $('analyze').textContent = 'Konfirmasi & Analisis →';
     feedback.textContent = 'Periksa kembali jawaban sebelum melanjutkan.';
-    $('edit-answers').onclick = () => { feedback.textContent = ''; update(); };
+    // "Ubah" kembali ke tahap terkait; jawaban lain tetap tersimpan.
+    stage.querySelectorAll('[data-edit]').forEach(b => b.onclick = () => { current = Number(b.dataset.edit); feedback.textContent = ''; update(); });
     refreshCount();
   }
 
-  $('back').onclick = () => { if (current > 0) { current--; feedback.textContent = ''; update(); } };
+  // Dari ringkasan, Kembali membuka lagi tahap terakhir yang dilihat (seperti tombol "Ubah jawaban" sebelumnya).
+  $('back').onclick = () => {
+    if (reviewed) { feedback.textContent = ''; update(); return; }
+    if (current > 0) { current--; feedback.textContent = ''; update(); }
+  };
   $('next').onclick = () => { if (current < LAST) { current++; feedback.textContent = ''; update(); } };
   $('skip').onclick = () => {
     const key = STEPS[current].key;
