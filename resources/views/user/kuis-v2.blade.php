@@ -228,7 +228,7 @@
   function update() {
     reviewed = false;
     setView(false);
-    $('step-label').textContent = `Tahap ${current+1} dari ${STEPS.length} · ${STEPS[current].title}`;
+    $('step-label').textContent = `Tahap ${current+1} dari ${STEPS.length}`;
     const p = Math.round((current+1) / STEPS.length * 100);
     $('progress').style.width = p + '%'; $('progress-label').textContent = p + '%';
     $('back').disabled = current === 0;
