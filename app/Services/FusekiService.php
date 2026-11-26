@@ -138,6 +138,7 @@ class FusekiService
                 ?category ?categoryLabel
                 ?concern ?concernLabel
                 ?ingredient ?ingredientLabel
+                ?brand ?brandLabel
             WHERE {
                 {
                     ?age a ex:AgeGroup ; rdfs:label ?ageLabel .
@@ -158,8 +159,12 @@ class FusekiService
                 {
                     ?ingredient a ex:Ingredient ; rdfs:label ?ingredientLabel .
                 }
+                UNION
+                {
+                    ?brand a ex:Brand ; rdfs:label ?brandLabel .
+                }
             }
-            ORDER BY ?ageLabel ?skinLabel ?categoryLabel ?concernLabel ?ingredientLabel
+            ORDER BY ?ageLabel ?skinLabel ?categoryLabel ?concernLabel ?ingredientLabel ?brandLabel
         ");
 
         $options = [
@@ -168,6 +173,7 @@ class FusekiService
             'categories' => [],
             'concerns' => [],
             'ingredients' => [],
+            'brands' => [],
         ];
 
         foreach ($rows as $row) {
@@ -223,6 +229,16 @@ class FusekiService
                 $options['ingredients'][] = [
                     'value' => $value,
                     'label' => $row['ingredientLabel']['value'] ?? $this->label($value),
+                ];
+            }
+
+            // Brand
+            if (isset($row['brand']['value'])) {
+                $value = $this->termValue($row['brand']);
+
+                $options['brands'][] = [
+                    'value' => $value,
+                    'label' => $row['brandLabel']['value'] ?? $this->label($value),
                 ];
             }
         }

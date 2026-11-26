@@ -57,6 +57,12 @@ class RecommendationController extends Controller
         if ($c->ingredient) {
             $labels[] = 'Bahan: '.$vocabulary->label('ingredient', $c->ingredient);
         }
+        foreach ($c->avoid as $avoid) {
+            $labels[] = 'Tanpa: '.$vocabulary->label('ingredient', $avoid);
+        }
+        if ($c->brands !== []) {
+            $labels[] = 'Brand: '.implode(', ', array_map(fn ($b) => $vocabulary->label('brand', $b), $c->brands));
+        }
         if ($c->hasPrice()) {
             $labels[] = 'Harga: '.RecommendationEngine::priceRange($c);
         }

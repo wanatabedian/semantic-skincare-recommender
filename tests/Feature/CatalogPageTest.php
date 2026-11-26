@@ -244,13 +244,13 @@ class CatalogPageTest extends TestCase
 
     public function test_products_without_photo_show_fallback_and_are_not_hidden(): void
     {
-        $this->fakeSparql([$this->row('TAV-0008', 'Produk Tanpa Foto', 'TAVI')]);
+        $this->fakeSparql([$this->row('TAV-0099', 'Produk Tanpa Foto', 'TAVI')]);
 
         $this->get('/katalog')
             ->assertOk()
             ->assertSee('Produk Tanpa Foto')
             ->assertSee('Foto belum tersedia')
-            ->assertDontSee('images/tavi/TAV-0008', false);
+            ->assertDontSee('images/tavi/TAV-0099', false);
     }
 
     public function test_local_photo_is_matched_by_source_product_id_in_brand_folder(): void

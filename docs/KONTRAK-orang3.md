@@ -33,6 +33,8 @@ $rows = app(SparqlService::class)->select('SELECT ?p WHERE { ?p ex:hasBrand '.$s
 | `category` | nama lokal `ex:Category` | `SerumCategory` |
 | `ingredient` | nama lokal `ex:Ingredient` | `NiacinamideIngredient` |
 | `concern[]` | nama lokal `ex:SkinConcern`, **maks 2** | `Acne`, `ExcessOil` |
+| `brand[]` | nama lokal `ex:Brand`; skor +1 bila produk dari salah satunya | `WardahBrand`, `EminaBrand` |
+| `avoid[]` | nama lokal `ex:Ingredient` yang dihindari; **filter keras** (termasuk golongannya via `rdf:type/rdfs:subClassOf*`), tidak boleh sama dengan `ingredient` | `Retinol` |
 | `price_min`, `price_max` | bilangan bulat ≥ 0 | `50000` |
 
 Semua opsional. Nilai yang tidak ada di ontologi ditolak (whitelist diambil dari ontologi, bukan hardcode).
@@ -55,7 +57,7 @@ Alias lama tetap diterima: `age_group`, `skin_type`, `concerns`.
   "criteria": { "age": "Teen", "skin": "DrySkinType", "concern": ["Acne"] },
   "max_score": 5,
   "relaxed": ["jenis kulit"],          // label kriteria yang dilonggarkan (hanya Plan B)
-  "relaxed_keys": ["skin"],            // skin | category | ingredient | price | concern:<Id>
+  "relaxed_keys": ["skin"],            // skin | category | ingredient | brand | price | concern:<Id>
   "teen_lock": { "active": true, "hidden_count": 1, "message": "1 produk ber-retinol disembunyikan untuk usia remaja." },
   "notices": ["Retinol tidak disarankan untuk usia remaja, jadi kriteria bahan diabaikan."],
   "total": 12,

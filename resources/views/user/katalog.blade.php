@@ -106,24 +106,13 @@
             </div>
         </section>
 
-        {{-- ================= KATALOG: FILTER + LISTING ================= --}}
-        <div class="mx-auto mt-14 grid max-w-7xl gap-10 px-4 pb-24 sm:px-6 md:px-10 lg:grid-cols-[17rem_minmax(0,1fr)] lg:px-16">
+        {{-- ================= KATALOG: SARING BRAND + LISTING ================= --}}
+        <div class="mx-auto mt-14 grid max-w-7xl gap-10 px-4 pb-24 sm:px-6 md:px-10 lg:px-16">
 
-            {{-- Overlay drawer filter (mobile/tablet) --}}
-            <div class="k-overlay" data-filter-close aria-hidden="true"></div>
-
-            {{-- ---------- SIDEBAR FILTER ---------- --}}
-            <aside id="katalog-filter" class="k-filter" aria-labelledby="katalog-filter-title">
-                <div class="flex items-center justify-between">
-                    <h2 id="katalog-filter-title" class="font-serif text-2xl font-semibold text-ink">Saring</h2>
-                    <button type="button" class="grid h-9 w-9 place-items-center rounded-full text-muted hover:bg-cream lg:hidden" data-filter-close aria-label="Tutup filter">
-                        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" stroke-linecap="round"/></svg>
-                    </button>
-                </div>
-                <p class="mt-2 text-xs leading-relaxed text-muted">Pilih beberapa opsi sekaligus. Angka di samping opsi menunjukkan jumlah produk yang cocok.</p>
-
+            {{-- ---------- SARING BRAND (di atas katalog, bukan sidebar) ---------- --}}
+            <section id="katalog-filter" aria-label="Saring brand" class="min-w-0">
                 @include('user.katalog.filter-panel')
-            </aside>
+            </section>
 
             {{-- ---------- LISTING ---------- --}}
             <section id="katalog-listing" aria-labelledby="katalog-list-title" class="k-listing min-w-0">
@@ -155,13 +144,6 @@
                     </div>
 
                     <div class="flex items-center gap-3">
-                        <button type="button" class="k-btn inline-flex items-center gap-2 rounded-xl border border-ink/15 bg-white px-4 py-3 text-xs font-black uppercase tracking-wider text-ink lg:hidden"
-                                data-filter-open aria-controls="katalog-filter" aria-expanded="false">
-                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4" stroke-linecap="round"/></svg>
-                            Filter
-                            <span id="katalog-filter-count" data-katalog-swap>@if ($activeCount > 0)<span class="k-group__badge">{{ $activeCount }}<span class="sr-only"> aktif</span></span>@endif</span>
-                        </button>
-
                         {{-- Sorting ikut #katalog-form; perubahan sort selalu kembali ke halaman 1 (page tidak ada di form). --}}
                         <label class="k-sort">
                             <span class="k-sort__label text-[11px] font-black uppercase tracking-wider text-muted">Urutkan</span>

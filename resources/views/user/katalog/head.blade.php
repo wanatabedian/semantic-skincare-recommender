@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#FDEEF1">
 <link rel="icon" type="image/png" href="{{ asset('images/logo/logo-aphrodite.png') }}">
-<title>{{ $title }} — {{ config('app.name', 'Skinova') }}</title>
+<title>{{ $title }} — {{ config('app.name', 'Aphrodite') }}</title>
 <meta name="description" content="{{ $description }}">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">

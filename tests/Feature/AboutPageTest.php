@@ -9,9 +9,9 @@ class AboutPageTest extends TestCase
     private const TEAM = [
         'Indah Ayu Gemilang' => 'Recommendation Engine',
         'Quinsha Ilmi Azzahra' => 'Knowledge Engineer',
-        'Keizya Azalea Azka' => 'Experience & Kuis',
+        'Dian Indriani' => 'Experience & Kuis',
         'Jihan Fadhillah' => 'Produk & Rutinitas',
-        'Dian Indriani' => 'Eksplorasi Katalog',
+        'Keizya Azalea Azka' => 'Eksplorasi Katalog',
     ];
 
     public function test_about_page_is_public_and_shows_the_four_sections(): void
