@@ -1,46 +1,4 @@
-#!/usr/bin/env bash
-# =====================================================================
-# load.sh — memuat ontology/skincare_ontology_clean.ttl ke Apache Jena Fuseki
-#
-# Pemakaian (dari folder mana saja):
-#   scripts/load.sh                              # dataset baru / kosong
-#   CONFIRM_OVERWRITE=yes scripts/load.sh        # dataset sudah berisi data
-#
-# PERINGATAN: di laptop pengembang, dataset "aphrodite" yang lama masih
-# memakai OWLFBRuleReasoner. Jangan jalankan skrip ini terhadap dataset
-# tersebut sebelum Fase 4 disetujui (lihat fuseki/README.md).
-#
-# Variabel lingkungan opsional:
-#   CONFIRM_OVERWRITE wajib "yes" jika dataset sudah berisi data
-#                     (tidak ada nilai default; tanpa ini skrip berhenti)
-#   FUSEKI_URL        default http://127.0.0.1:3030
-#   DATASET           default aphrodite (hanya huruf, angka, _ dan -)
-#   FUSEKI_CONFIG     default <repo>/fuseki/aphrodite-config.ttl
-#                     (hanya dipakai jika dataset BELUM ada)
-#   TTL_FILE          default <repo>/ontology/skincare_ontology_clean.ttl
-#                     (ontologi yang dipakai aplikasi; aphrodite-v2.ttl tetap bisa dipilih)
-#   BACKUP_DIR        default ~/aphrodite-fuseki-backups (harus di luar repo)
-#   EXPECTED_PRODUCTS default 88
-#   PYTHON            default <repo>/.venv/bin/python, lalu python3
-#                     (wajib punya paket rdflib)
-#
-# Yang dilakukan skrip ini:
-#   1. Memeriksa input, curl, Python+rdflib, file ontologi, dan Fuseki.
-#   2. Memeriksa dataset; membuatnya dari FUSEKI_CONFIG jika belum ada.
-#      Konfigurasi dataset yang SUDAH ada tidak pernah diubah.
-#   3. Jika dataset berisi data: berhenti kecuali CONFIRM_OVERWRITE=yes.
-#   4. Jika dikonfirmasi: backup logis (N-Quads) ke BACKUP_DIR, diverifikasi
-#      dengan parser RDF + checksum SHA-256. Gagal verifikasi = berhenti.
-#   5. HTTP PUT ke default graph (?default). PUT hanya mengganti DEFAULT
-#      GRAPH; named graph tidak disentuh. Dijalankan berulang tidak
-#      menggandakan triple.
-#   6. Verifikasi: jumlah triple = jumlah triple file (parser RDF),
-#      jumlah produk, dan penanda penting ontologi (Teen Lock untuk file clean,
-#      penanda v2 bila TTL_FILE = aphrodite-v2.ttl).
-#
-# Skrip ini TIDAK PERNAH menghapus dataset dan tidak mengubah keamanan.
-# Kompatibel dengan Bash 3.2 (bawaan macOS).
-# =====================================================================
+
 set -euo pipefail
 
 # ---------- Lokasi repo berdasarkan lokasi skrip ----------
