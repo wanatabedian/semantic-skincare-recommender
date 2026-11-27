@@ -8,9 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
     <style>
       body{font-family:'DM Sans',sans-serif}.serif{font-family:'Playfair Display',serif}
-      /* Gradasi vertikal krem → mint → biru muda, tanpa ornamen. */
       .quiz-bg{background:linear-gradient(180deg,#FFFEFA 0%,#EEF8F3 55%,#E4F4F8 100%)}
-      /* Ringkasan memakai lebar penuh (panel Tahapan disembunyikan). */
       #layout[data-view="summary"]{grid-template-columns:minmax(0,1fr)}
       @keyframes q-in{from{opacity:0;transform:translateX(var(--dx,18px))}to{opacity:1;transform:none}}
       .q-enter{animation:q-in .35s cubic-bezier(.2,.7,.3,1) both}
@@ -30,7 +28,6 @@
     </header>
 
     <div id="layout" class="grid gap-5 lg:grid-cols-[270px_minmax(0,1fr)] lg:items-start lg:gap-7">
-        {{-- Panel Tahapan: daftar di desktop, baris nomor di mobile. --}}
         <aside id="steps-panel" class="hidden lg:sticky lg:top-6" aria-label="Tahapan kuis">
             <div class="hidden rounded-[24px] border border-[#E6748E]/10 bg-white/85 p-5 shadow-[0_14px_40px_rgba(52,84,82,.07)] backdrop-blur lg:block">
                 <p class="text-xs font-extrabold uppercase tracking-[.2em] text-[#6BB1AD]">Tahapan</p>
@@ -64,7 +61,6 @@
   const $ = id => document.getElementById(id);
   const encode = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
-  // Urutan tahap. 'single' = pilih satu (indikator bulat), 'multi' = boleh lebih dari satu (indikator kotak).
   const STEPS = [
     {key:'age',        title:'Kelompok umur',  hint:'Pilih kelompok yang paling sesuai.',                 opt:'age_groups',  type:'single'},
     {key:'skin',       title:'Jenis kulit',    hint:'Pilih tipe kulit yang tercatat pada data produk.',   opt:'skin_types',  type:'single'},
@@ -77,8 +73,6 @@
   ];
   const LAST = STEPS.length - 1;
   const MULTI = ['concern', 'avoid', 'brand'];
-  // Rentang tidak saling tumpang tindih (sama dengan Katalog): harga tepat di batas hanya masuk satu rentang.
-  // Mesin rekomendasi memakai min/max inklusif, jadi batas atas ditulis 49.999 / 99.999 / 149.999.
   const PRICE_PRESETS = [['','49999','Di bawah Rp50.000'],['50000','99999','Rp50.000 – Rp99.999'],['100000','149999','Rp100.000 – Rp149.999'],['150000','','Rp150.000 ke atas']];
   const defaults = () => ({age:'',skin:'',concern:[],category:'',ingredient:'',avoid:[],brand:[],price_min:'',price_max:''});
   const DRAFT = 'aphrodite-quiz-draft';
@@ -90,19 +84,18 @@
   for (const k of MULTI) if (!Array.isArray(answers[k])) answers[k] = [];
   const save = () => { try { localStorage.setItem(DRAFT, JSON.stringify(answers)); } catch {} };
 
-  // ---------- Cross-filtering (logika sama dengan mesin rekomendasi) ----------
   const toInt = v => (v === '' || v === null || v === undefined || !Number.isFinite(Number(v))) ? null : Math.trunc(Number(v));
   function fits(p, a) {
     if (a.age) {
       if (!p.age.includes(a.age)) return false;
-      if (a.age === avail.teen_age && p.teen_locked) return false;            // Teen Lock
+      if (a.age === avail.teen_age && p.teen_locked) return false;
     }
     if (a.skin && !(p.skin.includes(a.skin) || p.skin.some(s => avail.all_skin_types.includes(s)))) return false;
     if (a.category && !p.category.includes(a.category)) return false;
     for (const c of a.concern) if (!p.concern.includes(c)) return false;
     if (a.ingredient && !p.ingredient.includes(a.ingredient)) return false;
-    if (a.avoid.some(x => p.ingredient.includes(x))) return false;              // bahan dihindari (individu/golongan)
-    if (a.brand.length && !a.brand.some(b => (p.brand || []).includes(b))) return false; // cukup salah satu brand
+    if (a.avoid.some(x => p.ingredient.includes(x))) return false;
+    if (a.brand.length && !a.brand.some(b => (p.brand || []).includes(b))) return false;
     const min = toInt(a.price_min), max = toInt(a.price_max);
     if (min !== null || max !== null) {
       if (p.price === null) return false;
@@ -115,8 +108,6 @@
   const anyFit = a => avail.products.some(p => fits(p, a));
   const countFit = a => avail.products.filter(p => fits(p, a)).length;
 
-  // Opsi dianggap tersedia bila masih ada produk yang memenuhi pilihan lain + opsi ini.
-  // Keluhan & bahan dihindari = DAN (ditambahkan); brand = ATAU, jadi tiap brand dicek sendiri.
   function trialWith(key, value) {
     const t = clone(answers);
     if (key === 'brand') t.brand = [value];
@@ -139,8 +130,6 @@
     return (options[step.opt].find(o => o.value === value) || {label: value}).label;
   };
 
-  // Pertahankan pilihan yang baru diubah, lalu periksa pilihan lain sesuai urutan tahap.
-  // Pilihan yang membuat hasil kosong direset otomatis.
   function sanitize(changedKey = null) {
     const order = STEPS.map(s => s.key);
     if (changedKey) order.splice(order.indexOf(changedKey), 1), order.unshift(changedKey);
@@ -177,8 +166,6 @@
   }
   const resetNotice = removed => removed.length ? `Pilihan direset karena tidak lagi memiliki produk yang cocok: ${removed.join(', ')}.` : '';
 
-  // ---------- Tampilan ----------
-  // Tampilan saja: jawaban terisi / tidak, untuk panel Tahapan & ringkasan.
   const isAnswered = s => s.type === 'price' ? !!(answers.price_min || answers.price_max)
     : MULTI.includes(s.key) ? answers[s.key].length > 0 : !!answers[s.key];
   const CHECK_SOFT = '<svg class="h-3.5 w-3.5" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M2.5 6.5 5 9l4.5-5"/></svg>';
@@ -210,7 +197,6 @@
     document.querySelectorAll('[data-goto]').forEach(b => b.onclick = () => { current = Number(b.dataset.goto); feedback.textContent = ''; update(); });
   }
 
-  // Animasi slide + fade hanya saat tahap/tampilan berganti, bukan setiap klik opsi.
   let shown = null, shownIdx = 0;
   function animateStage(view) {
     if (shown === view) return;
@@ -272,7 +258,6 @@
       + `<div class="mt-5 grid grid-cols-2 gap-3"><label class="text-xs font-bold">Minimum (Rp)<input id="pmin" type="number" min="0" class="mt-1 w-full rounded-xl border p-3" value="${encode(answers.price_min)}"></label><label class="text-xs font-bold">Maksimum (Rp)<input id="pmax" type="number" min="0" class="mt-1 w-full rounded-xl border p-3" value="${encode(answers.price_max)}"></label></div>`;
   }
 
-  // Jumlah produk yang cocok dengan semua pilihan saat ini; Analisis dikunci bila 0.
   function refreshCount() {
     const n = countFit(answers), el = $('match-count');
     el.classList.remove('hidden');
@@ -317,7 +302,6 @@
       answers[key] = answers[key].includes(value) ? answers[key].filter(v => v !== value) : [...answers[key], value];
       feedback.textContent = '';
     } else {
-      // Pilihan tunggal: klik opsi yang sama sekali lagi untuk membatalkan.
       answers[key] = answers[key] === value ? '' : value;
       feedback.textContent = '';
     }
@@ -326,14 +310,12 @@
     save(); render();
   }
 
-  // Ringkasan: dibangun dari `answers` & `countFit` asli, tanpa data tambahan.
   function summary() {
     const values = s => s.type === 'price'
       ? (isAnswered(s) ? [`Rp${answers.price_min||'0'} – Rp${answers.price_max||'tanpa batas'}`] : [])
       : MULTI.includes(s.key) ? answers[s.key].map(v => labelOf(s.key, v))
       : answers[s.key] ? [labelOf(s.key, answers[s.key])] : [];
     const done = STEPS.filter(isAnswered).length, pct = Math.round(done / STEPS.length * 100), n = countFit(answers);
-    // Profil kulitmu: teks langsung tanpa kotak pembungkus, ring, atau progress bar.
     const top = `<div class="mb-6">`
       + `<p class="text-[11px] font-extrabold uppercase tracking-[.2em] text-[#6BB1AD]">Ringkasan</p>`
       + `<h2 class="serif mt-1 text-2xl font-bold sm:text-3xl">Profil kulitmu</h2>`
@@ -359,12 +341,10 @@
     $('back').disabled = false;
     $('analyze').textContent = 'Konfirmasi & Analisis →';
     feedback.textContent = 'Periksa kembali jawaban sebelum melanjutkan.';
-    // "Ubah" kembali ke tahap terkait; jawaban lain tetap tersimpan.
     stage.querySelectorAll('[data-edit]').forEach(b => b.onclick = () => { current = Number(b.dataset.edit); feedback.textContent = ''; update(); });
     refreshCount();
   }
 
-  // Dari ringkasan, Kembali membuka lagi tahap terakhir yang dilihat (seperti tombol "Ubah jawaban" sebelumnya).
   $('back').onclick = () => {
     if (reviewed) { feedback.textContent = ''; update(); return; }
     if (current > 0) { current--; feedback.textContent = ''; update(); }
@@ -409,7 +389,7 @@
     for (const k of ['age_groups','skin_types','categories','concerns','ingredients']) if (!options[k]?.length) throw new Error('Data pilihan ontologi belum tersedia.');
     if (!avail?.products?.length) throw new Error('Data produk ontologi belum tersedia.');
     validateAgainstOptions();
-    const notice = resetNotice(sanitize());  // draf lama bisa berisi kombinasi yang sudah tidak valid
+    const notice = resetNotice(sanitize());
     if (notice) feedback.textContent = notice;
     save();
     $('loading').classList.add('hidden'); stage.classList.remove('hidden'); update();
