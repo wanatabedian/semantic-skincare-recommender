@@ -11,16 +11,7 @@ use InvalidArgumentException;
 use JsonException;
 use Throwable;
 
-/**
- * Satu-satunya pintu untuk mengirim query SPARQL ke Fuseki.
- *
- * - Prefix (ex:, rdf:, rdfs:, owl:, xsd:, skos:, schema:) didefinisikan sekali di sini.
- * - Hasil query di-cache (default 10 menit, lihat config/recommendation.php).
- * - Kalau Fuseki mati / query salah, yang dilempar adalah SparqlException
- *   dengan pesan berbahasa Indonesia yang aman ditampilkan ke user.
- * - Helper iri() dan literal() dipakai untuk menyusun query dengan aman
- *   (tidak pernah menyambung teks user mentah ke query).
- */
+
 class SparqlService
 {
     public const PREFIXES = [

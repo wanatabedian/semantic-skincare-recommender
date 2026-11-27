@@ -7,17 +7,7 @@ use App\Services\SparqlException;
 use App\Services\SparqlService;
 use Illuminate\Http\Request;
 
-/**
- * Orang 5 — Direktori bahan aktif (/bahan) dan detail bahan (/bahan/{id}).
- *
- * Semua data berasal dari ontologi lewat SparqlService. Ontologi yang dimuat saat ini hanya
- * mencatat untuk setiap ex:Ingredient: rdfs:label dan relasi ex:hasIngredient (Product -> Ingredient).
- * Deskripsi, fungsi, target concern, peringatan, kontraindikasi, dan konflik TIDAK ada di ontologi,
- * jadi halaman ini tidak menampilkan (dan tidak mengarang) bagian tersebut.
- *
- * ID bahan = nama lokal IRI di namespace ex:, mis. ex:Niacinamide -> /bahan/Niacinamide.
- * Dokumentasi query: docs/queries/bahan-daftar.rq dan docs/queries/bahan-detail.rq.
- */
+
 class IngredientController extends Controller
 {
     /** Semua bahan + label + jumlah produk yang mengandungnya. Label dipilih di PHP (@id -> tanpa bahasa -> apa pun). */

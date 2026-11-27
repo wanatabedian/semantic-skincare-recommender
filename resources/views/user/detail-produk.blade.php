@@ -282,9 +282,6 @@
             @if($timeCheck['groups'] === [] && $timeCheck['checked_count'] > 0)
                 <p class="pdp-check pdp-check--teal">Tidak ditemukan kombinasi bahan yang perlu diperhatikan di antara {{ $timeCheck['checked_count'] }} produk yang data bahannya tersedia.</p>
             @endif
-            @if($timeCheck['unchecked'] !== [])
-                <p class="pdp-check pdp-check--white pdp-muted"><span class="font-semibold">Belum dapat diperiksa</span> karena data bahan belum tersedia: {{ implode(', ', array_column($timeCheck['unchecked'], 'name')) }}.</p>
-            @endif
             @if($timeCheck['groups'] !== [] || $timeCheck['checked_count'] > 0)
                 <p class="pdp-disclaimer">Pemeriksaan hanya mencakup bahan aktif utama yang tercatat. Informasi umum, bukan saran medis; ikuti petunjuk pada kemasan.</p>
             @endif

@@ -12,11 +12,7 @@ use RuntimeException;
 
 class ProductController extends Controller
 {
-    /**
-     * Langkah rutinitas Complete Your Segment, diturunkan dari kategori produk
-     * (ontologi clean belum punya ex:routineStep / ex:usageTime).
-     * Urutan array = urutan langkah. times = waktu pemakaian kategori.
-     */
+    
     private const ROUTINE_STEPS = [
         'CleanserCategory' => ['times' => ['pagi', 'malam'], 'optional' => false],
         'TonerCategory' => ['times' => ['pagi', 'malam'], 'optional' => false],
@@ -145,17 +141,7 @@ class ProductController extends Controller
         ]);
     }
 
-    /**
-     * Complete Your Segment v2.
-     *
-     * 1. Satu query SPARQL mengambil semua kandidat (produk dengan kategori rutinitas),
-     *    lengkap dengan tanda: se-seri dengan produk utama, mengandung Retinol,
-     *    terkena Teen Lock, dan jumlah keluhan / jenis kulit yang sama.
-     * 2. Untuk setiap langkah (kategori) dipilih SATU produk utama:
-     *    produk yang sedang dibuka -> produk se-seri -> produk pelengkap dari seri lain.
-     *    Produk se-seri lain di kategori yang sama menjadi alternatif.
-     * 3. Langkah dibagi ke Pagi / Malam sesuai aturan kategori; produk ber-Retinol hanya Malam.
-     */
+    
     private function completeYourSegment(string $id, mixed $ageParam): array
     {
         $categories = implode(' ', array_map(fn ($c) => "ex:{$c}", array_keys(self::ROUTINE_STEPS)));
@@ -210,7 +196,7 @@ class ProductController extends Controller
             GROUP BY ?product ?name ?category
         SPARQL);
 
-        // Ubah baris SPARQL menjadi kandidat per kategori.
+        
         $candidates = [];
         $hiddenSeries = 0;
         $mainHidden = false;
@@ -333,12 +319,7 @@ class ProductController extends Controller
         return $routine;
     }
 
-    /**
-     * Jalankan IngredientConflictDetector untuk satu waktu pakai (Pagi atau Malam).
-     * Hanya produk utama tiap langkah yang diperiksa (termasuk langkah opsional jika terisi);
-     * alternatif tidak pernah ikut. Hasil asli detektor disimpan utuh, ditambah
-     * `groups` (peringatan dikelompokkan per aturan) dan `involved_ids` untuk tampilan.
-     */
+    
     private function routineConflicts(array $steps, array $ingredientLabels): array
     {
         $products = [];

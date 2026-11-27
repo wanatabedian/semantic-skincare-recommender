@@ -17,11 +17,7 @@ class QuizController extends Controller
 
     public function index() { return view('user.kuis-v2'); }
 
-    /**
-     * Pilihan kuis + matriks ketersediaan produk.
-     * 'availability' dipakai browser untuk menonaktifkan opsi yang tidak punya
-     * kombinasi produk di ontologi (termasuk aturan Teen Lock) sebelum user menekan Analisis.
-     */
+    
     public function options(): JsonResponse
     {
         try {

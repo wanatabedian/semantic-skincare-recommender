@@ -300,7 +300,7 @@ class CompleteYourSegmentTest extends TestCase
         $this->assertSame(['KAH-0047'], array_column($morning['unchecked'], 'id'));
         $this->assertSame(1, $morning['checked_count']);
         $this->assertSame([], $morning['conflicts']);
-        $response->assertSee('Belum dapat diperiksa')
+        $response->assertDontSee('Belum dapat diperiksa')
             ->assertSee('Bright Fresh Sunscreen Serum SPF 35 PA++++')
             ->assertSee('bukan saran medis');
     }
